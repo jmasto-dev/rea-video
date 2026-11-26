@@ -1,0 +1,7 @@
+[
+  { "id": "w1", "t": 1.0,  "voice": "en-US-AndrewNeural", "rate": "-4%", "text": "Autumn eighteen eighty-eight. Beneath the gaslights of Whitechapel, London held its breath." },
+  { "id": "w2", "t": 9.8,  "voice": "en-US-AndrewNeural", "rate": "-4%", "text": "Between August and November, five victims fell in the narrow alleys of the East End." },
+  { "id": "w3", "t": 19.2, "voice": "en-US-AndrewNeural", "rate": "-4%", "text": "Scotland Yard flooded the streets, yet the killer left no face—only a name signed in blood." },
+  { "id": "w4", "t": 29.0, "voice": "en-US-AndrewNeural", "rate": "-4%", "text": "From Hell. Then, as abruptly as the terror began, the footsteps vanished into the fog." },
+  { "id": "w5", "t": 38.0, "voice": "en-US-AndrewNeural", "rate": "-4%", "text": "More than a century later, the block remains unfinished." }
+]

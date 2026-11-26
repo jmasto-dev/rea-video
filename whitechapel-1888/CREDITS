@@ -1,0 +1,9 @@
+# Credits — Whitechapel, 1888 (Woodcut Print)
+
+## Fonts
+- IM Fell English & IM Fell English SC, Google Fonts — SIL Open Font License 1.1 (OFL)
+
+## Voice & Audio
+- Microsoft edge-tts (`en-US-AndrewNeural`)
+- VSCO 2 CE (`cellos`, `cellos_pizz`, `timpani`) & VCSL (`vibraphone_bowed`) — CC0 1.0 Universal
+- Procedural wood-carving & paper-peel foley (`core/audio/sfx.py`)
