@@ -1,0 +1,8 @@
+[
+  { "id": "e1", "t": 0.4,  "voice": "en-US-AndrewNeural", "rate": "+8%", "text": "In two thousand, Enron was America's seventh-largest company. Twelve months later, it was bankrupt." },
+  { "id": "e2", "t": 7.2,  "voice": "en-US-AndrewNeural", "rate": "+8%", "text": "On paper, executives Ken Lay and Jeffrey Skilling ran a fortress, even printing a sixty-four-page Code of Ethics." },
+  { "id": "e3", "t": 14.5, "voice": "en-US-AndrewNeural", "rate": "+8%", "text": "Behind it, they built a shadow network of shell companies—LJM, Raptor, Chewco—to hide thirty-eight billion dollars in debt." },
+  { "id": "e4", "t": 22.8, "voice": "en-US-AndrewNeural", "rate": "+8%", "text": "While Wall Street cheered, the real numbers bled. In October two thousand one, Enron admitted a six-hundred-eighteen-million-dollar loss." },
+  { "id": "e5", "t": 31.8, "voice": "en-US-AndrewNeural", "rate": "+8%", "text": "Twenty thousand workers lost their jobs and pensions. Seventy-four billion dollars in market value vanished." },
+  { "id": "e6", "t": 38.8, "voice": "en-US-AndrewNeural", "rate": "+8%", "text": "Every document, signature, and shell entity pointed to one place: the largest corporate fraud of its era." }
+]
