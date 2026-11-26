@@ -1,0 +1,6 @@
+[
+  { "id": "a1", "t": 0.6,  "voice": "en-US-AndrewNeural", "rate": "+5%", "text": "Exhibit A-one. In July two thousand, Enron printed a sixty-four-page Code of Ethics—signed by its executives, pledging total honesty." },
+  { "id": "a2", "t": 11.8, "voice": "en-US-AndrewNeural", "rate": "+5%", "text": "Inside these towers in Houston, the stock hit ninety dollars and fifty-six cents, while thirty-eight billion in debt sat hidden off the books." },
+  { "id": "a3", "t": 23.8, "voice": "en-US-AndrewNeural", "rate": "+5%", "text": "By December two thousand one, seventy-four billion dollars had vanished. CEO Jeffrey Skilling was sentenced to twenty-four years." },
+  { "id": "a4", "t": 34.8, "voice": "en-US-AndrewNeural", "rate": "+5%", "text": "Every signature, every ledger, and every photograph remains on the record." }
+]

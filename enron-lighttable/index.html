@@ -1,0 +1,402 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Enron — Exhibit A-01 (Archive Light Table)</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+  html, body { margin: 0; background: #101215; overflow: hidden; }
+  canvas { position: fixed; inset: 0; width: 100vw; height: 100vh; display: block; }
+</style>
+</head>
+<body>
+<canvas id="gl" width="1920" height="1080"></canvas>
+<canvas id="ov" width="1920" height="1080"></canvas>
+<script type="module">
+const W = 1920, H = 1080;
+window.DUR = 42.0;
+
+const ORANGE = '#ff5a1f', INK = '#15171a', PLATE = 'rgba(14,15,17,0.78)';
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const seg = (t, a, b) => clamp((t - a) / (b - a));
+const ss = x => x * x * (3 - 2 * x);
+const eo = x => 1 - Math.pow(1 - x, 3);
+const lerp = (a, b, x) => a + (b - a) * x;
+const rot = (v, a) => { const c = Math.cos(a), s = Math.sin(a); return [c * v[0] - s * v[1], s * v[0] + c * v[1]]; };
+
+function track(keys) {
+  const n = keys.length, d = [], m = [];
+  for (let i = 0; i < n - 1; i++) d.push((keys[i + 1][1] - keys[i][1]) / (keys[i + 1][0] - keys[i][0]));
+  for (let i = 0; i < n; i++) m.push(i === 0 || i === n - 1 ? 0 : (d[i - 1] * d[i] <= 0 ? 0 : (d[i - 1] + d[i]) / 2));
+  for (let i = 0; i < n - 1; i++) {
+    if (d[i] === 0) { m[i] = m[i + 1] = 0; continue; }
+    const a = m[i] / d[i], b = m[i + 1] / d[i], s = a * a + b * b;
+    if (s > 9) { const k = 3 / Math.sqrt(s); m[i] = k * a * d[i]; m[i + 1] = k * b * d[i]; }
+  }
+  return t => {
+    if (t <= keys[0][0]) return keys[0][1];
+    if (t >= keys[n - 1][0]) return keys[n - 1][1];
+    let i = 0; while (t > keys[i + 1][0]) i++;
+    const h = keys[i + 1][0] - keys[i][0], u = (t - keys[i][0]) / h, u2 = u * u, u3 = u2 * u;
+    return (2 * u3 - 3 * u2 + 1) * keys[i][1] + (u3 - 2 * u2 + u) * h * m[i] + (-2 * u3 + 3 * u2) * keys[i + 1][1] + (u3 - u2) * h * m[i + 1];
+  };
+}
+const track2 = keys => { const x = track(keys.map(k => [k[0], k[1][0]])), y = track(keys.map(k => [k[0], k[1][1]])); return t => [x(t), y(t)]; };
+
+// ---------------------------------------------------------------- Load Real Archives
+const loadImg = src => new Promise(r => { const i = new Image(); i.onload = () => r(i); i.src = src; });
+const [imEth, imHq, imNyse, imLay, imMug] = await Promise.all([
+  loadImg('assets/enron_ethics.jpg'),
+  loadImg('assets/enron_hq.jpg'),
+  loadImg('assets/nyse_floor.jpg'),
+  loadImg('assets/ken_lay.jpg'),
+  loadImg('assets/skilling_mug.jpg'),
+  document.fonts.ready,
+]);
+
+// ---------------------------------------------------------------- Light Table Layout (World px)
+const IT = {
+  ethics: { c: [-2800, -400],  r: -4.0, k: 1.4, size: [imEth.width, imEth.height] },
+  hq:     { c: [  450,  150],  r:  2.2, k: 1.6, size: [imHq.width, imHq.height] },
+  nyse:   { c: [ 3650, -650],  r: -3.0, k: 1.3, size: [imNyse.width, imNyse.height] },
+  lay:    { c: [ 2750, 1450],  r:  3.5, k: 3.2, size: [imLay.width, imLay.height] },
+  mug:    { c: [ 4250, 1380],  r: -2.0, k: 2.0, size: [imMug.width, imMug.height] },
+};
+const toW = (it, p) => {
+  const o = rot([(p[0] - it.size[0] / 2) * it.k, (p[1] - it.size[1] / 2) * it.k], it.r * Math.PI / 180);
+  return [it.c[0] + o[0], it.c[1] + o[1]];
+};
+
+// Loupe targets
+const L1W = toW(IT.ethics, [imEth.width * 0.46, imEth.height * 0.46]);
+const L2W = toW(IT.hq,     [imHq.width * 0.56,  imHq.height * 0.42]);
+const L3W = toW(IT.mug,    [imMug.width * 0.50, imMug.height * 0.44]);
+const LENS_RW = 640, MAG = 2.4;
+
+// Continuous logarithmic camera path
+const CAM_KEYS = [
+  [0.0,  [-3400, -700], 0.28, -2.0],
+  [2.2,  L1W,           0.42,  1.5],
+  [5.0,  L1W,           0.88,  2.5],
+  [9.5,  L1W,           0.88,  2.5],
+  [11.5, [-1000, -100], 0.32,  0.0],
+  [13.8, L2W,           0.38, -1.5],
+  [16.8, L2W,           0.76, -1.0],
+  [21.8, L2W,           0.76, -1.0],
+  [23.8, [2300,  700],  0.34,  1.2],
+  [25.5, L3W,           0.46, -1.0],
+  [28.5, L3W,           0.86, -1.0],
+  [33.0, L3W,           0.86, -1.0],
+  [35.2, [850,   350],  0.17,  0.0],
+  [42.0, [920,   350],  0.165, 0.0],
+];
+const camC = track2(CAM_KEYS.map(k => [k[0], k[1]]));
+const camLZ = track(CAM_KEYS.map(k => [k[0], Math.log(k[2])]));
+const camR = track(CAM_KEYS.map(k => [k[0], k[3]]));
+const camAt = t => ({ c: camC(t), z: Math.exp(camLZ(t)), th: camR(t) * Math.PI / 180 });
+const w2s = (w, cam) => { const d = rot([(w[0] - cam.c[0]) * cam.z, (w[1] - cam.c[1]) * cam.z], cam.th); return [W / 2 + d[0], H / 2 + d[1]]; };
+
+const DIVES = [
+  { lw: L1W, t0: 1.6,  t1: 10.6, mode: 0 }, // Code of Ethics
+  { lw: L2W, t0: 13.0, t1: 22.8, mode: 1 }, // Enron HQ negative -> positive
+  { lw: L3W, t0: 25.0, t1: 34.0, mode: 2 }, // Skilling DOJ negative -> positive
+];
+
+// ---------------------------------------------------------------- WebGL2 Physical Light Table + Loupe Shader
+const glCv = document.getElementById('gl');
+const gl = glCv.getContext('webgl2', { antialias: false, preserveDrawingBuffer: true });
+
+const VS = `#version 300 es
+in vec2 p; void main(){ gl_Position = vec4(p, 0., 1.); }`;
+
+const FS = `#version 300 es
+precision highp float;
+uniform sampler2D tEth, tHq, tNyse, tLay, tMug;
+uniform vec4 uEth, uHq, uNyse, uLay, uMug; // (cx, cy, cos/k, sin/k)
+uniform vec2 uSEth, uSHq, uSNyse, uSLay, uSMug;
+uniform vec2 uCam, uLensC, uIntC;
+uniform float uZ, uRot, uT, uLensOn, uLensA, uLensR, uLift, uS, uK, uDev, uMode;
+out vec4 o;
+
+float h21(vec2 p){ vec3 p3=fract(vec3(p.xyx)*0.1031); p3+=dot(p3,p3.yzx+33.33); return fract((p3.x+p3.y)*p3.z); }
+float vn(vec2 p){ vec2 i=floor(p), f=fract(p); vec2 u=f*f*(3.-2.*f);
+  return mix(mix(h21(i),h21(i+vec2(1,0)),u.x), mix(h21(i+vec2(0,1)),h21(i+vec2(1,1)),u.x), u.y); }
+vec2 rot2(vec2 v, float a){ float c=cos(a), s=sin(a); return vec2(c*v.x-s*v.y, s*v.x+c*v.y); }
+bool inside(vec2 u){ return u.x>=0. && u.x<=1. && u.y>=0. && u.y<=1.; }
+
+vec2 itemUV(vec4 it, vec2 sz, vec2 w){
+  vec2 d = w - it.xy;
+  vec2 p = vec2(d.x*it.z + d.y*it.w, -d.x*it.w + d.y*it.z);
+  return p / sz + 0.5;
+}
+vec4 tg(sampler2D t, vec2 u, float fp){ float f = fp * 0.00045; return textureGrad(t, u, vec2(f, 0.), vec2(0., f)); }
+
+vec3 lightTable(vec2 w){
+  vec2 d = (w - vec2(800., 350.)) / vec2(5200., 3000.);
+  float edge = max(abs(d.x), abs(d.y));
+  if (edge > 1.0) {
+    float bezel = smoothstep(1.0, 1.015, edge);
+    return mix(vec3(0.14, 0.15, 0.17), vec3(0.055, 0.06, 0.07), bezel);
+  }
+  float fall = 1.0 - 0.14 * dot(d, d);
+  float diff = (vn(w * 0.0022) - 0.5) * 0.025;
+  return vec3(0.955, 0.968, 0.985) * fall + diff;
+}
+
+float speck(vec2 w, float s, float th){
+  vec2 g = floor(w / s), f = fract(w / s);
+  if (h21(g) < th) return 0.;
+  vec2 c = vec2(.2) + .6*vec2(h21(g+3.1), h21(g+7.7));
+  return smoothstep(0.15, 0.04, length(f - c));
+}
+
+// Backlit paper artifact
+vec3 paperItem(vec3 L, vec3 tex, float lit){
+  float lum = dot(tex, vec3(0.299, 0.587, 0.114));
+  vec3 tint = mix(vec3(lum), tex, 0.25) * vec3(0.98, 0.96, 0.92);
+  vec3 col = tint * (0.72 + 0.28 * L);
+  if (lit > 0.) col = mix(col, vec3(1.0, 0.42, 0.18), lit * 0.28);
+  return col;
+}
+
+// Glass negative -> positive develop front
+vec3 negItem(vec3 L, vec3 tex, float dev){
+  float lum = dot(tex, vec3(0.299, 0.587, 0.114));
+  float neg = 1.0 - lum;
+  float v = mix(neg, lum, dev);
+  float trans = 0.04 + 0.90 * pow(clamp(v, 0., 1.), 1.15);
+  return L * trans * mix(vec3(0.92, 0.94, 0.98), vec3(0.98, 0.96, 0.93), dev);
+}
+
+vec3 scene(vec2 w, bool interior, float dev, float fp){
+  vec3 L = lightTable(w), col = L;
+  vec2 u;
+  u = itemUV(uEth, uSEth, w);
+  if (inside(u)) {
+    float band = (interior && uMode < 0.5) ? smoothstep(0.42, 0.44, u.y) * (1. - smoothstep(0.50, 0.52, u.y)) : 0.;
+    col = paperItem(L, tg(tEth, u, fp).rgb, band);
+  }
+  u = itemUV(uHq, uSHq, w);
+  if (inside(u)) {
+    float d = (interior && abs(uMode - 1.0) < 0.2) ? dev : 0.;
+    col = negItem(L, tg(tHq, u, fp).rgb, d);
+  }
+  u = itemUV(uNyse, uSNyse, w);
+  if (inside(u)) col = paperItem(L, tg(tNyse, u, fp).rgb, 0.);
+  u = itemUV(uLay, uSLay, w);
+  if (inside(u)) col = paperItem(L, tg(tLay, u, fp).rgb, 0.);
+  u = itemUV(uMug, uSMug, w);
+  if (inside(u)) {
+    float d = (interior && uMode > 1.5) ? dev : 0.;
+    col = negItem(L, tg(tMug, u, fp).rgb, d);
+  }
+  float dd = speck(w, 65., 0.955)*0.45 + speck(w + 31., 21., 0.975)*0.3;
+  col *= 1. - dd * 0.55;
+  return col;
+}
+
+void main(){
+  vec2 s = vec2(gl_FragCoord.x, 1080. - gl_FragCoord.y);
+  vec2 w = uCam + rot2(s - vec2(960., 540.), -uRot) / uZ;
+  vec2 dl = s - uLensC; float r = length(dl), rho = r / max(uLensR, 1.);
+  vec3 table = scene(w, false, 0., 1. / uZ);
+  vec3 col = table;
+
+  if (uLensOn > .5){
+    vec2 sd = s - (uLensC + vec2(26., 34.)*(uLift - 1.)*uLensR/120.);
+    float sr = length(sd)/uLensR;
+    vec3 under = table * (1. - 0.24*(uLift - 1.)/0.35*uLensA*smoothstep(1.55, 1.05, sr));
+    vec3 lc;
+    if (rho < 1.0){
+      float dev = uDev >= 1.25 ? 1. : 1. - smoothstep(uDev - 0.14, uDev, rho);
+      vec3 c3;
+      for (int i=0;i<3;i++){
+        float k = uK*(1. + float(i-1)*0.10);
+        vec2 q = dl / (1. + k*rho*rho) * (1. - float(i-1)*0.004*uK/0.16);
+        vec2 wi = uIntC + rot2(q, -uRot) / uS;
+        c3[i] = scene(wi, true, dev, 1. / uS)[i];
+      }
+      lc = c3;
+      float front = (uDev > 0.01 && uDev < 1.15) ? exp(-pow((rho - uDev)/0.024, 2.)) : 0.;
+      lc += vec3(1.0, 0.58, 0.28)*0.28*front*smoothstep(0.05, 0.35, uDev);
+      lc *= 1. - 0.28*smoothstep(0.78, 1.0, rho);
+      vec2 hp = dl/uLensR - vec2(-0.38, -0.46); lc += vec3(0.06)*exp(-dot(hp,hp)*7.);
+      vec2 hp2 = dl/uLensR - vec2(0.42, 0.50); lc += vec3(0.025)*exp(-dot(hp2,hp2)*14.);
+    } else if (rho < 1.065){
+      float u = (rho - 1.0)/0.065; vec2 nd = dl / max(r, 1.);
+      float lit = max(0., dot(nd, normalize(vec2(-0.55, -0.83))));
+      float bev = exp(-pow((u - 0.18)/0.09, 2.))*0.9 + exp(-pow((u - 0.85)/0.07, 2.))*0.5;
+      lc = vec3(0.04, 0.042, 0.046) + vec3(0.62, 0.64, 0.66)*pow(lit, 5.)*bev + 0.05*bev;
+    } else if (rho < 1.30){
+      float u = (rho - 1.065)/0.235;
+      vec2 s2 = uLensC + dl*(0.955 + 0.045*u);
+      vec2 w2 = uCam + rot2(s2 - vec2(960., 540.), -uRot) / uZ;
+      lc = scene(w2, false, 0., 1. / uZ)*0.93 + 0.035;
+      lc *= 1. - 0.45*exp(-pow(u/0.05, 2.));
+      lc += vec3(0.20, 0.21, 0.22)*exp(-pow((u - 0.93)/0.035, 2.));
+      lc *= 1. - 0.25*exp(-pow((u - 1.0)/0.015, 2.));
+    } else {
+      lc = under * (1. - (0.07*exp(-pow((rho - 1.31)/0.05, 2.)) + 0.03*exp(-pow((rho - 1.3)/0.25, 2.)))*(2. - uLift));
+    }
+    col = mix(under, lc, uLensA);
+  }
+  vec2 sv = (s - vec2(960., 540.)) / vec2(1100., 760.);
+  col *= 1. - 0.11*dot(sv, sv);
+  float gr = h21(s + fract(uT*24.*0.6180339)*vec2(311.7, 217.3)) - 0.5;
+  col += gr * 0.022;
+  o = vec4(clamp(col, 0., 1.), 1.);
+}`;
+
+function shd(type, src) {
+  const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s);
+  if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s));
+  return s;
+}
+const prog = gl.createProgram();
+gl.attachShader(prog, shd(gl.VERTEX_SHADER, VS));
+gl.attachShader(prog, shd(gl.FRAGMENT_SHADER, FS));
+gl.linkProgram(prog);
+gl.useProgram(prog);
+gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+const aLoc = gl.getAttribLocation(prog, 'p'); gl.enableVertexAttribArray(aLoc); gl.vertexAttribPointer(aLoc, 2, gl.FLOAT, false, 0, 0);
+const U = n => gl.getUniformLocation(prog, n);
+
+function uploadTex(unit, img) {
+  const t = gl.createTexture(); gl.activeTexture(gl.TEXTURE0 + unit); gl.bindTexture(gl.TEXTURE_2D, t);
+  gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
+  gl.generateMipmap(gl.TEXTURE_2D);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+}
+uploadTex(0, imEth); uploadTex(1, imHq); uploadTex(2, imNyse); uploadTex(3, imLay); uploadTex(4, imMug);
+gl.uniform1i(U('tEth'), 0); gl.uniform1i(U('tHq'), 1); gl.uniform1i(U('tNyse'), 2);
+gl.uniform1i(U('tLay'), 3); gl.uniform1i(U('tMug'), 4);
+
+const setItem = (uName, sName, it) => {
+  const a = it.r * Math.PI / 180;
+  gl.uniform4f(U(uName), it.c[0], it.c[1], Math.cos(a) / it.k, Math.sin(a) / it.k);
+  gl.uniform2f(U(sName), it.size[0], it.size[1]);
+};
+setItem('uEth', 'uSEth', IT.ethics); setItem('uHq', 'uSHq', IT.hq);
+setItem('uNyse', 'uSNyse', IT.nyse); setItem('uLay', 'uSLay', IT.lay); setItem('uMug', 'uSMug', IT.mug);
+
+// ---------------------------------------------------------------- 2D Technical Hairline Overlay
+const ov = document.getElementById('ov');
+const x = ov.getContext('2d');
+
+function callout(wPos, cam, label, sub, k, side = 1) {
+  if (k <= 0) return;
+  const [sx, sy] = w2s(wPos, cam);
+  x.save();
+  x.globalAlpha = eo(k);
+  x.strokeStyle = ORANGE; x.lineWidth = 2;
+  x.beginPath(); x.arc(sx, sy, 6, 0, 7); x.stroke();
+  x.fillStyle = ORANGE; x.beginPath(); x.arc(sx, sy, 2.5, 0, 7); x.fill();
+  const lx = sx + side * 42, ly = sy - 42;
+  x.beginPath(); x.moveTo(sx, sy); x.lineTo(lx, ly); x.lineTo(lx + side * 24, ly); x.stroke();
+  // Compact dark plate for technical reading
+  x.font = '700 32px "Barlow Condensed", sans-serif';
+  const w1 = x.measureText(label).width;
+  x.font = '600 16px "IBM Plex Mono", monospace';
+  const w2 = x.measureText(sub).width;
+  const tw = Math.max(w1, w2, 220);
+  const px = side > 0 ? lx + 30 : lx - 30 - tw - 32;
+  x.fillStyle = PLATE;
+  x.fillRect(px, ly - 32, tw + 32, 66);
+  x.fillStyle = ORANGE;
+  x.fillRect(side > 0 ? px : px + tw + 28, ly - 32, 4, 66);
+  x.font = '700 32px "Barlow Condensed", sans-serif';
+  x.fillStyle = '#f6f6f2'; x.textAlign = 'left';
+  x.fillText(label, px + 14, ly - 2);
+  x.font = '600 16px "IBM Plex Mono", monospace'; x.fillStyle = '#a8aeb6';
+  x.fillText(sub, px + 14, ly + 22);
+  x.restore();
+}
+
+window.EV = [
+  { t: 0.2,  type: 'hum_on' },
+  { t: 1.6,  type: 'loupe_drop' },
+  { t: 10.6, type: 'loupe_lift' },
+  { t: 13.0, type: 'loupe_drop' },
+  { t: 16.5, type: 'develop' },
+  { t: 22.8, type: 'loupe_lift' },
+  { t: 25.0, type: 'loupe_drop' },
+  { t: 28.0, type: 'develop' },
+  { t: 34.0, type: 'loupe_lift' },
+  { t: 36.5, type: 'verdict' },
+];
+
+window.render = (t) => {
+  t = clamp(t, 0, 42.0);
+  const cam = camAt(t);
+
+  let dv = null;
+  for (const d of DIVES) if (t >= d.t0 - 0.4 && t <= d.t1 + 0.4) dv = d;
+
+  let on = 0, A = 0, lift = 1, ls = [0, 0], R = 0, S = 1, ic = [0, 0], dev = 0, mode = 0;
+  if (dv) {
+    const inn = seg(t, dv.t0 - 0.4, dv.t0), out = seg(t, dv.t1, dv.t1 + 0.4);
+    on = 1; A = eo(inn) * (1 - ss(out));
+    lift = 1 + 0.35 * (1 - eo(inn)) + 0.35 * eo(out);
+    ls = w2s(dv.lw, cam);
+    R = LENS_RW * cam.z * lift;
+    S = cam.z * MAG * lift;
+    ic = dv.lw;
+    mode = dv.mode;
+    dev = dv.mode === 0 ? 1.3 : ss(seg(t, dv.t0 + 1.4, dv.t0 + 3.4)) * 1.3;
+  }
+
+  gl.viewport(0, 0, W, H);
+  gl.uniform2f(U('uCam'), cam.c[0], cam.c[1]);
+  gl.uniform1f(U('uZ'), cam.z);
+  gl.uniform1f(U('uRot'), cam.th);
+  gl.uniform1f(U('uT'), t);
+  gl.uniform1f(U('uLensOn'), on);
+  gl.uniform1f(U('uLensA'), A);
+  gl.uniform2f(U('uLensC'), ls[0], ls[1]);
+  gl.uniform1f(U('uLensR'), R);
+  gl.uniform1f(U('uLift'), lift);
+  gl.uniform2f(U('uIntC'), ic[0], ic[1]);
+  gl.uniform1f(U('uS'), S);
+  gl.uniform1f(U('uK'), 0.16);
+  gl.uniform1f(U('uDev'), dev);
+  gl.uniform1f(U('uMode'), mode);
+  gl.drawArrays(gl.TRIANGLES, 0, 3);
+
+  // 2D Overlay annotations
+  x.clearRect(0, 0, W, H);
+  if (t >= 3.2 && t <= 10.2) {
+    callout(L1W, cam, '64 PAGES · SIGNED JULY 2000', 'EXHIBIT A-01 · ENRON CODE OF ETHICS', seg(t, 3.2, 4.0) * (1 - seg(t, 9.6, 10.2)), 1);
+  }
+  if (t >= 15.2 && t <= 22.2) {
+    callout(L2W, cam, '$90.56 PEAK → $38B HIDDEN DEBT', '1400 SMITH ST, HOUSTON · LJM / RAPTOR', seg(t, 15.2, 16.0) * (1 - seg(t, 21.6, 22.2)), -1);
+  }
+  if (t >= 27.5 && t <= 33.4) {
+    callout(L3W, cam, 'CONVICTED · 24 YEARS', 'DOJ ARCHIVE · JEFFREY SKILLING', seg(t, 27.5, 28.3) * (1 - seg(t, 32.8, 33.4)), -1);
+  }
+
+  // Final full-table index tags
+  if (t >= 35.8) {
+    const k = seg(t, 35.8, 37.0);
+    callout(IT.ethics.c, cam, 'EXHIBIT A-01 · CODE OF ETHICS', 'JULY 2000 · PUBLIC DOMAIN', k, 1);
+    callout(IT.hq.c, cam, 'EXHIBIT B-04 · ENRON TOWERS', '$74B MARKET VALUE LOST', k, 1);
+    callout(IT.mug.c, cam, 'EXHIBIT C-09 · DOJ SENTENCING', 'CHAPTER 11 · DEC 2, 2001', k, -1);
+  }
+};
+
+window.TEXTS = (t) => {
+  const out = [];
+  if (t >= 3.6 && t <= 9.6) out.push({ id: 'c1', text: '64 PAGES · SIGNED JULY 2000', x0: 900, y0: 400, x1: 1400, y1: 500 });
+  if (t >= 15.6 && t <= 21.6) out.push({ id: 'c2', text: '$90.56 PEAK → $38B HIDDEN DEBT', x0: 400, y0: 400, x1: 950, y1: 500 });
+  if (t >= 36.2 && t <= 42.0) out.push({ id: 'c3', text: 'EXHIBIT B-04 · ENRON TOWERS', x0: 800, y0: 400, x1: 1300, y1: 500 });
+  return out;
+};
+
+window.READY = true;
+</script>
+</body>
+</html>
