@@ -1,0 +1,440 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Anton&family=JetBrains+Mono:wght@400;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
+    <style>
+      :root {
+        --bg: #111315;
+        --paper: #eae4d7;
+        --red: #d92b2b;
+        --yellow: #f5b700;
+        --ink: #111315;
+        --font-display: 'Anton', sans-serif;
+        --font-mono: 'JetBrains Mono', monospace;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: var(--bg);
+        color: #fff;
+        font-family: var(--font-mono);
+      }
+      #root {
+        position: relative;
+        width: 1920px;
+        height: 1080px;
+        background: var(--bg);
+        overflow: hidden;
+      }
+      .scene {
+        position: absolute;
+        inset: 0;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        opacity: 0;
+      }
+      .bg-photo {
+        position: absolute;
+        inset: -40px;
+        width: 2000px;
+        height: 1160px;
+        object-fit: cover;
+        transform-origin: center center;
+      }
+      .scrim {
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at center, rgba(17, 19, 21, 0.25) 0%, rgba(17, 19, 21, 0.88) 100%);
+      }
+      .archive-tag {
+        position: absolute;
+        left: 48px;
+        bottom: 42px;
+        font-family: var(--font-mono);
+        font-size: 20px;
+        letter-spacing: 0.08em;
+        color: rgba(234, 228, 215, 0.72);
+        background: rgba(17, 19, 21, 0.72);
+        padding: 8px 14px;
+        border-left: 3px solid var(--yellow);
+      }
+      .stamp {
+        position: absolute;
+        font-family: var(--font-display);
+        font-size: 148px;
+        letter-spacing: 0.08em;
+        color: var(--red);
+        border: 12px solid var(--red);
+        padding: 10px 44px;
+        text-transform: uppercase;
+        transform: rotate(-9deg);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.65);
+        background: rgba(17, 19, 21, 0.85);
+      }
+      .flash-frame {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+      }
+      .flash-card {
+        position: relative;
+        width: 920px;
+        height: 680px;
+        background: #1a1d21;
+        border: 2px solid rgba(234, 228, 215, 0.2);
+        box-shadow: 0 30px 90px rgba(0, 0, 0, 0.85);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+      }
+      .flash-card img {
+        max-width: 88%;
+        max-height: 82%;
+        object-fit: contain;
+        box-shadow: 0 18px 40px rgba(0, 0, 0, 0.6);
+      }
+      .flash-label {
+        position: absolute;
+        top: 24px;
+        left: 28px;
+        font-size: 22px;
+        font-weight: 700;
+        color: var(--paper);
+        letter-spacing: 0.1em;
+      }
+      .case-card {
+        background: var(--paper);
+        color: var(--ink);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+      .case-kicker {
+        font-family: var(--font-mono);
+        font-size: 30px;
+        font-weight: 800;
+        letter-spacing: 0.22em;
+        color: var(--red);
+        margin-bottom: 18px;
+      }
+      .case-title {
+        font-family: var(--font-display);
+        font-size: 164px;
+        line-height: 0.95;
+        letter-spacing: 0.03em;
+        color: var(--ink);
+        text-transform: uppercase;
+      }
+      .case-year {
+        margin-top: 24px;
+        font-family: var(--font-mono);
+        font-size: 32px;
+        font-weight: 700;
+        padding: 10px 26px;
+        background: var(--ink);
+        color: var(--paper);
+        letter-spacing: 0.16em;
+      }
+      .newspaper {
+        position: relative;
+        width: 1220px;
+        padding: 58px 72px;
+        background: var(--paper);
+        color: var(--ink);
+        box-shadow: 0 35px 100px rgba(0, 0, 0, 0.85);
+        transform: perspective(1400px) rotateX(4deg) rotateY(-5deg) rotateZ(-1.2deg);
+      }
+      .news-pub {
+        font-family: var(--font-mono);
+        font-size: 24px;
+        font-weight: 800;
+        letter-spacing: 0.14em;
+        border-bottom: 4px solid var(--ink);
+        padding-bottom: 12px;
+        display: flex;
+        justify-content: space-between;
+      }
+      .news-headline {
+        font-family: var(--font-display);
+        font-size: 76px;
+        line-height: 1.03;
+        margin: 26px 0 22px;
+        text-transform: uppercase;
+      }
+      .news-body {
+        font-family: var(--font-mono);
+        font-size: 27px;
+        line-height: 1.55;
+        color: #26292e;
+      }
+      .hl {
+        position: relative;
+        display: inline-block;
+        padding: 0 6px;
+        z-index: 1;
+      }
+      .hl-bar {
+        position: absolute;
+        left: 0;
+        top: 4px;
+        bottom: 2px;
+        width: 0%;
+        background: var(--yellow);
+        z-index: -1;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-duration="42"
+      data-width="1920"
+      data-height="1080"
+    >
+      <audio id="master-mix" class="clip" data-start="0" data-duration="42" src="assets/audio/mix.wav"></audio>
+
+      <!-- SCENE 1: 0.0 - 4.9s Grocery Aisle Hook -->
+      <div id="sc1" class="scene clip" data-start="0" data-duration="5.0" data-track-index="0">
+        <img id="sc1-img" class="bg-photo" src="assets/00_Broll_Stock/supermarket_aisle_01.jpg" />
+        <div class="scrim"></div>
+        <div class="archive-tag">ARCHIVE // U.S. GROCERY RETAIL — 1990s</div>
+      </div>
+
+      <!-- SCENE 2: 5.0 - 9.8s Five Recalled Products Flash + Stamp Slams -->
+      <div id="sc2" class="scene clip" data-start="5.0" data-duration="4.8" data-track-index="1">
+        <div id="fl1" class="flash-frame">
+          <div class="flash-card">
+            <div class="flash-label">FILE #01 // 1990</div>
+            <img src="assets/01_LifeSavers/lifesavers_holes_tube.jpg" />
+            <div class="stamp" id="st1">PULLED</div>
+          </div>
+        </div>
+        <div id="fl2" class="flash-frame">
+          <div class="flash-card">
+            <div class="flash-label">FILE #02 // 1997</div>
+            <img src="assets/02_NestleMagic/nestle_magic_wonder_ball.jpg" />
+            <div class="stamp" id="st2">RECALLED</div>
+          </div>
+        </div>
+        <div id="fl3" class="flash-frame">
+          <div class="flash-card">
+            <div class="flash-label">FILE #03 // 1998</div>
+            <img src="assets/03_LaysWOW/doritos_wow_chips.jpg" />
+            <div class="stamp" id="st3">PULLED</div>
+          </div>
+        </div>
+        <div id="fl4" class="flash-frame">
+          <div class="flash-card">
+            <div class="flash-label">FILE #04 // 2000</div>
+            <img src="assets/04_TacoBell/taco_bell_hard_shell_taco.jpg" />
+            <div class="stamp" id="st4">RECALLED</div>
+          </div>
+        </div>
+        <div id="fl5" class="flash-frame">
+          <div class="flash-card">
+            <div class="flash-label">FILE #05 // 1996</div>
+            <img src="assets/05_Odwalla/odwalla_display_stand.jpg" />
+            <div class="stamp" id="st5">PULLED</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SCENE 3: 9.8 - 13.5s Empty Shelf + OFFSHELF Title -->
+      <div id="sc3" class="scene clip" data-start="9.8" data-duration="3.7" data-track-index="2">
+        <img id="sc3-img" class="bg-photo" src="assets/00_Broll_Stock/empty_shelf_01.jpg" />
+        <div class="scrim"></div>
+        <div style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+          <div style="font-family:var(--font-display); font-size:180px; letter-spacing:0.12em; color:#fff; text-shadow:0 20px 60px rgba(0,0,0,0.8);">
+            OFF<span style="color:var(--red);">SHELF</span>
+          </div>
+          <div style="font-family:var(--font-mono); font-size:28px; letter-spacing:0.25em; color:var(--paper); margin-top:12px;">
+            EPISODE 01 // RECALLED 90s FOODS
+          </div>
+        </div>
+      </div>
+
+      <!-- SCENE 4: 13.5 - 18.0s CASE #01 Paper Card -->
+      <div id="sc4" class="scene case-card clip" data-start="13.5" data-duration="4.5" data-track-index="3">
+        <div class="case-kicker">INVESTIGATION DOSSIER</div>
+        <div class="case-title">CASE #01 — LIFE SAVERS HOLES</div>
+        <div class="case-year">RJR NABISCO · 1990</div>
+      </div>
+
+      <!-- SCENE 5: 18.0 - 21.5s Candy Aisle + 40M Packages -->
+      <div id="sc5" class="scene clip" data-start="18.0" data-duration="3.5" data-track-index="4">
+        <img id="sc5-img" class="bg-photo" src="assets/00_Broll_Stock/candy_aisle_01.jpg" />
+        <div class="scrim"></div>
+        <div class="archive-tag">RJR NABISCO LAUNCH // 1990</div>
+      </div>
+
+      <!-- SCENE 6: 21.5 - 25.0s Tube Cutout + 40,000,000 Counter -->
+      <div id="sc6" class="scene clip" data-start="21.5" data-duration="3.5" data-track-index="5">
+        <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; gap:90px;">
+          <img
+            id="sc6-tube"
+            src="assets/01_LifeSavers/lifesavers_holes_tube.jpg"
+            style="height:680px; box-shadow:0 30px 90px rgba(0,0,0,0.9); border:3px solid rgba(234,228,215,0.25);"
+          />
+          <div style="display:flex; flex-direction:column; gap:14px;">
+            <div style="font-size:26px; color:var(--yellow); letter-spacing:0.18em; font-weight:700;">PACKAGES SOLD</div>
+            <div id="sold-num" style="font-family:var(--font-display); font-size:150px; line-height:1; color:var(--paper);">
+              40,000,000
+            </div>
+            <div style="font-size:24px; color:rgba(234,228,215,0.75);">TINY CANDY SPHERES · FLIP-TOP PLASTIC TUBE</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SCENE 7: 25.0 - 30.5s Fatal Flaw: Flip-Top Cap vs US Dime -->
+      <div id="sc7" class="scene clip" data-start="25.0" data-duration="5.5" data-track-index="6">
+        <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; gap:110px;">
+          <div style="position:relative;">
+            <img
+              id="sc7-tube"
+              src="assets/01_LifeSavers/lifesavers_holes_tube.jpg"
+              style="height:660px; box-shadow:0 30px 90px rgba(0,0,0,0.9); border:3px solid rgba(234,228,215,0.25);"
+            />
+            <div
+              id="cap-ring"
+              style="position:absolute; top:38px; left:50%; transform:translateX(-50%); width:190px; height:190px; border-radius:50%; border:8px solid var(--red); box-shadow:0 0 40px rgba(217,43,43,0.7);"
+            ></div>
+          </div>
+          <div style="display:flex; flex-direction:column; align-items:center; gap:24px;">
+            <img
+              id="dime-img"
+              src="assets/01_LifeSavers/us_dime_obverse_transparent.png"
+              style="width:360px; height:360px; filter:drop-shadow(0 25px 40px rgba(0,0,0,0.85));"
+            />
+            <div style="font-family:var(--font-display); font-size:64px; color:var(--yellow); letter-spacing:0.06em;">
+              SIZE OF A DIME (17.9 MM)
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SCENE 8: 30.5 - 38.8s LA Times Feb 1, 1991 Press Clipping + Highlighter + RECALLED Stamp -->
+      <div id="sc8" class="scene clip" data-start="30.5" data-duration="8.3" data-track-index="7">
+        <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center;">
+          <div id="news-card" class="newspaper">
+            <div class="news-pub">
+              <span>LOS ANGELES TIMES // ARCHIVE</span>
+              <span>FEBRUARY 1, 1991</span>
+            </div>
+            <div class="news-headline">
+              Life Savers Holes Pulled From Stores Due to Packaging Fears
+            </div>
+            <div class="news-body">
+              RJR Nabisco announced a voluntary recall of roughly
+              <span class="hl"><span id="hl1" class="hl-bar"></span><strong>40 million packages</strong></span>
+              of Life Savers Holes after four incidents in which children bit off and swallowed the small
+              plastic flip-top cap, creating a severe
+              <span class="hl"><span id="hl2" class="hl-bar"></span><strong>choking hazard</strong></span>.
+            </div>
+            <div id="final-stamp" class="stamp" style="right:70px; bottom:50px; opacity:0;">RECALLED</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SCENE 9: 38.8 - 42.0s Empty Shelf Outro Beat -->
+      <div id="sc9" class="scene clip" data-start="38.8" data-duration="3.2" data-track-index="8">
+        <img id="sc9-img" class="bg-photo" src="assets/00_Broll_Stock/empty_shelf_02.jpg" />
+        <div class="scrim"></div>
+        <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-family:var(--font-display); font-size:96px; letter-spacing:0.1em; color:var(--paper);">
+          PULLED FROM EVERY SHELF.
+        </div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      // Scene 1: 0 - 5.0
+      tl.set('#sc1', { opacity: 1 }, 0)
+        .fromTo('#sc1-img', { scale: 1.0 }, { scale: 1.12, duration: 5.0, ease: 'none' }, 0)
+        .set('#sc1', { opacity: 0 }, 5.0);
+
+      // Scene 2: 5.0 - 9.8 (5 quick product flashes + stamp slams)
+      tl.set('#sc2', { opacity: 1 }, 5.0);
+      const flashes = [
+        ['#fl1', '#st1', 5.0],
+        ['#fl2', '#st2', 5.8],
+        ['#fl3', '#st3', 6.6],
+        ['#fl4', '#st4', 7.4],
+        ['#fl5', '#st5', 8.2],
+      ];
+      flashes.forEach(([fl, st, t], idx) => {
+        tl.set(fl, { opacity: 1 }, t)
+          .fromTo(st, { scale: 2.2, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.16, ease: 'power4.out' }, t + 0.08);
+        if (idx < flashes.length - 1) {
+          tl.set(fl, { opacity: 0 }, t + 0.8);
+        }
+      });
+      tl.set('#sc2', { opacity: 0 }, 9.8);
+
+      // Scene 3: 9.8 - 13.5
+      tl.set('#sc3', { opacity: 1 }, 9.8)
+        .fromTo('#sc3-img', { scale: 1.08 }, { scale: 1.0, duration: 3.7, ease: 'none' }, 9.8)
+        .set('#sc3', { opacity: 0 }, 13.5);
+
+      // Scene 4: 13.5 - 18.0 Case #01 Card
+      tl.set('#sc4', { opacity: 1 }, 13.5)
+        .fromTo('#sc4 .case-title', { y: 24, opacity: 0 }, { y: 0, opacity: 1, duration: 0.25, ease: 'power3.out' }, 13.55)
+        .set('#sc4', { opacity: 0 }, 18.0);
+
+      // Scene 5: 18.0 - 21.5 Candy aisle
+      tl.set('#sc5', { opacity: 1 }, 18.0)
+        .fromTo('#sc5-img', { scale: 1.0 }, { scale: 1.1, duration: 3.5, ease: 'none' }, 18.0)
+        .set('#sc5', { opacity: 0 }, 21.5);
+
+      // Scene 6: 21.5 - 25.0 Tube + 40M
+      tl.set('#sc6', { opacity: 1 }, 21.5)
+        .fromTo('#sc6-tube', { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: 0.35, ease: 'power3.out' }, 21.5)
+        .set('#sc6', { opacity: 0 }, 25.0);
+
+      // Scene 7: 25.0 - 30.5 Cap vs Dime
+      tl.set('#sc7', { opacity: 1 }, 25.0)
+        .fromTo('#cap-ring', { scale: 1.8, opacity: 0 }, { scale: 1.0, opacity: 1, duration: 0.4, ease: 'power3.out' }, 25.6)
+        .fromTo('#dime-img', { scale: 0.7, opacity: 0, rotation: -18 }, { scale: 1.0, opacity: 1, rotation: 0, duration: 0.45, ease: 'back.out(1.4)' }, 27.1)
+        .set('#sc7', { opacity: 0 }, 30.5);
+
+      // Scene 8: 30.5 - 38.8 Newspaper Clipping + Yellow Highlight + RECALLED Stamp
+      tl.set('#sc8', { opacity: 1 }, 30.5)
+        .fromTo('#news-card', { scale: 0.94, opacity: 0 }, { scale: 1.02, opacity: 1, duration: 8.3, ease: 'none' }, 30.5)
+        .to('#hl1', { width: '100%', duration: 0.7, ease: 'power2.out' }, 32.6)
+        .to('#hl2', { width: '100%', duration: 0.7, ease: 'power2.out' }, 35.0)
+        .fromTo('#final-stamp', { scale: 2.4, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.18, ease: 'power4.out' }, 37.2)
+        .set('#sc8', { opacity: 0 }, 38.8);
+
+      // Scene 9: 38.8 - 42.0 Empty shelf outro
+      tl.set('#sc9', { opacity: 1 }, 38.8)
+        .fromTo('#sc9-img', { scale: 1.0 }, { scale: 1.08, duration: 3.2, ease: 'none' }, 38.8);
+
+      window.__timelines['main'] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>

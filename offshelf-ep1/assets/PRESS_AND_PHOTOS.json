@@ -1,0 +1,286 @@
+{
+  "project": "OFFSHELF Episode 1",
+  "generated_at": "2026-11-26T19:05:00Z",
+  "dossiers": [
+    {
+      "id": "01_LifeSavers",
+      "title": "Life Savers Holes",
+      "company": "RJR Nabisco (Planters-Life Savers division)",
+      "recall_date": "1991-01 / 1991-02-01",
+      "press_records": [
+        {
+          "headline": "Life Savers Holes Pulled From Stores Due to Packaging Fears",
+          "publication": "Los Angeles Times (Associated Press)",
+          "date": "1991-02-01",
+          "key_facts": [
+            "Introduced in late 1990; roughly 40 million packages sold by early 1991.",
+            "Voluntarily recalled after four instances where children or teenagers bit off the dime-sized plastic flip-top cap and swallowed or gagged on it.",
+            "Choking hazard stemmed from the plastic flip-top cap on the tube rather than the candy itself."
+          ]
+        }
+      ],
+      "key_quotes": [
+        "40 million packages",
+        "choking hazard",
+        "dime-sized plastic flip-top cap"
+      ],
+      "images": [
+        {
+          "path": "/home/devuser/projects/rea-video/offshelf-ep1/assets/01_LifeSavers/lifesavers_holes_tube.jpg",
+          "dimensions": "570x760",
+          "format": "JPEG",
+          "size_bytes": 85569,
+          "description": "Life Savers Holes vintage plastic tube with flip-top cap",
+          "source": "Etsy vintage product photo"
+        },
+        {
+          "path": "/home/devuser/projects/rea-video/offshelf-ep1/assets/01_LifeSavers/us_dime_obverse.jpg",
+          "dimensions": "750x770",
+          "format": "JPEG",
+          "size_bytes": 145416,
+          "description": "US Roosevelt dime obverse (1996-S) for cap size comparison",
+          "source": "Wikimedia Commons (File:1996-S_dime_obverse.jpg)"
+        },
+        {
+          "path": "/home/devuser/projects/rea-video/offshelf-ep1/assets/01_LifeSavers/us_dime_obverse_transparent.png",
+          "dimensions": "2000x2000",
+          "format": "PNG",
+          "size_bytes": 5664869,
+          "description": "High-resolution US Roosevelt dime obverse with transparent background",
+          "source": "Wikimedia Commons (File:Dime_Obverse_13.png)"
+        }
+      ]
+    },
+    {
+      "id": "02_NestleMagic",
+      "title": "Nestle Magic Ball",
+      "company": "Nestle",
+      "recall_date": "1997-10",
+      "press_records": [
+        {
+          "headline": "NESTLE TO STOP SELLING 'MAGIC' CANDY THAT DREW SAFETY OBJECTIONS",
+          "publication": "The Washington Post",
+          "date": "1997-10-01",
+          "key_facts": [
+            "Launched in summer 1997 as a hollow milk-chocolate sphere containing a plastic Disney toy figurine inside.",
+            "Voluntarily pulled in October 1997 following FDA objections and pressure from 14 state attorneys general and Mars Inc."
+          ]
+        },
+        {
+          "headline": "Nestle Magic: Now You See It; Now You Don't--Ever Again",
+          "publication": "Los Angeles Times",
+          "date": "1997-10-02",
+          "key_facts": [
+            "FDA held that the product violated Section 402(d)(1) of the Federal Food, Drug, and Cosmetic Act of 1938.",
+            "Relaunched in April 2000 as the Wonder Ball with edible candy pieces inside instead of plastic toys."
+          ]
+        },
+        {
+          "headline": "Nestle Chocolate Balls Lose Disney Magic",
+          "publication": "The Independent",
+          "date": "1997-10",
+          "key_facts": [
+            "Covered the withdrawal of the Disney-themed chocolate surprise balls."
+          ]
+        }
+      ],
+      "regulatory_references": [
+        {
+          "law": "Section 402(d)(1) of the Federal Food, Drug, and Cosmetic Act of 1938",
+          "quote": "1938 federal law prohibiting nonnutritive objects inside confections"
+        }
+      ],
+      "key_quotes": [
+        "1938 federal law prohibiting nonnutritive objects inside confections",
+        "nonnutritive object"
+      ],
+      "images": [
+        {
+          "path": "/home/devuser/projects/rea-video/offshelf-ep1/assets/02_NestleMagic/nestle_magic_wonder_ball.jpg",
+          "dimensions": "640x640",
+          "format": "JPEG",
+          "size_bytes": 113677,
+          "description": "Nestle Magic / Wonder Ball product packaging",
+          "source": "Collideascopes WordPress archive"
+        },
+        {
+          "path": "/home/devuser/projects/rea-video/offshelf-ep1/assets/02_NestleMagic/kinder_egg_open.jpg",
+          "dimensions": "1414x1256",
+          "format": "JPEG",
+          "size_bytes": 528696,
+          "description": "Opened Kinder Surprise egg showing plastic capsule inside chocolate shell (1938 law comparison)",
+          "source": "Wikimedia Commons (File:Kinder_egg_open.jpg)"
+        }
+      ]
+    },
+    {
+      "id": "03_LaysWOW",
+      "title": "Lay's WOW! / Olestra Chips",
+      "company": "Frito-Lay / Procter & Gamble (Olestra)",
+      "recall_date": "1998 (FDA warning label era)",
+      "press_records": [
+        {
+          "headline": "Chips Are Down in Marketing Olestra",
+          "publication": "Los Angeles Times",
+          "date": "1998-03-10",
+          "key_facts": [
+            "Covered early marketing challenges for Olestra-based snack chips."
+          ]
+        },
+        {
+          "headline": "Views on Fake-Fat Potato Chips a Mixed Bag",
+          "publication": "Los Angeles Times",
+          "date": "1998-06-17",
+          "key_facts": [
+            "Documented consumer reaction to Olestra-based WOW! chips and gastrointestinal side effects."
+          ]
+        },
+        {
+          "headline": "Olestra Builds Fat Niche in Snack Market",
+          "publication": "Los Angeles Times",
+          "date": "1998-07-17",
+          "key_facts": [
+            "Examined market performance of Frito-Lay's Olestra-made WOW! line."
+          ]
+        },
+        {
+          "headline": "Frito-Lay Pumps Up Wow Chips Campaign",
+          "publication": "Los Angeles Times",
+          "date": "1998-09-15",
+          "key_facts": [
+            "Reported on Frito-Lay's advertising push for WOW! chips."
+          ]
+        }
+      ],
+      "regulatory_references": [
+        {
+          "agency": "FDA",
+          "quote": "This Product Contains Olestra. Olestra may cause abdominal cramping and loose stools. Olestra inhibits the absorption of some vitamins and other nutrients. Vitamins A, D, E, and K have been added."
+        }
+      ],
+      "key_quotes": [
+        "Olestra may cause abdominal cramping and loose stools"
+      ],
+      "images": [
+        {
+          "path": "/home/devuser/projects/rea-video/offshelf-ep1/assets/03_LaysWOW/doritos_wow_chips.jpg",
+          "dimensions": "278x359",
+          "format": "JPEG",
+          "size_bytes": 33457,
+          "description": "1998 Frito-Lay WOW! chips bag (Nacho Cheesier Doritos WOW)",
+          "source": "Wikipedia (File:Doritos_WOW_chips.jpg)"
+        },
+        {
+          "path": "/home/devuser/projects/rea-video/offshelf-ep1/assets/03_LaysWOW/olestra_structure.png",
+          "dimensions": "1280x759",
+          "format": "PNG",
+          "size_bytes": 35314,
+          "description": "Olestra chemical structure diagram",
+          "source": "Wikimedia Commons (File:Olestra.svg)"
+        },
+        {
+          "path": "/home/devuser/projects/rea-video/offshelf-ep1/assets/03_LaysWOW/olestra_wikimedia.jpg",
+          "dimensions": "843x511",
+          "format": "JPEG",
+          "size_bytes": 21521,
+          "description": "Olestra sample/product reference photo",
+          "source": "Wikimedia Commons (File:Olestra.JPG)"
+        }
+      ]
+    },
+    {
+      "id": "04_TacoBell",
+      "title": "Taco Bell Home Originals Taco Shells (StarLink Corn)",
+      "company": "Kraft Foods (Taco Bell brand) / Aventis CropScience",
+      "recall_date": "2000-09",
+      "press_records": [
+        {
+          "headline": "Biotech Critics Cite Unapproved Corn in Taco Shells",
+          "publication": "The Washington Post",
+          "date": "2000-09-18",
+          "key_facts": [
+            "Independent lab tests commissioned by environmental groups found genetically modified StarLink corn (Cry9C protein) in Taco Bell Home Originals taco shells.",
+            "StarLink corn was approved by the EPA strictly for animal feed and industrial use, not for human food, due to potential allergenicity concerns.",
+            "Kraft Foods issued a nationwide recall of Taco Bell Home Originals 12 Taco Shells, 18 Taco Shells, and Taco Dinner — the first-ever recall of a GMO food."
+          ]
+        }
+      ],
+      "key_quotes": [
+        "approved only for animal feed",
+        "StarLink corn",
+        "first-ever recall of a genetically engineered (GMO) food"
+      ],
+      "images": [
+        {
+          "path": "/home/devuser/projects/rea-video/offshelf-ep1/assets/04_TacoBell/taco_bell_hard_shell_taco.jpg",
+          "dimensions": "1600x1200",
+          "format": "JPEG",
+          "size_bytes": 451012,
+          "description": "Taco Bell hard shell taco product photo",
+          "source": "Wikimedia Commons (File:Taco_Bell_Hard_Shell_Taco_(15253183160).jpg)"
+        },
+        {
+          "path": "/home/devuser/projects/rea-video/offshelf-ep1/assets/04_TacoBell/genetic_engineering_logo.png",
+          "dimensions": "459x432",
+          "format": "PNG",
+          "size_bytes": 101330,
+          "description": "Genetic engineering symbol from Wikipedia StarLink corn recall article",
+          "source": "Wikimedia Commons (File:Genetic_engineering_logo.png)"
+        }
+      ]
+    },
+    {
+      "id": "05_Odwalla",
+      "title": "Odwalla Unpasteurized Apple Juice (E. coli O157:H7)",
+      "company": "Odwalla Inc.",
+      "recall_date": "1996-10-31",
+      "press_records": [
+        {
+          "headline": "Fruit Juices Linked to E. Coli Outbreak",
+          "publication": "Los Angeles Times",
+          "date": "1996-10-31",
+          "key_facts": [
+            "On October 31, 1996, Odwalla initiated a voluntary nationwide recall of all juice products containing unpasteurized apple juice.",
+            "The E. coli O157:H7 outbreak sickened at least 70 people across Washington, California, Colorado, and British Columbia; 25 were hospitalized, 14 developed HUS, and a 16-month-old toddler died.",
+            "In 1998, Odwalla pleaded guilty to 16 federal criminal charges and paid a $1.5 million fine; the company switched to flash pasteurization."
+          ]
+        }
+      ],
+      "regulatory_references": [
+        {
+          "agency": "FDA",
+          "quote": "WARNING: This product has not been pasteurized and therefore may contain harmful bacteria that can cause serious illness in children, the elderly, and persons with weakened immune systems."
+        }
+      ],
+      "key_quotes": [
+        "WARNING: This product has not been pasteurized and therefore may contain harmful bacteria that can cause serious illness in children, the elderly, and persons with weakened immune systems."
+      ],
+      "images": [
+        {
+          "path": "/home/devuser/projects/rea-video/offshelf-ep1/assets/05_Odwalla/odwalla_display_stand.jpg",
+          "dimensions": "325x246",
+          "format": "JPEG",
+          "size_bytes": 33504,
+          "description": "Odwalla grocery store display stand with juice bottles",
+          "source": "Wikipedia (File:Odwalla_display_stand_grocerystore.JPG)"
+        },
+        {
+          "path": "/home/devuser/projects/rea-video/offshelf-ep1/assets/05_Odwalla/odwalla_hq.jpg",
+          "dimensions": "3259x1935",
+          "format": "JPEG",
+          "size_bytes": 1049919,
+          "description": "Odwalla Inc. headquarters in Half Moon Bay, California",
+          "source": "Wikimedia Commons (File:Odwalla_HQ.JPG)"
+        },
+        {
+          "path": "/home/devuser/projects/rea-video/offshelf-ep1/assets/05_Odwalla/e_coli_sem_cdc.jpg",
+          "dimensions": "800x640",
+          "format": "JPEG",
+          "size_bytes": 491001,
+          "description": "Scanning electron micrograph of Escherichia coli O157:H7 (CDC / Janice Haney Carr)",
+          "source": "Wikimedia Commons (File:Escherichia_coli_electron_microscopy.jpg)"
+        }
+      ]
+    }
+  ]
+}
