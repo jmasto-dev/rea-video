@@ -1,0 +1,877 @@
+[
+  {
+    "start": 0.0,
+    "end": 5.92,
+    "text": "At 8.05 pm on October 29th, money starts pouring out of finance"
+  },
+  {
+    "start": 5.92,
+    "end": 8.52,
+    "text": "across 10 blockchains at once."
+  },
+  {
+    "start": 8.52,
+    "end": 13.8,
+    "text": "20 minutes later, $6.3 billion is gone."
+  },
+  {
+    "start": 13.8,
+    "end": 16.28,
+    "text": "Users open the app to pull their cash out"
+  },
+  {
+    "start": 16.28,
+    "end": 19.04,
+    "text": "and the withdraw button is grayed out."
+  },
+  {
+    "start": 19.04,
+    "end": 22.08,
+    "text": "When finance pulls the logs, nothing adds up."
+  },
+  {
+    "start": 22.08,
+    "end": 26.32,
+    "text": "No blockchain got broken, not a single private key was leaked."
+  },
+  {
+    "start": 26.32,
+    "end": 28.32,
+    "text": "Every transfer that drained those wallets"
+  },
+  {
+    "start": 28.32,
+    "end": 32.6,
+    "text": "was legitimately signed by Binance's own internal system."
+  },
+  {
+    "start": 32.6,
+    "end": 35.12,
+    "text": "Whoever pulled this off had been inside the company"
+  },
+  {
+    "start": 35.12,
+    "end": 37.28,
+    "text": "for five months."
+  },
+  {
+    "start": 37.28,
+    "end": 41.08,
+    "text": "And the way they got in had nothing to do with breaking code."
+  },
+  {
+    "start": 41.08,
+    "end": 42.84,
+    "text": "Rewind a June."
+  },
+  {
+    "start": 42.84,
+    "end": 45.96,
+    "text": "An engineer on Binance's wallet team is at his desk,"
+  },
+  {
+    "start": 45.96,
+    "end": 49.12,
+    "text": "searching Google for a popular AI coding tool."
+  },
+  {
+    "start": 49.12,
+    "end": 51.52,
+    "text": "He finds a download link, runs the installer,"
+  },
+  {
+    "start": 51.52,
+    "end": 54.16,
+    "text": "and gets back to work, routine stuff."
+  },
+  {
+    "start": 54.16,
+    "end": 57.16,
+    "text": "Except the installer is tampered with."
+  },
+  {
+    "start": 57.2,
+    "end": 60.04,
+    "text": "Now most companies would already be toast right here."
+  },
+  {
+    "start": 60.04,
+    "end": 62.8,
+    "text": "Except Binance actually catches it."
+  },
+  {
+    "start": 62.8,
+    "end": 65.04,
+    "text": "Their security team spots the weird activity,"
+  },
+  {
+    "start": 65.04,
+    "end": 67.24,
+    "text": "pulls the engineer's laptop off the desk,"
+  },
+  {
+    "start": 67.24,
+    "end": 69.6,
+    "text": "wipes access, rotates every credential,"
+  },
+  {
+    "start": 69.6,
+    "end": 71.08,
+    "text": "and closes the ticket."
+  },
+  {
+    "start": 71.08,
+    "end": 72.48,
+    "text": "On paper, that's a win."
+  },
+  {
+    "start": 72.48,
+    "end": 74.04,
+    "text": "They stopped it cold."
+  },
+  {
+    "start": 74.04,
+    "end": 75.6,
+    "text": "Or so they thought."
+  },
+  {
+    "start": 75.6,
+    "end": 77.84,
+    "text": "What they didn't realize was that before they"
+  },
+  {
+    "start": 77.84,
+    "end": 80.64,
+    "text": "yanked that laptop, the attackers had already grabbed"
+  },
+  {
+    "start": 80.64,
+    "end": 83.72,
+    "text": "the one thing you can't reset with a password change,"
+  },
+  {
+    "start": 83.72,
+    "end": 86.72,
+    "text": "a map of who works on the wallet team."
+  },
+  {
+    "start": 86.72,
+    "end": 88.76,
+    "text": "They didn't need that laptop anymore."
+  },
+  {
+    "start": 88.76,
+    "end": 90.12,
+    "text": "They had names."
+  },
+  {
+    "start": 90.12,
+    "end": 91.72,
+    "text": "So they went quiet."
+  },
+  {
+    "start": 91.72,
+    "end": 94.96,
+    "text": "For three whole months, nothing happened."
+  },
+  {
+    "start": 94.96,
+    "end": 98.2,
+    "text": "Then in September, a second software engineer at Binance"
+  },
+  {
+    "start": 98.2,
+    "end": 100.36,
+    "text": "gets a message on a job site."
+  },
+  {
+    "start": 100.36,
+    "end": 102.8,
+    "text": "It's from someone claiming to be a project director"
+  },
+  {
+    "start": 102.8,
+    "end": 104.2,
+    "text": "at a tech startup."
+  },
+  {
+    "start": 104.2,
+    "end": 106.32,
+    "text": "The engineer has Binance right there on his resume"
+  },
+  {
+    "start": 106.32,
+    "end": 108.4,
+    "text": "and the offer sounds legitimate."
+  },
+  {
+    "start": 108.4,
+    "end": 111.04,
+    "text": "This wasn't some sloppy spam email."
+  },
+  {
+    "start": 111.04,
+    "end": 113.88,
+    "text": "The guy gets scheduled for a real round one video interview"
+  },
+  {
+    "start": 113.88,
+    "end": 115.24,
+    "text": "with an HR rep."
+  },
+  {
+    "start": 115.24,
+    "end": 117.24,
+    "text": "During the call, the rep even shares"
+  },
+  {
+    "start": 117.24,
+    "end": 120.0,
+    "text": "a social media profile filled with personal photos"
+  },
+  {
+    "start": 120.0,
+    "end": 123.04,
+    "text": "and videos just to look like a real human being."
+  },
+  {
+    "start": 123.04,
+    "end": 124.64,
+    "text": "He passes round one."
+  },
+  {
+    "start": 124.64,
+    "end": 126.2,
+    "text": "Then he does a round two interview"
+  },
+  {
+    "start": 126.2,
+    "end": 128.76,
+    "text": "with the supposed CEO of this company,"
+  },
+  {
+    "start": 128.76,
+    "end": 131.28,
+    "text": "a company that didn't even exist."
+  },
+  {
+    "start": 131.28,
+    "end": 133.44,
+    "text": "At the end, they send him the standard coding take home"
+  },
+  {
+    "start": 133.44,
+    "end": 134.4,
+    "text": "test."
+  },
+  {
+    "start": 134.4,
+    "end": 136.16,
+    "text": "He downloads it onto his work laptop"
+  },
+  {
+    "start": 136.16,
+    "end": 138.36,
+    "text": "and runs the setup script."
+  },
+  {
+    "start": 138.36,
+    "end": 141.28,
+    "text": "And inside that script, a tiny piece of code"
+  },
+  {
+    "start": 141.28,
+    "end": 142.68,
+    "text": "goes to work."
+  },
+  {
+    "start": 142.68,
+    "end": 145.92,
+    "text": "It finds a normal developer tool buried in his system,"
+  },
+  {
+    "start": 145.92,
+    "end": 150.24,
+    "text": "a file that's exactly 3,344 bytes."
+  },
+  {
+    "start": 150.24,
+    "end": 152.4,
+    "text": "It deletes it and drops in a lookalike"
+  },
+  {
+    "start": 152.4,
+    "end": 158.16,
+    "text": "that's 3,414 bytes, 70 bytes of difference."
+  },
+  {
+    "start": 158.16,
+    "end": 160.8,
+    "text": "Binance's endpoint security didn't blink."
+  },
+  {
+    "start": 160.8,
+    "end": 163.12,
+    "text": "No pop-up, no red flag."
+  },
+  {
+    "start": 163.12,
+    "end": 165.2,
+    "text": "And the engineer probably went on with his week"
+  },
+  {
+    "start": 165.2,
+    "end": 168.68,
+    "text": "thinking he just nailed an interview."
+  },
+  {
+    "start": 168.68,
+    "end": 171.52,
+    "text": "Now, you might be thinking, why go through all that trouble"
+  },
+  {
+    "start": 171.52,
+    "end": 174.8,
+    "text": "for a guy who doesn't even hold the keys to the vault?"
+  },
+  {
+    "start": 174.8,
+    "end": 176.16,
+    "text": "Because he doesn't need to."
+  },
+  {
+    "start": 176.16,
+    "end": 178.88,
+    "text": "He just needs to be inside the building."
+  },
+  {
+    "start": 178.88,
+    "end": 181.44,
+    "text": "On October 20th, sitting silently inside"
+  },
+  {
+    "start": 181.44,
+    "end": 183.32,
+    "text": "that second engineer's laptop,"
+  },
+  {
+    "start": 183.32,
+    "end": 185.88,
+    "text": "the attackers don't look for crypto wallets."
+  },
+  {
+    "start": 185.88,
+    "end": 187.8,
+    "text": "They look for a bridge."
+  },
+  {
+    "start": 187.8,
+    "end": 191.72,
+    "text": "And they find one, right inside Binance's own office software,"
+  },
+  {
+    "start": 191.72,
+    "end": 194.4,
+    "text": "an internal AI tool."
+  },
+  {
+    "start": 194.4,
+    "end": 196.48,
+    "text": "Using that AI tool as a springboard,"
+  },
+  {
+    "start": 196.48,
+    "end": 199.44,
+    "text": "they jump sideways under two other computers."
+  },
+  {
+    "start": 199.44,
+    "end": 202.16,
+    "text": "One belongs to another wallet software engineer,"
+  },
+  {
+    "start": 202.16,
+    "end": 205.24,
+    "text": "and the other belongs to the exact same guy from June,"
+  },
+  {
+    "start": 205.24,
+    "end": 207.6,
+    "text": "the one whose laptop Binance thought they'd cleaned up"
+  },
+  {
+    "start": 207.6,
+    "end": 209.04,
+    "text": "months earlier."
+  },
+  {
+    "start": 209.04,
+    "end": 210.76,
+    "text": "And sitting right there on his machine"
+  },
+  {
+    "start": 210.76,
+    "end": 212.52,
+    "text": "is a deployment token."
+  },
+  {
+    "start": 212.52,
+    "end": 214.32,
+    "text": "Basically, a digital badge that lets you"
+  },
+  {
+    "start": 214.32,
+    "end": 217.52,
+    "text": "push new software on the company infrastructure."
+  },
+  {
+    "start": 217.52,
+    "end": 219.52,
+    "text": "Still, nothing moves."
+  },
+  {
+    "start": 219.52,
+    "end": 222.0,
+    "text": "They wait another eight days."
+  },
+  {
+    "start": 222.0,
+    "end": 224.28,
+    "text": "On October 28th, a brand new wallet"
+  },
+  {
+    "start": 224.28,
+    "end": 227.92,
+    "text": "quietly pulls three tiny withdrawals out of a crypto mixer."
+  },
+  {
+    "start": 227.92,
+    "end": 231.84,
+    "text": "Just 0.1 ether out of time to pay for transaction fees."
+  },
+  {
+    "start": 231.84,
+    "end": 236.96,
+    "text": "36 hours later, on October 29th at 5.15 pm UTC,"
+  },
+  {
+    "start": 236.96,
+    "end": 240.28,
+    "text": "the attackers log on to that third engineer's computer,"
+  },
+  {
+    "start": 240.28,
+    "end": 241.52,
+    "text": "grab the deployment token."
+  },
+  {
+    "start": 241.52,
+    "end": 244.4,
+    "text": "They lift it from the first guy, launch a container,"
+  },
+  {
+    "start": 244.4,
+    "end": 246.4,
+    "text": "and walk straight into the system that"
+  },
+  {
+    "start": 246.4,
+    "end": 248.56,
+    "text": "approves withdrawals."
+  },
+  {
+    "start": 248.56,
+    "end": 251.84,
+    "text": "Here's the part that sounds crazy until you picture it."
+  },
+  {
+    "start": 251.84,
+    "end": 254.4,
+    "text": "They didn't steal the vault's master keys."
+  },
+  {
+    "start": 254.4,
+    "end": 257.64,
+    "text": "They walked up to the automated teller inside the vault"
+  },
+  {
+    "start": 257.64,
+    "end": 260.28,
+    "text": "and got it to pre-signed 50 blank permission"
+  },
+  {
+    "start": 260.28,
+    "end": 261.92,
+    "text": "slips on Ethereum."
+  },
+  {
+    "start": 261.92,
+    "end": 263.2,
+    "text": "Why 50?"
+  },
+  {
+    "start": 263.2,
+    "end": 265.56,
+    "text": "Because every account has a running counter."
+  },
+  {
+    "start": 265.56,
+    "end": 267.56,
+    "text": "And they just needed one of those 50 slips"
+  },
+  {
+    "start": 267.56,
+    "end": 270.6,
+    "text": "to land on the exact number waiting in the queue."
+  },
+  {
+    "start": 270.6,
+    "end": 273.64,
+    "text": "At 8.05 pm, they flipped the switch."
+  },
+  {
+    "start": 273.64,
+    "end": 277.28,
+    "text": "Funds start leaving Binance across 10 blockchains at once."
+  },
+  {
+    "start": 277.28,
+    "end": 281.56,
+    "text": "XRP, Bitcoin, Tron, Solana, Ethereum."
+  },
+  {
+    "start": 281.56,
+    "end": 284.32,
+    "text": "20 minutes past the hour, one of those 50 slips"
+  },
+  {
+    "start": 284.32,
+    "end": 287.28,
+    "text": "catches on Ethereum, turning a main Binance wallet"
+  },
+  {
+    "start": 287.28,
+    "end": 289.64,
+    "text": "into a self emptying machine."
+  },
+  {
+    "start": 289.64,
+    "end": 292.0,
+    "text": "Three minutes and 24 seconds later,"
+  },
+  {
+    "start": 292.0,
+    "end": 297.24,
+    "text": "over 167,000 ether and $1.6 billion in tether"
+  },
+  {
+    "start": 297.24,
+    "end": 300.04,
+    "text": "disappear in a single sweep."
+  },
+  {
+    "start": 300.04,
+    "end": 302.48,
+    "text": "People watching online that night couldn't wrap their heads"
+  },
+  {
+    "start": 302.48,
+    "end": 303.44,
+    "text": "around it."
+  },
+  {
+    "start": 303.44,
+    "end": 306.16,
+    "text": "If you try to pull $5,000 out of a regular bank,"
+  },
+  {
+    "start": 306.16,
+    "end": 308.04,
+    "text": "a manager calls your phone."
+  },
+  {
+    "start": 308.04,
+    "end": 312.52,
+    "text": "Somehow $6.3 billion just walked out in 20 minutes"
+  },
+  {
+    "start": 312.52,
+    "end": 315.68,
+    "text": "without a single human stepping in front of the door."
+  },
+  {
+    "start": 315.68,
+    "end": 318.4,
+    "text": "And then, the real race started."
+  },
+  {
+    "start": 318.4,
+    "end": 321.12,
+    "text": "Binance froze withdrawals and hit the phones."
+  },
+  {
+    "start": 321.12,
+    "end": 324.56,
+    "text": "Within hours, tether, circle, ripple, and arbitrum"
+  },
+  {
+    "start": 324.56,
+    "end": 326.8,
+    "text": "slammed the emergency brakes on their networks."
+  },
+  {
+    "start": 326.8,
+    "end": 330.48,
+    "text": "Black listing wallets and locking up roughly $2.7 billion"
+  },
+  {
+    "start": 330.48,
+    "end": 332.84,
+    "text": "in stable coins before they could move."
+  },
+  {
+    "start": 332.84,
+    "end": 335.52,
+    "text": "Except the attackers weren't sitting back watching the score"
+  },
+  {
+    "start": 335.52,
+    "end": 336.32,
+    "text": "board."
+  },
+  {
+    "start": 336.32,
+    "end": 338.12,
+    "text": "They knew the freeze buttons were coming."
+  },
+  {
+    "start": 338.12,
+    "end": 340.0,
+    "text": "So they started dumping at risk tether"
+  },
+  {
+    "start": 340.0,
+    "end": 342.44,
+    "text": "to market makers as fast as they could."
+  },
+  {
+    "start": 342.44,
+    "end": 345.32,
+    "text": "They even shoved $60 million of stolen tether"
+  },
+  {
+    "start": 345.32,
+    "end": 348.44,
+    "text": "into a lending protocol just to borrow clean ether against it."
+  },
+  {
+    "start": 348.44,
+    "end": 351.24,
+    "text": "By midnight, they pulled off one final wave"
+  },
+  {
+    "start": 351.24,
+    "end": 354.12,
+    "text": "on Avalanche and Polygon before Binance finally"
+  },
+  {
+    "start": 354.12,
+    "end": 357.52,
+    "text": "cut the access off at 12.10 AM."
+  },
+  {
+    "start": 357.52,
+    "end": 361.0,
+    "text": "When the smoke cleared, nearly $3 billion was frozen."
+  },
+  {
+    "start": 361.0,
+    "end": 362.48,
+    "text": "But the hackers were still holding"
+  },
+  {
+    "start": 362.48,
+    "end": 367.76,
+    "text": "over $420,000 ether and $18,200 Bitcoin."
+  },
+  {
+    "start": 367.76,
+    "end": 373.04,
+    "text": "Roughly $2.4 billion in raw assets that no CEO, no bank,"
+  },
+  {
+    "start": 373.04,
+    "end": 376.52,
+    "text": "and no government can freeze with the click of a button."
+  },
+  {
+    "start": 376.52,
+    "end": 379.76,
+    "text": "Two days later, Binance turned withdrawals back on,"
+  },
+  {
+    "start": 379.76,
+    "end": 382.88,
+    "text": "processed $4.6 billion of customer cash"
+  },
+  {
+    "start": 382.88,
+    "end": 384.56,
+    "text": "outs in a single day."
+  },
+  {
+    "start": 384.56,
+    "end": 386.96,
+    "text": "And by November 12, announced it had plugged"
+  },
+  {
+    "start": 386.96,
+    "end": 390.08,
+    "text": "the entire $6.3 billion whole out"
+  },
+  {
+    "start": 390.08,
+    "end": 393.32,
+    "text": "of its own emergency funds and corporate treasury."
+  },
+  {
+    "start": 393.32,
+    "end": 395.96,
+    "text": "That same morning, the FBI and the Justice Department"
+  },
+  {
+    "start": 395.96,
+    "end": 400.12,
+    "text": "got a court order to seize 1.2 billion of the frozen pile"
+  },
+  {
+    "start": 400.12,
+    "end": 402.4,
+    "text": "and publicly pinned the whole operation"
+  },
+  {
+    "start": 402.4,
+    "end": 406.96,
+    "text": "on North Korea's Trader Trader Unit, almost four times bigger"
+  },
+  {
+    "start": 406.96,
+    "end": 409.72,
+    "text": "than the buy-bit heist just a year earlier."
+  },
+  {
+    "start": 409.72,
+    "end": 416.16,
+    "text": "So users got paid back withdrawals work, case closed, right?"
+  },
+  {
+    "start": 416.16,
+    "end": 417.32,
+    "text": "Not quite."
+  },
+  {
+    "start": 417.32,
+    "end": 418.72,
+    "text": "Because if you look closely at what"
+  },
+  {
+    "start": 418.72,
+    "end": 420.92,
+    "text": "happened after the headlines faded,"
+  },
+  {
+    "start": 420.92,
+    "end": 422.28,
+    "text": "there's an elephant sitting all right"
+  },
+  {
+    "start": 422.28,
+    "end": 424.24,
+    "text": "in the middle of the room."
+  },
+  {
+    "start": 424.24,
+    "end": 427.68,
+    "text": "On October 30, Binance promised deeper technical answers"
+  },
+  {
+    "start": 427.68,
+    "end": 429.72,
+    "text": "within 48 hours."
+  },
+  {
+    "start": 429.72,
+    "end": 433.64,
+    "text": "Weeks later, that full technical breakdown still hasn't dropped."
+  },
+  {
+    "start": 433.64,
+    "end": 437.12,
+    "text": "To this day, Binance still hasn't said which internal AI tool"
+  },
+  {
+    "start": 437.12,
+    "end": 440.76,
+    "text": "let an attacker bounce across three engineers laptops."
+  },
+  {
+    "start": 440.76,
+    "end": 443.84,
+    "text": "They still haven't explained how a single compromised container"
+  },
+  {
+    "start": 443.84,
+    "end": 447.52,
+    "text": "got an internal signing system to approve 50 blank checks"
+  },
+  {
+    "start": 447.52,
+    "end": 450.88,
+    "text": "with zero rate limits or human sign-off."
+  },
+  {
+    "start": 450.88,
+    "end": 453.76,
+    "text": "And buried inside Binance's own report"
+  },
+  {
+    "start": 453.76,
+    "end": 456.96,
+    "text": "was one line that should make anyone working in tech pause"
+  },
+  {
+    "start": 456.96,
+    "end": 458.6,
+    "text": "for a second."
+  },
+  {
+    "start": 458.6,
+    "end": 461.4,
+    "text": "They admitted that in 2026 alone,"
+  },
+  {
+    "start": 461.4,
+    "end": 465.0,
+    "text": "they caught 57 other attempts just like this one."
+  },
+  {
+    "start": 465.0,
+    "end": 468.6,
+    "text": "Fake interviews, poison tools, malicious downloads,"
+  },
+  {
+    "start": 468.6,
+    "end": 470.6,
+    "text": "targeting their engineers."
+  },
+  {
+    "start": 470.6,
+    "end": 472.56,
+    "text": "They stopped 57 of them."
+  },
+  {
+    "start": 472.56,
+    "end": 476.8,
+    "text": "It only took one 70-bit file to make it through."
+  }
+]
