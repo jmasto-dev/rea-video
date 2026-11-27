@@ -255,28 +255,37 @@ addScene(0.00, 8.52, (g) => {
   // Torrent of 16 bills flying out
   const bills = Array.from({ length: 16 }, (_, i) => ({ g: billNote(g), i }));
 
-  // 10 pipes branching across right side
+  // 10 pipes branching across right side (with animated cash pulses)
   const CHAINS = ['ETH', 'BTC', 'SOL', 'XRP', 'TRON', 'BNB', 'ADA', 'AVAX', 'DOGE', 'LINK'];
   const pipes = CHAINS.map((name, i) => {
     const pg = el('g', { filter: 'url(#boil)' }, g);
     const y = 175 + i * 74;
     const col = i % 2 === 0 ? C.yellow : C.pink;
-    el('path', { d: `M 525 590 C 860 590 1060 ${y} 1480 ${y}`, fill: 'none', stroke: C.navy, 'stroke-width': 26, 'stroke-linecap': 'round' }, pg);
-    el('path', { d: `M 525 590 C 860 590 1060 ${y} 1480 ${y}`, fill: 'none', stroke: col, 'stroke-width': 14, 'stroke-linecap': 'round' }, pg);
-    el('rect', { x: 1480, y: y - 26, width: 175, height: 52, rx: 10, fill: col, stroke: C.navy, 'stroke-width': 6 }, pg);
-    txt(pg, name, { x: 1567, y: y + 10, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 28, 'font-weight': 800, fill: C.navy });
-    return { pg, i };
+    const pathD = `M 525 590 C 900 590 1120 ${y} 1610 ${y}`;
+    el('path', { d: pathD, fill: 'none', stroke: C.navy, 'stroke-width': 26, 'stroke-linecap': 'round' }, pg);
+    el('path', { d: pathD, fill: 'none', stroke: col, 'stroke-width': 14, 'stroke-linecap': 'round' }, pg);
+    const pulse = el('circle', { cx: 525, cy: 590, r: 10, fill: C.mint, stroke: C.navy, 'stroke-width': 4 }, pg);
+    el('rect', { x: 1610, y: y - 26, width: 185, height: 52, rx: 10, fill: col, stroke: C.navy, 'stroke-width': 6 }, pg);
+    txt(pg, name, { x: 1702, y: y + 10, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 28, 'font-weight': 800, fill: C.navy });
+    return { pg, pulse, y, i };
   });
 
   return (t) => {
     charsPop(title, t, 0.2);
     bills.forEach(({ g: bg, i }) => {
       const cyc = ((t * 1.4 + i * 0.14) % 1.4) / 1.4;
-      const x = lerp(380, 1480, cyc);
+      const x = lerp(380, 1580, cyc);
       const y = 590 + Math.sin(cyc * Math.PI * 2 + i) * 160 + (i - 8) * 18 * cyc;
       tf(bg, x, y, 0.9, cyc * 60 - 30);
     });
-    pipes.forEach(({ pg, i }) => op(pg, seg(t, 3.8 + i * 0.18, 4.4 + i * 0.18)));
+    pipes.forEach(({ pg, pulse, y, i }) => {
+      op(pg, seg(t, 5.2 + i * 0.14, 5.7 + i * 0.14));
+      const u = ((t * 1.6 + i * 0.11) % 1);
+      const px = lerp(525, 1605, u);
+      const py = lerp(590, y, u * u * (3 - 2 * u));
+      pulse.setAttribute('cx', px.toFixed(1));
+      pulse.setAttribute('cy', py.toFixed(1));
+    });
   };
 });
 
@@ -293,17 +302,28 @@ addScene(8.52, 13.80, (g) => {
   for (const sy of [340, 500, 660]) {
     el('rect', { x: 130, y: sy, width: 560, height: 18, fill: C.night2, stroke: C.cream, 'stroke-width': 4 }, room);
   }
-  // Cobweb in top-left corner of empty vault
+  // Cobweb + hanging spider in top-left corner of empty vault
   el('path', { d: 'M 90 180 L 240 250 M 90 180 L 180 320 M 140 205 Q 145 245 120 265 M 190 225 Q 195 275 155 295', fill: 'none', stroke: C.cream, 'stroke-width': 4 }, room);
+  const spider = el('g', {}, room);
+  el('line', { x1: 210, y1: 235, x2: 210, y2: 295, stroke: C.cream, 'stroke-width': 3 }, spider);
+  el('circle', { cx: 210, cy: 302, r: 9, fill: C.cream }, spider);
   txt(room, 'VAULT BALANCE: $0', { x: 410, y: 790, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 30, 'font-weight': 800, fill: C.pink });
 
-  // Center-top: Clock spinning 20 min
+  // Center-top: Analog clock with 12 tick marks spinning 20 min
   const clk = el('g', { filter: 'url(#boil)' }, g);
-  tf(clk, 1280, 270);
+  tf(clk, 1240, 270);
   el('circle', { cx: 0, cy: 0, r: 115, fill: C.cream, stroke: C.navy, 'stroke-width': 9 }, clk);
+  for (let h = 0; h < 12; h++) {
+    const ang = (h / 12) * Math.PI * 2;
+    el('line', {
+      x1: Math.cos(ang) * 90, y1: Math.sin(ang) * 90,
+      x2: Math.cos(ang) * 104, y2: Math.sin(ang) * 104,
+      stroke: C.navy, 'stroke-width': h % 3 === 0 ? 7 : 4, 'stroke-linecap': 'round',
+    }, clk);
+  }
   el('line', { x1: 0, y1: 0, x2: -55, y2: -30, stroke: C.navy, 'stroke-width': 10, 'stroke-linecap': 'round' }, clk);
   const minHand = el('line', { x1: 0, y1: 0, x2: 0, y2: -82, stroke: C.red, 'stroke-width': 8, 'stroke-linecap': 'round' }, clk);
-  txt(clk, '20 MIN LATER', { x: 240, y: 12, 'font-family': F.mono, 'font-size': 34, 'font-weight': 800, fill: C.navy });
+  txt(clk, '20 MIN LATER', { x: 220, y: 12, 'font-family': F.mono, 'font-size': 34, 'font-weight': 800, fill: C.navy });
 
   const big = chars(g, '-$6.3B', {
     x: 1310, y: 670, size: 250, family: F.bagel, fill: C.navy, anchor: 'middle', shadow: { dx: 14, dy: 14, fill: C.red },
@@ -325,15 +345,17 @@ addScene(13.80, 19.04, (g) => {
   el('rect', { width: 1920, height: 1080, fill: C.night }, g);
   halftone(g, { color: C.blue, step: 26, angle: 12, f: (x, y) => clamp(0.42 - Math.hypot(x - 600, y - 540) / 900) });
 
-  // Sub-shot 3A: User in bed with smartphone
+  // Sub-shot 3A: User in bed (headboard + bed + pillow) with smartphone
   const shotA = el('g', {}, g);
+  el('rect', { x: 180, y: 380, width: 760, height: 620, rx: 24, fill: C.wood, stroke: C.navy, 'stroke-width': 10 }, shotA); // headboard
   const user = personRig(shotA, { shirt: C.pink, hair: C.navy, mode: 'bed' });
   tf(user, 560, 580, 1.18);
   const phoneA = el('g', { filter: 'url(#boil)' }, shotA);
   tf(phoneA, 1280, 520);
   el('rect', { x: -190, y: -330, width: 380, height: 660, rx: 36, fill: C.cream, stroke: C.navy, 'stroke-width': 10 }, phoneA);
   el('rect', { x: -155, y: -250, width: 310, height: 480, rx: 14, fill: C.paper, stroke: C.navy, 'stroke-width': 6 }, phoneA);
-  txt(phoneA, 'BINANCE APP', { x: 0, y: -155, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 26, 'font-weight': 800, fill: C.navy });
+  txt(phoneA, 'BINANCE APP', { x: 0, y: -175, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 26, 'font-weight': 800, fill: C.navy });
+  txt(phoneA, '$12,450.00', { x: 0, y: -85, 'text-anchor': 'middle', 'font-family': F.bagel, 'font-size': 44, fill: C.navy });
   el('rect', { x: -135, y: 40, width: 270, height: 90, rx: 16, fill: C.yellow, stroke: C.navy, 'stroke-width': 7 }, phoneA);
   txt(phoneA, 'WITHDRAW', { x: 0, y: 96, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 32, 'font-weight': 800, fill: C.navy });
 
@@ -345,8 +367,10 @@ addScene(13.80, 19.04, (g) => {
   tf(bigPhone, 960, 540);
   el('rect', { x: -420, y: -420, width: 840, height: 840, rx: 48, fill: C.cream, stroke: C.navy, 'stroke-width': 12 }, bigPhone);
   el('rect', { x: -360, y: -340, width: 720, height: 680, rx: 20, fill: C.paper, stroke: C.navy, 'stroke-width': 8 }, bigPhone);
+  txt(bigPhone, 'STATUS: HALTED', { x: 0, y: -85, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 34, 'font-weight': 800, fill: C.red });
   const btn = el('rect', { x: -270, y: -40, width: 540, height: 150, rx: 24, fill: '#9EA4B0', stroke: C.navy, 'stroke-width': 9 }, bigPhone);
   txt(bigPhone, 'WITHDRAW', { x: 0, y: 55, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 56, 'font-weight': 800, fill: '#4B5260' });
+  const tapRing = el('circle', { cx: 1080, cy: 615, r: 0, fill: 'none', stroke: C.red, 'stroke-width': 8 }, shotB);
 
   // Expressive thumb & hand reaching from bottom-right
   const thumb = el('g', { filter: 'url(#boil)' }, shotB);
@@ -359,9 +383,16 @@ addScene(13.80, 19.04, (g) => {
     show(shotB, isB);
     tf(user, 560, 580 + Math.sin(t * 3) * 5, 1.18);
     let tap = 0;
-    for (const tp of [16.4, 17.1, 17.8]) if (Math.abs(t - tp) < 0.14) tap = 1;
+    let ringR = 0;
+    for (const tp of [16.4, 17.1, 17.8]) {
+      const dt = t - tp;
+      if (Math.abs(dt) < 0.14) tap = 1;
+      if (dt >= 0 && dt < 0.35) ringR = (dt / 0.35) * 95;
+    }
+    tapRing.setAttribute('r', ringR.toFixed(1));
+    op(tapRing, ringR > 0 ? 1 - ringR / 95 : 0);
     tf(thumb, -45 * tap, -45 * tap);
-    stampAnim(st, t, 17.8, 960, 310, -8);
+    stampAnim(st, t, 17.8, 960, 270, -8);
   };
 });
 
@@ -372,8 +403,10 @@ addScene(19.04, 26.32, (g) => {
   el('rect', { width: 1920, height: 1080, fill: C.paper }, g);
   halftone(g, { color: C.mint, step: 24, angle: 30, f: (x, y) => clamp(0.4 - Math.hypot(x - 1350, y - 540) / 950) });
 
-  // Desk across bottom
+  // Desk across bottom + coffee mug for lived-in office
   el('rect', { x: 0, y: 740, width: 1920, height: 340, fill: C.wood, stroke: C.navy, 'stroke-width': 8 }, g);
+  el('rect', { x: 140, y: 660, width: 64, height: 80, rx: 10, fill: C.cream, stroke: C.navy, 'stroke-width': 7 }, g);
+  el('path', { d: 'M 140 680 Q 112 680 112 702 Q 112 724 140 724', fill: 'none', stroke: C.navy, 'stroke-width': 7 }, g);
 
   const analyst = personRig(g, { shirt: C.blue, hair: C.orange, glasses: true, confused: true, mode: 'analyst' });
   tf(analyst, 360, 550, 1.05);
@@ -384,14 +417,16 @@ addScene(19.04, 26.32, (g) => {
   tf(scroll, 900, 480, 1, -2);
   el('path', { d: 'M -210 -260 L 210 -260 L 210 270 Q 100 320 -210 270 Z', fill: C.cream, stroke: C.navy, 'stroke-width': 8 }, scroll);
   txt(scroll, 'SYSTEM LOGS', { x: 0, y: -195, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 30, 'font-weight': 800, fill: C.navy });
-  for (let i = 0; i < 5; i++) txt(scroll, `BLOCK #9${i}  [OK]`, { x: -165, y: -105 + i * 66, 'font-family': F.mono, 'font-size': 28, 'font-weight': 800, fill: C.mint });
+  txt(scroll, 'CHAIN: INTACT', { x: 0, y: -152, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 22, 'font-weight': 800, fill: C.blue });
+  for (let i = 0; i < 5; i++) txt(scroll, `BLOCK #9${i}  [OK]`, { x: -165, y: -90 + i * 64, 'font-family': F.mono, 'font-size': 28, 'font-weight': 800, fill: C.mint });
 
-  // Right: Unbroken padlock + Private Key inside glass bell jar
+  // Right: Unbroken Private Key inside glass bell jar
   const proof = el('g', { filter: 'url(#boil)' }, g);
   tf(proof, 1500, 500);
   // Glass bell jar
   el('path', { d: 'M -150 240 L -150 -60 A 150 150 0 0 1 150 -60 L 150 240 Z', fill: 'rgba(130, 215, 245, 0.25)', stroke: C.navy, 'stroke-width': 8 }, proof);
-  el('rect', { x: -175, y: 240, width: 350, height: 36, rx: 8, fill: C.navy }, proof);
+  el('rect', { x: -175, y: 240, width: 350, height: 42, rx: 8, fill: C.navy }, proof);
+  txt(proof, 'PRIVATE KEYS', { x: 0, y: 269, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 22, 'font-weight': 800, fill: C.yellow });
   // Gold key safely inside
   el('circle', { cx: 0, cy: -10, r: 44, fill: C.yellow, stroke: C.navy, 'stroke-width': 7 }, proof);
   el('rect', { x: -12, y: 34, width: 24, height: 135, fill: C.yellow, stroke: C.navy, 'stroke-width': 7 }, proof);
@@ -424,9 +459,10 @@ addScene(26.32, 32.60, (g) => {
   const clerk = personRig(g, { shirt: C.blue, hair: C.navy, glasses: true, mode: 'clerk' });
   tf(clerk, 460, 540, 1.1);
 
-  // Desk + conveyor
+  // Desk + conveyor with rollers
   el('rect', { x: 0, y: 750, width: 1920, height: 330, fill: C.wood, stroke: C.navy, 'stroke-width': 8 }, g);
   el('rect', { x: 640, y: 720, width: 1200, height: 38, rx: 16, fill: C.navy }, g);
+  for (let rx = 680; rx <= 1800; rx += 140) el('circle', { cx: rx, cy: 739, r: 9, fill: C.yellow }, g);
 
   const stack1 = el('g', { filter: 'url(#boil)' }, g);
   el('rect', { x: -110, y: -90, width: 220, height: 90, rx: 8, fill: C.mint, stroke: C.navy, 'stroke-width': 7 }, stack1);
@@ -464,9 +500,17 @@ addScene(32.60, 42.84, (g) => {
   el('rect', { x: 160, y: 250, width: 860, height: 630, rx: 14, fill: C.night2, stroke: C.cream, 'stroke-width': 8 }, hq);
   // Upstairs floor
   el('line', { x1: 160, y1: 560, x2: 1020, y2: 560, stroke: C.cream, 'stroke-width': 8 }, hq);
-  // Locked front gate on bottom-left
+  // Locked front gate on bottom-left + Server rack with blinking LEDs on bottom-right
   el('rect', { x: 200, y: 610, width: 220, height: 270, fill: C.night, stroke: C.yellow, 'stroke-width': 7 }, hq);
   for (let gx = 244; gx < 420; gx += 44) el('line', { x1: gx, y1: 610, x2: gx, y2: 880, stroke: C.yellow, 'stroke-width': 6 }, hq);
+  el('rect', { x: 282, y: 725, width: 56, height: 48, rx: 8, fill: C.yellow, stroke: C.navy, 'stroke-width': 5 }, hq); // padlock on gate
+  el('path', { d: 'M 296 725 L 296 708 A 14 14 0 0 1 324 708 L 324 725', fill: 'none', stroke: C.yellow, 'stroke-width': 6 }, hq);
+  el('rect', { x: 640, y: 610, width: 190, height: 270, rx: 8, fill: C.navy, stroke: C.cream, 'stroke-width': 6 }, hq); // server rack
+  for (let ry = 640; ry <= 820; ry += 45) {
+    el('rect', { x: 662, y: ry, width: 146, height: 26, rx: 4, fill: C.night2 }, hq);
+    el('circle', { cx: 682, cy: ry + 13, r: 5, fill: C.mint }, hq);
+    el('circle', { cx: 702, cy: ry + 13, r: 5, fill: C.yellow }, hq);
+  }
 
   // Hooded intruder ALREADY sitting upstairs at glowing desk!
   el('rect', { x: 830, y: 360, width: 42, height: 150, rx: 14, fill: C.blue, stroke: C.cream, 'stroke-width': 6 }, hq); // office chair back
@@ -492,13 +536,15 @@ addScene(32.60, 42.84, (g) => {
   const noCode = el('g', { filter: 'url(#boil)' }, g);
   tf(noCode, 1420, 560);
   el('rect', { x: -230, y: -190, width: 460, height: 380, rx: 20, fill: C.cream, stroke: C.navy, 'stroke-width': 9 }, noCode);
-  txt(noCode, '</> CODE', { x: 0, y: 20, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 62, 'font-weight': 800, fill: C.navy });
+  txt(noCode, '</> CODE', { x: 0, y: 10, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 62, 'font-weight': 800, fill: C.navy });
+  txt(noCode, 'NO EXPLOIT USED', { x: 0, y: 135, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 26, 'font-weight': 800, fill: C.red });
   el('line', { x1: -170, y1: -130, x2: 170, y2: 130, stroke: C.red, 'stroke-width': 22, 'stroke-linecap': 'round' }, noCode);
   el('line', { x1: 170, y1: -130, x2: -170, y2: 130, stroke: C.red, 'stroke-width': 22, 'stroke-linecap': 'round' }, noCode);
 
   const juneFull = el('g', {}, g);
   el('rect', { width: 1920, height: 1080, fill: C.paper }, juneFull);
-  txt(juneFull, 'REWIND TO', { x: 960, y: 400, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 48, 'font-weight': 800, fill: C.red });
+  halftone(juneFull, { color: C.yellow, step: 26, angle: 20, f: (x, y) => clamp(0.45 - Math.hypot(x - 960, y - 540) / 900) });
+  txt(juneFull, '◀◀  REWIND TO', { x: 960, y: 400, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 48, 'font-weight': 800, fill: C.red });
   txt(juneFull, 'JUNE', { x: 960, y: 650, 'text-anchor': 'middle', 'font-family': F.bagel, 'font-size': 260, fill: C.navy });
 
   const months = ['OCT', 'SEP', 'AUG', 'JUL', 'JUN'];
