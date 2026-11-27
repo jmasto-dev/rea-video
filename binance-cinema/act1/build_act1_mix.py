@@ -1,4 +1,4 @@
-"""Build Act 1 (0.00s - 41.08s) studio-grade audio mix for binance-cinema."""
+"""Build Act 1 (0.00s - 42.84s) studio-grade audio mix for binance-cinema."""
 import os
 import sys
 import subprocess
@@ -14,7 +14,7 @@ ROOT_DIR = os.path.dirname(ACT1_DIR)
 SRC_WAV = os.path.join(ROOT_DIR, 'binance-hacking.wav')
 OUT_WAV = os.path.join(ACT1_DIR, 'act1_mix.wav')
 
-DUR = 41.08
+DUR = 42.84
 N = int(round(DUR * SR))
 rng = np.random.default_rng(20261029)
 
@@ -60,7 +60,7 @@ def sine_tone(d, f, f_end=None):
 
 
 # ==============================================================================
-# 1. EXTRACT & RESAMPLE VOICEOVER (0.00 - 41.08s, 24kHz -> 48kHz via ffmpeg)
+# 1. EXTRACT & RESAMPLE VOICEOVER (0.00 - 42.84s, 24kHz -> 48kHz via ffmpeg)
 # ==============================================================================
 vo_proc = subprocess.run(
     ['ffmpeg', '-v', 'error', '-ss', '0', '-t', f'{DUR:.3f}', '-i', SRC_WAV,
@@ -219,7 +219,7 @@ put(amb, norm(fan_drone, 0.32), 32.90, 0.36, 0.0)
 crk = creak(0.8)
 put(fol, norm(crk, 0.30), 35.40, 0.26, 0.35)
 
-# Beat 11 (37.28-41.08s): Parchment scrape + soft lock pin click (39.2s)
+# Beat 11 (37.28-42.84s): Parchment scrape + soft lock pin click (39.2s)
 n_sc = int(round(0.75 * SR))
 scrape = bp(rng.standard_normal(n_sc), 1100, 3800) * np.sin(np.pi * np.arange(n_sc) / n_sc) ** 1.3
 put(fol, norm(scrape, 0.34), 37.85, 0.30, -0.15)

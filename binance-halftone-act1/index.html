@@ -22,11 +22,6 @@
       <feColorMatrix in="g" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -22 15.2" result="gm"/>
       <feComposite in="d" in2="gm" operator="in"/>
     </filter>
-    <filter id="ink" x="-5%" y="-5%" width="110%" height="110%">
-      <feTurbulence type="fractalNoise" baseFrequency="0.7" numOctaves="2" seed="9" result="g"/>
-      <feColorMatrix in="g" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -22 15.4" result="gm"/>
-      <feComposite in="SourceGraphic" in2="gm" operator="in"/>
-    </filter>
     <filter id="stampInk" x="-10%" y="-10%" width="120%" height="120%">
       <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="3" seed="11" result="w"/>
       <feDisplacementMap in="SourceGraphic" in2="w" scale="7" xChannelSelector="R" yChannelSelector="G" result="d"/>
@@ -38,7 +33,6 @@
   </defs>
   <g clip-path="url(#frameClip)">
     <g id="cam"><g id="world"></g></g>
-    <g id="hud"></g>
     <g id="wipe"></g>
     <rect id="flash" width="1920" height="1080" fill="#FFFFFF" opacity="0"/>
   </g>
@@ -57,10 +51,9 @@ const F = {
   serif: "'Noto Serif SC', Georgia, serif",
   bagel: "'Bagel Fat One', Impact, sans-serif",
   mono: "'JetBrains Mono', monospace",
-  sans: "'Noto Sans SC', sans-serif",
 };
 const FPS = 24;
-window.DUR = 41.08;
+window.DUR = 42.84;
 
 function el(tag, attrs = {}, parent) {
   const e = document.createElementNS(NS, tag);
@@ -88,7 +81,7 @@ const mctx = document.createElement('canvas').getContext('2d');
 function measure(str, size, family, weight = 900) { mctx.font = `${weight} ${size}px ${family}`; return mctx.measureText(str).width; }
 
 function chars(parent, str, o) {
-  const { x, y, size, family, weight = 900, fill = C.navy, anchor = 'start', ls = 0, shadow, stroke, sw = 0 } = o;
+  const { x, y, size, family, weight = 900, fill = C.navy, anchor = 'start', ls = 0, shadow } = o;
   const g = el('g', {}, parent);
   const arr = [...str];
   const widths = arr.map(c => measure(c, size, family, weight));
@@ -98,8 +91,7 @@ function chars(parent, str, o) {
     const cg = el('g', {}, g);
     const base = { x: 0, y: 0, 'font-size': size, 'font-family': family, 'font-weight': weight, 'text-anchor': 'middle' };
     if (shadow) txt(cg, ch, { ...base, x: shadow.dx, y: shadow.dy, fill: shadow.fill, class: 'mul' });
-    const st = stroke ? { stroke, 'stroke-width': sw, 'paint-order': 'stroke', 'stroke-linejoin': 'round' } : {};
-    txt(cg, ch, { ...base, fill, ...st });
+    txt(cg, ch, { ...base, fill });
     const it = { g: cg, x: cx + widths[i] / 2, y, w: widths[i], size };
     cx += widths[i] + ls;
     tf(cg, it.x, it.y);
@@ -108,7 +100,7 @@ function chars(parent, str, o) {
   return { g, items, total };
 }
 
-function charsPop(c, t, t0, stagger = 0.035, d = 0.34, from = 55) {
+function charsPop(c, t, t0, stagger = 0.03, d = 0.32, from = 50) {
   c.items.forEach((it, i) => {
     const s = t0 + i * stagger;
     const p = seg(t, s, s + d);
@@ -147,22 +139,58 @@ function makeStamp(parent, label, color = C.red, w = 420, h = 128) {
 function stampAnim(st, t, t0, x, y, rot = -10) {
   if (t < t0) { op(st, 0); return; }
   const p = seg(t, t0, t0 + 0.10);
-  const sc = lerp(2.5, 1.0, p * p);
   op(st, 0.94);
-  tf(st, x, y, sc, rot);
+  tf(st, x, y, lerp(2.5, 1.0, p * p), rot);
 }
 
-// Expressive human head rig (thick 7px outline, glossy eyes, brows, mouth)
-function personRig(parent, { shirt = C.blue, hair = C.navy, glasses = false }) {
+function personRig(parent, { shirt = C.blue, hair = C.navy, glasses = false, confused = false, mode = 'bed' }) {
   const g = el('g', { filter: 'url(#boil)' }, parent);
   const S = { stroke: C.navy, 'stroke-width': 7, 'stroke-linejoin': 'round', 'stroke-linecap': 'round' };
-  // Shoulders / torso
-  el('path', { d: 'M -130 280 C -130 130 -85 95 0 95 C 85 95 130 130 130 280 Z', fill: shirt, ...S }, g);
-  // Head
-  el('rect', { x: -86, y: -96, width: 172, height: 184, rx: 78, fill: C.skin, ...S }, g);
-  // Hair
-  el('path', { d: 'M -86 -20 C -90 -105 -20 -122 30 -116 C 85 -110 92 -45 86 -20 C 55 -55 -40 -55 -86 -20 Z', fill: hair, ...S }, g);
-  // Eyes (wide white sclera + glossy pupils)
+
+  if (mode === 'bed') {
+    // Bed headboard, pillow & blanket
+    el('rect', { x: -240, y: 20, width: 480, height: 320, rx: 18, fill: C.night2, ...S }, g);
+    el('rect', { x: -175, y: 55, width: 350, height: 120, rx: 28, fill: C.cream, ...S }, g);
+  }
+
+  // Articulated torso + collar
+  el('path', { d: 'M -115 260 C -115 120 -75 88 0 88 C 75 88 115 120 115 260 Z', fill: shirt, ...S }, g);
+  el('path', { d: 'M -36 90 L 0 128 L 36 90', fill: 'none', ...S }, g);
+
+  // Articulated arms & hands holding props
+  if (mode === 'bed') {
+    // Blanket across lap
+    el('rect', { x: -250, y: 215, width: 500, height: 150, rx: 16, fill: C.blue, ...S }, g);
+    // Left & right arms reaching forward to hold glowing phone
+    el('path', { d: 'M -105 145 Q -155 210 -65 235', fill: 'none', stroke: C.navy, 'stroke-width': 38, 'stroke-linecap': 'round' }, g);
+    el('path', { d: 'M -105 145 Q -155 210 -65 235', fill: 'none', stroke: shirt, 'stroke-width': 24, 'stroke-linecap': 'round' }, g);
+    el('path', { d: 'M 105 145 Q 155 210 65 235', fill: 'none', stroke: C.navy, 'stroke-width': 38, 'stroke-linecap': 'round' }, g);
+    el('path', { d: 'M 105 145 Q 155 210 65 235', fill: 'none', stroke: shirt, 'stroke-width': 24, 'stroke-linecap': 'round' }, g);
+    // Hands
+    el('circle', { cx: -62, cy: 235, r: 22, fill: C.skin, ...S }, g);
+    el('circle', { cx: 62, cy: 235, r: 22, fill: C.skin, ...S }, g);
+    // Sweat drop on temple
+    el('path', { d: 'M 96 -52 C 110 -26 112 -8 96 -8 C 80 -8 82 -26 96 -52 Z', fill: '#7AD7F0', ...S }, g);
+  } else if (mode === 'analyst') {
+    // Left arm scratching head in confusion
+    el('path', { d: 'M -105 140 Q -175 40 -95 -65', fill: 'none', stroke: C.navy, 'stroke-width': 36, 'stroke-linecap': 'round' }, g);
+    el('path', { d: 'M -105 140 Q -175 40 -95 -65', fill: 'none', stroke: shirt, 'stroke-width': 22, 'stroke-linecap': 'round' }, g);
+    el('circle', { cx: -92, cy: -72, r: 21, fill: C.skin, ...S }, g);
+    // Right arm extended holding magnifying glass toward logs
+    el('path', { d: 'M 105 140 Q 175 170 235 105', fill: 'none', stroke: C.navy, 'stroke-width': 36, 'stroke-linecap': 'round' }, g);
+    el('path', { d: 'M 105 140 Q 175 170 235 105', fill: 'none', stroke: shirt, 'stroke-width': 22, 'stroke-linecap': 'round' }, g);
+    el('circle', { cx: 238, cy: 102, r: 22, fill: C.skin, ...S }, g);
+    // Magnifying glass
+    el('line', { x1: 245, y1: 95, x2: 300, y2: 35, stroke: C.navy, 'stroke-width': 14, 'stroke-linecap': 'round' }, g);
+    el('circle', { cx: 335, cy: -5, r: 58, fill: 'rgba(120, 220, 255, 0.28)', stroke: C.navy, 'stroke-width': 10 }, g);
+  }
+
+  // Head + ears + neck
+  el('rect', { x: -24, y: 60, width: 48, height: 42, fill: C.skin, ...S }, g);
+  el('circle', { cx: -86, cy: 2, r: 20, fill: C.skin, ...S }, g);
+  el('circle', { cx: 86, cy: 2, r: 20, fill: C.skin, ...S }, g);
+  el('rect', { x: -84, y: -96, width: 168, height: 176, rx: 76, fill: C.skin, ...S }, g);
+  el('path', { d: 'M -86 -22 C -92 -106 -20 -122 30 -116 C 85 -110 92 -45 86 -22 C 55 -56 -40 -56 -86 -22 Z', fill: hair, ...S }, g);
   for (const ex of [-34, 34]) {
     el('ellipse', { cx: ex, cy: -8, rx: 22, ry: 26, fill: C.cream, ...S }, g);
     el('circle', { cx: ex + 4, cy: -8, r: 9, fill: C.navy }, g);
@@ -172,18 +200,29 @@ function personRig(parent, { shirt = C.blue, hair = C.navy, glasses = false }) {
     for (const ex of [-34, 34]) el('rect', { x: ex - 28, y: -32, width: 56, height: 46, rx: 8, fill: 'none', stroke: C.navy, 'stroke-width': 6 }, g);
     el('line', { x1: -6, y1: -10, x2: 6, y2: -10, stroke: C.navy, 'stroke-width': 6 }, g);
   }
-  // Brows & mouth
-  const brow = el('path', { d: 'M -58 -44 Q -34 -56 -12 -44 M 12 -44 Q 34 -56 58 -44', fill: 'none', ...S }, g);
-  const mouth = el('ellipse', { cx: 0, cy: 46, rx: 18, ry: 12, fill: C.navy }, g);
-  return { g, brow, mouth };
+  const browD = confused
+    ? 'M -58 -40 Q -34 -62 -12 -46 M 12 -40 Q 34 -34 58 -44'
+    : 'M -58 -44 Q -34 -56 -12 -44 M 12 -44 Q 34 -56 58 -44';
+  el('path', { d: browD, fill: 'none', ...S }, g);
+  if (confused) {
+    el('path', { d: 'M -22 48 Q 0 36 22 48', fill: 'none', ...S }, g);
+  } else {
+    el('ellipse', { cx: 0, cy: 46, rx: 18, ry: 12, fill: C.navy }, g);
+  }
+  return g;
+}
+
+function moneyBag(parent, label = '$') {
+  const g = el('g', { filter: 'url(#boil)' }, parent);
+  const S = { stroke: C.navy, 'stroke-width': 6, 'stroke-linejoin': 'round' };
+  el('path', { d: 'M -28 -36 L 28 -36 L 18 -14 C 52 2 56 58 0 58 C -56 58 -52 2 -18 -14 Z', fill: C.yellow, ...S }, g);
+  txt(g, label, { x: 0, y: 34, 'text-anchor': 'middle', 'font-family': F.bagel, 'font-size': 42, fill: C.navy });
+  return g;
 }
 
 const world = document.getElementById('world');
-const hud = document.getElementById('hud');
 const wipe = document.getElementById('wipe');
 const cam = document.getElementById('cam');
-const flash = document.getElementById('flash');
-
 const scenes = [];
 function addScene(t0, t1, buildFn) {
   const g = el('g', {}, world);
@@ -192,213 +231,228 @@ function addScene(t0, t1, buildFn) {
 }
 
 // ============================================================
-// SCENE 1 (0.00 - 8.52s): Vault cracks open -> 10 chain exhibits pop
+// SCENE 1 (0.00 - 8.52s): "At 8.05 pm on October 29th, money starts pouring out of Binance across 10 blockchains at once."
 // ============================================================
-addScene(0.00, 8.52, (g, t0) => {
+addScene(0.00, 8.52, (g) => {
   el('rect', { width: 1920, height: 1080, fill: C.night }, g);
-  halftone(g, { color: C.night2, step: 26, angle: 18, f: (x, y) => 0.52 - Math.hypot(x - 960, y - 500) / 1450 });
+  halftone(g, { color: C.night2, step: 26, angle: 18, f: (x, y) => 0.5 - Math.hypot(x - 960, y - 540) / 1450 });
 
   const title = chars(g, '8:05 PM · OCT 29', {
-    x: 110, y: 170, size: 116, family: F.serif, fill: C.cream,
-    shadow: { dx: 8, dy: 8, fill: C.pink },
+    x: 100, y: 150, size: 108, family: F.serif, fill: C.cream, shadow: { dx: 8, dy: 8, fill: C.pink },
   });
 
-  // Chunky cartoon vault safe in center
-  const vaultG = el('g', { filter: 'url(#boil)' }, g);
-  tf(vaultG, 960, 560);
-  el('rect', { x: -240, y: -230, width: 480, height: 460, rx: 28, fill: C.blue, stroke: C.cream, 'stroke-width': 9 }, vaultG);
-  el('rect', { x: -195, y: -185, width: 390, height: 370, rx: 18, fill: C.night, stroke: C.cream, 'stroke-width': 6 }, vaultG);
-  txt(vaultG, 'BINANCE', { x: 0, y: -115, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 36, 'font-weight': 800, fill: C.yellow });
+  // Left: Vault safe with swinging door & pouring money bags
+  const vault = el('g', { filter: 'url(#boil)' }, g);
+  tf(vault, 480, 610);
+  el('rect', { x: -210, y: -210, width: 420, height: 420, rx: 24, fill: C.blue, stroke: C.cream, 'stroke-width': 9 }, vault);
+  el('rect', { x: -165, y: -165, width: 330, height: 330, rx: 14, fill: C.night, stroke: C.cream, 'stroke-width': 5 }, vault);
+  txt(vault, 'BINANCE', { x: 0, y: -190, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 30, 'font-weight': 800, fill: C.yellow });
 
-  // 10 bursting chain chips
+  // Pouring money bags arcing out toward right
+  const bags = Array.from({ length: 8 }, (_, i) => ({ g: moneyBag(g, '$'), i }));
+
+  // Right (at 4.5s+): 10 pipes / chutes labeled with 10 blockchains pouring out
   const CHAINS = ['ETH', 'BTC', 'SOL', 'XRP', 'TRON', 'BNB', 'ADA', 'AVAX', 'DOGE', 'LINK'];
-  const chips = CHAINS.map((name, i) => {
-    const ang = (i / 10) * Math.PI * 2 - Math.PI / 2;
-    const cg = el('g', { filter: 'url(#boil)' }, g);
-    const col = i % 2 === 0 ? C.yellow : C.pink;
-    el('rect', { x: -78, y: -36, width: 156, height: 72, rx: 14, fill: col, stroke: C.navy, 'stroke-width': 7 }, cg);
-    txt(cg, name, { x: 0, y: 12, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 32, 'font-weight': 800, fill: C.navy });
-    return { cg, ang };
+  const pipes = CHAINS.map((name, i) => {
+    const pg = el('g', { filter: 'url(#boil)' }, g);
+    const y = 210 + i * 76;
+    el('path', { d: `M 760 560 C 980 560 1080 ${y} 1340 ${y}`, fill: 'none', stroke: i % 2 === 0 ? C.yellow : C.pink, 'stroke-width': 10, 'stroke-linecap': 'round' }, pg);
+    el('rect', { x: 1340, y: y - 26, width: 150, height: 52, rx: 10, fill: i % 2 === 0 ? C.yellow : C.pink, stroke: C.navy, 'stroke-width': 6 }, pg);
+    txt(pg, name, { x: 1415, y: y + 11, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 28, 'font-weight': 800, fill: C.navy });
+    return { pg, y, i };
   });
 
   return (t) => {
-    charsPop(title, t, 0.25);
-    const open = E.back(seg(t, 1.4, 2.5));
-    tf(vaultG, 960, 560, 0.92 + 0.08 * open);
-    chips.forEach((c, i) => {
-      const p = E.back(seg(t, 3.6 + i * 0.25, 4.3 + i * 0.25));
-      if (t < 3.6 + i * 0.25) { op(c.cg, 0); return; }
-      op(c.cg, 1);
-      const rx = 560 * p, ry = 310 * p;
-      tf(c.cg, 960 + Math.cos(c.ang) * rx, 560 + Math.sin(c.ang) * ry, p);
+    charsPop(title, t, 0.2);
+    bags.forEach(({ g: bg, i }) => {
+      const cyc = ((t * 1.1 + i * 0.25) % 1.8) / 1.8;
+      const x = lerp(480, 920, cyc);
+      const y = 600 - Math.sin(cyc * Math.PI) * 200 + (i % 3) * 35;
+      op(bg, t < 5.5 ? 1 : 0);
+      tf(bg, x, y, 0.72, cyc * 40 - 20);
+    });
+    pipes.forEach(({ pg, i }) => {
+      const p = seg(t, 4.4 + i * 0.16, 5.0 + i * 0.16);
+      op(pg, p);
     });
   };
 });
 
 // ============================================================
-// SCENE 2 (8.52 - 12.00s): Giant Halftone -$6.3B + GONE stamp
+// SCENE 2 (8.52 - 13.80s): "20 minutes later, $6.3 billion is gone."
 // ============================================================
-addScene(8.52, 12.00, (g) => {
+addScene(8.52, 13.80, (g) => {
   el('rect', { width: 1920, height: 1080, fill: C.paper }, g);
-  halftone(g, { color: C.yellow, step: 24, angle: 22, f: (x, y) => clamp(0.48 - Math.hypot(x - 960, y - 540) / 1100) });
+  halftone(g, { color: C.yellow, step: 24, angle: 22, f: (x, y) => clamp(0.48 - Math.hypot(x - 1180, y - 540) / 950) });
+
+  // Spinning clock (8:05 -> 8:25) on left
+  const clk = el('g', { filter: 'url(#boil)' }, g);
+  tf(clk, 430, 520);
+  el('circle', { cx: 0, cy: 0, r: 210, fill: C.cream, stroke: C.navy, 'stroke-width': 12 }, clk);
+  el('line', { x1: 0, y1: 0, x2: -100, y2: -55, stroke: C.navy, 'stroke-width': 14, 'stroke-linecap': 'round' }, clk);
+  const minHand = el('line', { x1: 0, y1: 0, x2: 0, y2: -150, stroke: C.red, 'stroke-width': 11, 'stroke-linecap': 'round' }, clk);
+  const clkLbl = txt(clk, '20 MIN LATER', { x: 0, y: 290, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 34, 'font-weight': 800, fill: C.navy });
 
   const big = chars(g, '-$6.3B', {
-    x: 960, y: 580, size: 320, family: F.bagel, fill: C.navy, anchor: 'middle',
-    shadow: { dx: 14, dy: 14, fill: C.red },
-  });
-  const sub = chars(g, 'TWENTY MINUTES', {
-    x: 960, y: 710, size: 54, family: F.mono, fill: C.navy, anchor: 'middle',
+    x: 1220, y: 580, size: 280, family: F.bagel, fill: C.navy, anchor: 'middle', shadow: { dx: 14, dy: 14, fill: C.red },
   });
   const st = makeStamp(g, 'GONE', C.red, 360, 130);
 
   return (t) => {
-    charsPop(big, t, 8.6, 0.04);
-    charsPop(sub, t, 9.2, 0.02);
-    stampAnim(st, t, 10.45, 1380, 320, -12);
+    const p = seg(t, 8.6, 10.6);
+    const ang = lerp(30, 150, E.out(p)); // 8:05 -> 8:25
+    minHand.setAttribute('transform', `rotate(${ang.toFixed(1)})`);
+    charsPop(big, t, 10.2, 0.04);
+    stampAnim(st, t, 11.4, 1520, 310, -12);
   };
 });
 
 // ============================================================
-// SCENE 3 (12.00 - 19.04s): User in bed at night + greyed out WITHDRAW stamp
+// SCENE 3 (13.80 - 19.04s): "Users open the app to pull their cash out and the withdraw button is grayed out."
 // ============================================================
-addScene(12.00, 19.04, (g) => {
+addScene(13.80, 19.04, (g) => {
   el('rect', { width: 1920, height: 1080, fill: C.night }, g);
-  halftone(g, { color: C.blue, step: 26, angle: 12, f: (x, y) => clamp(0.42 - Math.hypot(x - 620, y - 520) / 900) });
+  halftone(g, { color: C.blue, step: 26, angle: 12, f: (x, y) => clamp(0.42 - Math.hypot(x - 600, y - 540) / 900) });
 
-  const user = personRig(g, { shirt: C.pink, hair: C.navy });
-  tf(user.g, 560, 560, 1.35);
+  const user = personRig(g, { shirt: C.pink, hair: C.navy, mode: 'bed' });
+  tf(user, 540, 580, 1.15);
 
-  // Chunky cartoon smartphone on right
   const phone = el('g', { filter: 'url(#boil)' }, g);
   tf(phone, 1280, 520);
   el('rect', { x: -190, y: -330, width: 380, height: 660, rx: 36, fill: C.cream, stroke: C.navy, 'stroke-width': 10 }, phone);
   el('rect', { x: -155, y: -250, width: 310, height: 480, rx: 14, fill: C.paper, stroke: C.navy, 'stroke-width': 6 }, phone);
-  txt(phone, 'BALANCE', { x: 0, y: -175, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 26, 'font-weight': 800, fill: C.navy });
-  txt(phone, '$48,920', { x: 0, y: -115, 'text-anchor': 'middle', 'font-family': F.bagel, 'font-size': 56, fill: C.navy });
+  txt(phone, 'CASH OUT', { x: 0, y: -155, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 28, 'font-weight': 800, fill: C.navy });
+  const btn = el('rect', { x: -135, y: 40, width: 270, height: 90, rx: 16, fill: C.yellow, stroke: C.navy, 'stroke-width': 7 }, phone);
+  const btnTxt = txt(phone, 'WITHDRAW', { x: 0, y: 96, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 32, 'font-weight': 800, fill: C.navy });
 
-  const btn = el('rect', { x: -130, y: 65, width: 260, height: 86, rx: 16, fill: C.yellow, stroke: C.navy, 'stroke-width': 7 }, phone);
-  const btnTxt = txt(phone, 'WITHDRAW', { x: 0, y: 120, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 32, 'font-weight': 800, fill: C.navy });
-
-  const st = makeStamp(g, 'DISABLED', C.red, 360, 120);
+  const st = makeStamp(g, 'GREYED OUT', C.red, 440, 125);
 
   return (t) => {
-    const bob = Math.sin(t * 2.5) * 6;
-    tf(user.g, 560, 560 + bob, 1.35);
-    const greyed = t >= 16.3;
+    tf(user, 540, 580 + Math.sin(t * 3) * 5, 1.15);
+    const greyed = t >= 16.4;
     btn.setAttribute('fill', greyed ? '#9EA4B0' : C.yellow);
     btnTxt.setAttribute('fill', greyed ? '#4B5260' : C.navy);
     let tap = 1;
-    for (const tp of [16.3, 17.0, 17.7]) if (Math.abs(t - tp) < 0.12) tap = 0.94;
+    for (const tp of [16.4, 17.1, 17.8]) if (Math.abs(t - tp) < 0.12) tap = 0.94;
     tf(phone, 1280, 520, tap);
-    stampAnim(st, t, 17.7, 1280, 620, -10);
+    stampAnim(st, t, 17.8, 1280, 620, -9);
   };
 });
 
 // ============================================================
-// SCENE 4 (19.04 - 26.32s): Analyst inspecting OK logs + Intact Padlock
+// SCENE 4 (19.04 - 26.32s): "When Binance pulls the logs, nothing adds up. No blockchain got broken, not a single private key was leaked."
 // ============================================================
 addScene(19.04, 26.32, (g) => {
   el('rect', { width: 1920, height: 1080, fill: C.paper }, g);
   halftone(g, { color: C.mint, step: 24, angle: 30, f: (x, y) => clamp(0.4 - Math.hypot(x - 1350, y - 540) / 950) });
 
-  const analyst = personRig(g, { shirt: C.blue, hair: C.orange, glasses: true });
-  tf(analyst.g, 430, 590, 1.2);
+  const analyst = personRig(g, { shirt: C.blue, hair: C.orange, glasses: true, confused: true, mode: 'analyst' });
+  tf(analyst, 360, 590, 1.05);
+  const qMark = txt(g, '?', { x: 520, y: 420, 'font-family': F.bagel, 'font-size': 120, fill: C.red });
 
-  // Audit sheet exhibit
+  // Audit sheet
   const sheet = el('g', { filter: 'url(#boil)' }, g);
-  tf(sheet, 960, 520, 1, -2);
-  el('rect', { x: -240, y: -260, width: 480, height: 520, rx: 12, fill: C.cream, stroke: C.navy, 'stroke-width': 8 }, sheet);
-  txt(sheet, 'AUDIT LOGS', { x: 0, y: -185, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 32, 'font-weight': 800, fill: C.navy });
-  for (let i = 0; i < 5; i++) {
-    txt(sheet, `TX#884${i}  [OK]`, { x: -175, y: -90 + i * 65, 'font-family': F.mono, 'font-size': 28, 'font-weight': 800, fill: C.mint });
-  }
+  tf(sheet, 920, 530, 1, -2);
+  el('rect', { x: -220, y: -250, width: 440, height: 500, rx: 12, fill: C.cream, stroke: C.navy, 'stroke-width': 8 }, sheet);
+  txt(sheet, 'SYSTEM LOGS', { x: 0, y: -175, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 30, 'font-weight': 800, fill: C.navy });
+  for (let i = 0; i < 4; i++) txt(sheet, `BLOCK #9${i}  [OK]`, { x: -165, y: -80 + i * 70, 'font-family': F.mono, 'font-size': 28, 'font-weight': 800, fill: C.mint });
 
-  // Intact Padlock exhibit on right
-  const lock = el('g', { filter: 'url(#boil)' }, g);
-  tf(lock, 1510, 520);
-  el('path', { d: 'M -75 -40 L -75 -130 A 75 75 0 0 1 75 -130 L 75 -40', fill: 'none', stroke: C.navy, 'stroke-width': 26, 'stroke-linecap': 'round' }, lock);
-  el('path', { d: 'M -75 -40 L -75 -130 A 75 75 0 0 1 75 -130 L 75 -40', fill: 'none', stroke: C.yellow, 'stroke-width': 12, 'stroke-linecap': 'round' }, lock);
-  el('rect', { x: -120, y: -45, width: 240, height: 220, rx: 24, fill: C.yellow, stroke: C.navy, 'stroke-width': 9 }, lock);
-  el('circle', { cx: 0, cy: 50, r: 22, fill: C.navy }, lock);
-  el('rect', { x: -10, y: 60, width: 20, height: 55, rx: 6, fill: C.navy }, lock);
+  // Right: Unbroken chain/padlock + Safe Key
+  const proofG = el('g', { filter: 'url(#boil)' }, g);
+  tf(proofG, 1510, 520);
+  el('path', { d: 'M -70 -40 L -70 -125 A 70 70 0 0 1 70 -125 L 70 -40', fill: 'none', stroke: C.navy, 'stroke-width': 24, 'stroke-linecap': 'round' }, proofG);
+  el('path', { d: 'M -70 -40 L -70 -125 A 70 70 0 0 1 70 -125 L 70 -40', fill: 'none', stroke: C.yellow, 'stroke-width': 11, 'stroke-linecap': 'round' }, proofG);
+  el('rect', { x: -115, y: -45, width: 230, height: 205, rx: 22, fill: C.yellow, stroke: C.navy, 'stroke-width': 9 }, proofG);
+  el('circle', { cx: 0, cy: 48, r: 20, fill: C.navy }, proofG);
+  txt(proofG, '0 KEYS LEAKED', { x: 0, y: 230, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 30, 'font-weight': 800, fill: C.navy });
 
-  const st = makeStamp(g, '0 LEAKS', C.blue, 350, 120);
+  const st = makeStamp(g, 'INTACT', C.blue, 340, 115);
 
   return (t) => {
-    tf(analyst.g, 430, 590 + Math.sin(t * 2) * 5, 1.2);
-    const popL = E.back(seg(t, 22.1, 22.6));
-    tf(lock, 1510, 520, popL);
-    stampAnim(st, t, 23.5, 1510, 740, 8);
+    tf(analyst, 360, 590 + Math.sin(t * 2.5) * 4, 1.05);
+    op(qMark, t < 22.0 ? 1 : 0);
+    const popP = E.back(seg(t, 22.0, 22.6));
+    tf(proofG, 1510, 520, t < 22.0 ? 0 : popP);
+    stampAnim(st, t, 23.6, 1510, 320, 9);
   };
 });
 
 // ============================================================
-// SCENE 5 (26.32 - 33.00s): Signed by Binance's Own Internal System
+// SCENE 5 (26.32 - 32.60s): "Every transfer that drained those wallets was legitimately signed by Binance's own internal system."
 // ============================================================
-addScene(26.32, 33.00, (g) => {
+addScene(26.32, 32.60, (g) => {
   el('rect', { width: 1920, height: 1080, fill: C.paper }, g);
   halftone(g, { color: C.orange, step: 22, angle: 16, f: (x, y) => clamp(0.38 - Math.hypot(x - 960, y - 540) / 1100) });
 
   const title = chars(g, 'INTERNAL SYSTEM', {
-    x: 110, y: 170, size: 118, family: F.serif, fill: C.navy,
-    shadow: { dx: 8, dy: 8, fill: C.yellow },
+    x: 110, y: 160, size: 116, family: F.serif, fill: C.navy, shadow: { dx: 8, dy: 8, fill: C.yellow },
   });
 
-  const doc = el('g', { filter: 'url(#boil)' }, g);
-  tf(doc, 960, 580, 1, -1.5);
-  el('rect', { x: -460, y: -240, width: 920, height: 480, rx: 14, fill: C.cream, stroke: C.navy, 'stroke-width': 9 }, doc);
-  txt(doc, 'OUTBOUND MANIFEST // OCT 29', { x: -390, y: -155, 'font-family': F.mono, 'font-size': 30, 'font-weight': 800, fill: C.navy });
-  txt(doc, 'SIGNER:  BINANCE_CORE_VAULT', { x: -390, y: -65, 'font-family': F.mono, 'font-size': 32, 'font-weight': 800, fill: C.blue });
-  txt(doc, 'AMOUNT:  $118,400,000.00', { x: -390, y: 10, 'font-family': F.mono, 'font-size': 32, 'font-weight': 800, fill: C.navy });
-
-  const st1 = makeStamp(g, 'APPROVED', C.red, 420, 130);
-  const st2 = makeStamp(g, 'VALID', C.mint, 330, 120);
+  // Draining money bags on conveyor being stamped APPROVED by Binance's own arm
+  const conv = el('g', { filter: 'url(#boil)' }, g);
+  el('rect', { x: 180, y: 710, width: 1560, height: 48, rx: 24, fill: C.navy }, conv);
+  const bag1 = moneyBag(g, '$');
+  const bag2 = moneyBag(g, '$');
+  const st = makeStamp(g, 'SIGNED', C.mint, 360, 125);
 
   return (t) => {
     charsPop(title, t, 26.4, 0.03);
-    stampAnim(st1, t, 27.2, 1180, 690, -10);
-    stampAnim(st2, t, 29.8, 690, 710, 8);
+    const p1 = (t - 26.32) / 6.28;
+    tf(bag1, lerp(420, 1450, p1), 620, 1.7);
+    tf(bag2, lerp(160, 1180, p1), 620, 1.7);
+    stampAnim(st, t, 28.4, 960, 520, -8);
   };
 });
 
 // ============================================================
-// SCENE 6 (33.00 - 41.08s): Inside for 5 months -> Rewind to June
+// SCENE 6 (32.60 - 42.84s): "Whoever pulled this off had been inside the company for five months. And the way they got in had nothing to do with breaking code. Rewind to June."
 // ============================================================
-addScene(33.00, 41.08, (g) => {
+addScene(32.60, 42.84, (g) => {
   el('rect', { width: 1920, height: 1080, fill: C.night }, g);
   halftone(g, { color: C.pink, step: 24, angle: 20, f: (x, y) => clamp(0.45 - Math.hypot(x - 960, y - 540) / 1100) });
 
   const title = chars(g, '5 MONTHS INSIDE', {
-    x: 110, y: 170, size: 118, family: F.serif, fill: C.cream,
-    shadow: { dx: 8, dy: 8, fill: C.pink },
+    x: 100, y: 160, size: 112, family: F.serif, fill: C.cream, shadow: { dx: 8, dy: 8, fill: C.pink },
   });
 
-  // Locked front gate on left + intruder already inside on right
-  const gate = el('g', { filter: 'url(#boil)' }, g);
-  tf(gate, 540, 580);
-  el('rect', { x: -240, y: -230, width: 480, height: 460, rx: 18, fill: C.night2, stroke: C.cream, 'stroke-width': 8 }, gate);
-  for (let x = -180; x <= 180; x += 60) el('line', { x1: x, y1: -230, x2: x, y2: 230, stroke: C.cream, 'stroke-width': 10 }, gate);
+  // Left: Shadowy intruder inside building + 5 calendar months flipping
+  const cal = el('g', { filter: 'url(#boil)' }, g);
+  tf(cal, 520, 580);
+  el('rect', { x: -210, y: -190, width: 420, height: 380, rx: 20, fill: C.paper, stroke: C.navy, 'stroke-width': 9 }, cal);
+  el('rect', { x: -210, y: -190, width: 420, height: 90, rx: 20, fill: C.red, stroke: C.navy, 'stroke-width': 9 }, cal);
+  const calMonth = txt(cal, 'OCT', { x: 0, y: 90, 'text-anchor': 'middle', 'font-family': F.bagel, 'font-size': 130, fill: C.navy });
 
-  const juneCard = el('g', { filter: 'url(#boil)' }, g);
-  tf(juneCard, 1320, 580);
-  el('rect', { x: -280, y: -210, width: 560, height: 420, rx: 22, fill: C.paper, stroke: C.navy, 'stroke-width': 9 }, juneCard);
-  txt(juneCard, 'REWIND TO', { x: 0, y: -70, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 36, 'font-weight': 800, fill: C.red });
-  txt(juneCard, 'JUNE', { x: 0, y: 105, 'text-anchor': 'middle', 'font-family': F.bagel, 'font-size': 155, fill: C.navy });
+  // Center (37.28-40.8): Crowbar crossed out (nothing to do with breaking code)
+  const noCode = el('g', { filter: 'url(#boil)' }, g);
+  tf(noCode, 1280, 580);
+  el('rect', { x: -240, y: -190, width: 480, height: 380, rx: 20, fill: C.cream, stroke: C.navy, 'stroke-width': 9 }, noCode);
+  txt(noCode, '</> CODE', { x: 0, y: 20, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 62, 'font-weight': 800, fill: C.navy });
+  el('line', { x1: -180, y1: -130, x2: 180, y2: 130, stroke: C.red, 'stroke-width': 22, 'stroke-linecap': 'round' }, noCode);
+  el('line', { x1: 180, y1: -130, x2: -180, y2: 130, stroke: C.red, 'stroke-width': 22, 'stroke-linecap': 'round' }, noCode);
 
+  // Final beat (40.8 - 42.84): REWIND TO JUNE full card
+  const juneFull = el('g', {}, g);
+  el('rect', { width: 1920, height: 1080, fill: C.paper }, juneFull);
+  txt(juneFull, 'REWIND TO', { x: 960, y: 400, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 48, 'font-weight': 800, fill: C.red });
+  txt(juneFull, 'JUNE', { x: 960, y: 650, 'text-anchor': 'middle', 'font-family': F.bagel, 'font-size': 260, fill: C.navy });
+
+  const months = ['OCT', 'SEP', 'AUG', 'JUL', 'JUN'];
   return (t) => {
-    charsPop(title, t, 33.1, 0.03);
-    const p = E.back(seg(t, 37.8, 38.6));
-    tf(juneCard, 1320, 580, t < 37.8 ? 0 : p, -3);
+    charsPop(title, t, 32.7, 0.03);
+    const mIdx = clamp(Math.floor((t - 33.0) / 0.85), 0, 4);
+    calMonth.textContent = months[mIdx];
+    const pCode = E.back(seg(t, 37.2, 37.8));
+    tf(noCode, 1280, 580, t < 37.2 ? 0 : pCode, -3);
+    show(juneFull, t >= 40.9);
   };
 });
 
-// Dot wipe transitions between scenes
 const dotsG = el('g', {}, wipe);
 const wipeDots = [];
 for (let y = 0; y <= 1080 + 80; y += 80) for (let x = 0; x <= 1920 + 80; x += 80) {
   wipeDots.push({ el: el('circle', { cx: x, cy: y, r: 0 }, dotsG), x, y });
 }
-const WIPES = [[8.52, C.yellow], [12.00, C.night], [19.04, C.mint], [26.32, C.orange], [33.00, C.pink]];
+const WIPES = [[8.52, C.yellow], [13.80, C.night], [19.04, C.mint], [26.32, C.orange], [32.60, C.pink], [40.90, C.yellow]];
 
 function buildPaper() {
   const cv = document.getElementById('paper'), ctx = cv.getContext('2d');
@@ -427,7 +481,7 @@ function drawFx(frame) {
   }
 }
 
-const SHAKES = [[10.45, 18, 0.3], [17.7, 12, 0.25], [23.5, 10, 0.2], [27.2, 16, 0.28], [29.8, 12, 0.22]];
+const SHAKES = [[11.4, 18, 0.3], [17.8, 12, 0.25], [23.6, 10, 0.2], [28.4, 16, 0.28]];
 const boilT = document.getElementById('boilT');
 
 function render(t) {
