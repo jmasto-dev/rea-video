@@ -1,0 +1,829 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Binance $6.3B Heist — Act 3 (Level-10 Halftone Dossier)</title>
+<link rel="stylesheet" href="shared/fonts.css">
+<style>
+  html, body { margin: 0; width: 1920px; height: 1080px; overflow: hidden; background: #F4ECDD; }
+  svg, canvas { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; }
+  #paper { mix-blend-mode: multiply; pointer-events: none; }
+  #fx { pointer-events: none; }
+  .mul { mix-blend-mode: multiply; }
+</style>
+</head>
+<body>
+<svg id="stage" viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg">
+  <defs></defs>
+  <g clip-path="url(#frameClip)">
+    <g id="cam"><g id="world"></g></g>
+    <g id="hud"></g>
+    <g id="wipe"></g>
+    <rect id="flash" width="1920" height="1080" fill="#FFFFFF" opacity="0"/>
+  </g>
+</svg>
+<canvas id="paper" width="1920" height="1080"></canvas>
+<canvas id="fx" width="960" height="540"></canvas>
+
+<script src="shared/engine.js"></script>
+<script>
+const E_ = window.Engine;
+const { C, F, el, txt, tf, op, show, clamp, seg, lerp, smooth, E, wRect, wLine, chars, charsPop, halftone, makeStamp, stampAnim, personRig, mountCapture, clickRipple } = E_;
+
+E_.createStage({
+  actNum: 3,
+  actTitle: 'THE FAKE STARTUP & THE 70-BYTE INJECTION',
+  actOffset: 2315 / 24, // 96.4583s -> 170.1667s
+  frames: 1769,
+  assets: [
+    'captures/cap_03_linkedin_recruiter.png',
+    'captures/cap_04_zoom_social.png',
+    'captures/cap_05_terminal_hex_diff.png',
+  ],
+  wipes: [
+    [109.90, C.mint],
+    [124.54, C.blue],
+    [132.78, C.night],
+    [144.18, C.yellow],
+    [159.66, C.mint],
+  ],
+  shakes: [
+    [124.00, 14, 0.22],
+    [128.80, 18, 0.30],
+    [130.50, 20, 0.30],
+    [136.50, 12, 0.20],
+    [153.80, 14, 0.22],
+  ],
+  flashes: [
+    [128.80, 0.36, 0.20],
+    [130.50, 0.28, 0.18],
+    [168.00, 0.25, 0.14],
+  ],
+  hudCues: [
+    [96.46, 'SEP 2026 · ENG #2'],
+    [109.90, 'ROUND 1 · INTERVIEW'],
+    [124.54, 'ROUND 2 · "CEO"'],
+    [128.80, 'COMPANY: FAKE'],
+    [132.78, 'TAKE-HOME · SETUP.SH'],
+    [144.18, '3,344 B → 3,414 B'],
+    [159.66, 'SCAN: 0 ALERTS'],
+    [168.00, 'SILENT FOOTHOLD'],
+  ],
+
+  buildScenes(addScene) {
+    const S = { stroke: C.navy, 'stroke-width': 6, 'stroke-linejoin': 'round', 'stroke-linecap': 'round' };
+
+    // =========================================================================
+    // SCENE 3A (96.46 - 109.90s): Night Apartment Study + LinkedIn DM + Spam Sweep
+    // VO: "Then in September, a second software engineer at Binance gets a message on a job site..."
+    // =========================================================================
+    addScene(96.4583, 109.90, {
+      dark: true,
+      camFn: (t) => {
+        const k = 1 + 0.04 * smooth(seg(t, 96.46, 109.90));
+        return `translate(960 540) scale(${k.toFixed(4)}) translate(-960 -540)`;
+      }
+    }, (g) => {
+      const office = E_.decorOfficeRoom(g, {
+        dark: true, wall: C.night, deskY: 745, timeLabel: 'SEP 2026',
+        hasWindow: true, hasBookshelf: true, hasCorkboard: false, hasLamp: true,
+      });
+      // Position clock cleanly between window and Exhibit C so SEP 2026 never collides
+      tf(office.clkG, 695, 290);
+
+      const title = chars(g, 'SEPTEMBER · THE BAIT', {
+        x: 84, y: 148, size: 74, family: F.serif, fill: C.cream, shadow: { dx: 7, dy: 7, fill: C.mint },
+      });
+
+      // Engineer #2 (wavy hair, mint/teal shirt) relaxing at home desk
+      const eng2 = personRig(g, {
+        shirt: C.mint, hair: C.navy, hairStyle: 'wavy', mode: 'desk', expression: 'smile',
+      });
+      tf(eng2.g, 375, 590, 0.95);
+
+      // Laptop on desk + Notification Ping Bubble
+      el('polygon', { points: '305,745 485,745 510,775 280,775', fill: C.slate, ...S }, g);
+      wRect(g, 320, 692, 150, 54, { rx: 6, fill: C.night2, ...S }, 301);
+      const notif = el('g', { filter: 'url(#boil)' }, g);
+      wRect(notif, 470, 560, 290, 74, { rx: 14, fill: C.yellow, ...S }, 302);
+      txt(notif, '1 NEW JOB MESSAGE', { x: 615, y: 605, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 20, 'font-weight': 800, fill: C.navy });
+
+      // Right Exhibit: cap_03_linkedin_recruiter.png (exact 11:7 inner: 858x546 -> w:874, h:562)
+      // Placed cleanly below clock (y=382..944) so SEP 2026 clock & top bookshelf stay visible!
+      const cap = mountCapture(g, 'captures/cap_03_linkedin_recruiter.png', {
+        x: 915, y: 382, w: 874, h: 562, tag: 'EXHIBIT C // RECRUITER DM', dark: true, tape: true,
+      });
+
+      // Animated Red Marker Brush Stroke underlining BINANCE on resume (u=0.735..0.845, v=0.308)
+      // screenX: 923 + 0.735*858 = 1554 -> 1648, screenY: 390 + 0.308*546 = 558
+      const markerLine = el('path', {
+        d: 'M 1548 560 Q 1600 564 1656 556', fill: 'none', stroke: C.red, 'stroke-width': 9,
+        'stroke-linecap': 'round', 'stroke-dasharray': 140, 'stroke-dashoffset': 140,
+      }, g);
+      const markerLoop = el('ellipse', {
+        cx: 1602, cy: 536, rx: 58, ry: 28, fill: 'none', stroke: C.red, 'stroke-width': 5,
+        'stroke-dasharray': 300, 'stroke-dashoffset': 300,
+      }, g);
+
+      // Late beat (107s+): Hands sweep tacky red SPAM envelopes off screen while Gold Interview Invite slides center!
+      const spamLayer = el('g', {}, g);
+      const spamA = el('g', {}, spamLayer);
+      wRect(spamA, -160, -85, 320, 170, { rx: 10, fill: C.red, ...S }, 303);
+      txt(spamA, 'CLUMSY SPAM!!', { x: 0, y: 12, 'text-anchor': 'middle', 'font-family': F.bagel, 'font-size': 32, fill: C.yellow });
+
+      const spamB = el('g', {}, spamLayer);
+      wRect(spamB, -160, -85, 320, 170, { rx: 10, fill: C.pink, ...S }, 304);
+      txt(spamB, 'SCAM EMAIL', { x: 0, y: 12, 'text-anchor': 'middle', 'font-family': F.bagel, 'font-size': 34, fill: C.cream });
+
+      const invite = el('g', { filter: 'url(#boil)' }, g);
+      wRect(invite, -245, -135, 490, 270, { rx: 16, fill: C.cream, stroke: C.yellow, 'stroke-width': 9 }, 305);
+      el('rect', { x: -215, y: -105, width: 430, height: 54, rx: 8, fill: C.navy }, invite);
+      txt(invite, 'STEALTH AI // INVITE', { x: 0, y: -70, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 22, 'font-weight': 800, fill: C.yellow });
+      txt(invite, 'NOT SLOPPY SPAM', { x: 0, y: 16, 'text-anchor': 'middle', 'font-family': F.serif, 'font-size': 42, 'font-weight': 900, fill: C.navy });
+      el('rect', { x: -165, y: 54, width: 330, height: 42, rx: 8, fill: C.mint, stroke: C.navy, 'stroke-width': 4 }, invite);
+      txt(invite, 'LOOKS 100% LEGITIMATE', { x: 0, y: 82, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 19, 'font-weight': 800, fill: C.navy });
+
+      return (t) => {
+        office.updateOffice(t);
+        charsPop(title, t, 96.56);
+        eng2.setState({
+          lookX: 6, lookY: -2, headDy: Math.sin(t * 2.4) * 2,
+          blink: (t > 100.5 && t < 100.64) || (t > 105.2 && t < 105.34),
+        });
+
+        const nPop = E.back(seg(t, 97.4, 97.9));
+        op(notif, clamp(nPop));
+        tf(notif, 0, (1 - clamp(nPop)) * 25);
+
+        const capIn = E.back(seg(t, 98.8, 99.6));
+        op(cap.g, clamp(capIn));
+        tf(cap.g, 0, (1 - clamp(capIn)) * 40);
+
+        // Red marker underlines BINANCE at 104.2s+
+        const mP = E.out(seg(t, 104.2, 105.0));
+        markerLine.setAttribute('stroke-dashoffset', (140 * (1 - mP)).toFixed(1));
+        const lP = E.out(seg(t, 104.9, 105.6));
+        markerLoop.setAttribute('stroke-dashoffset', (300 * (1 - lP)).toFixed(1));
+
+        // 106.8s+: clumsy spam pushed aside; gold invite glides center
+        const spVis = seg(t, 106.6, 107.0);
+        const sweep = E.out(seg(t, 107.2, 108.3));
+        op(spamLayer, spVis * (1 - sweep));
+        tf(spamA, lerp(760, -280, sweep), lerp(560, 740, sweep), 1, -12 - sweep * 25);
+        tf(spamB, lerp(1120, 2240, sweep), lerp(640, 790, sweep), 1, 10 + sweep * 25);
+
+        const invP = E.back(seg(t, 107.6, 108.4));
+        op(invite, clamp(invP));
+        tf(invite, 960, lerp(1240, 640, clamp(invP)));
+      };
+    });
+
+    // =========================================================================
+    // SCENE 3B (109.90 - 124.54s): Studio Monitor + Zoom Interview + Social Polaroids
+    // VO: "The guy gets scheduled for a real round one video interview with an HR rep..."
+    // =========================================================================
+    addScene(109.90, 124.54, {
+      dark: true,
+      camFn: (t) => {
+        const k = 1 + 0.035 * smooth(seg(t, 109.90, 124.54));
+        return `translate(960 540) scale(${k.toFixed(4)}) translate(-960 -540)`;
+      }
+    }, (g) => {
+      // Studio desk interior (bookshelf left, desk surface, coffee mug right, ring-light glow)
+      el('rect', { width: 1920, height: 1080, fill: C.night }, g);
+      halftone(g, { color: C.blue, step: 26, angle: 16, f: (x, y) => clamp(0.45 - Math.hypot(x - 950, y - 520) / 860) });
+      // Ring-light circular reflection halo around central monitor
+      el('circle', { cx: 945, cy: 520, r: 420, fill: 'none', stroke: C.cream, 'stroke-width': 26, opacity: 0.14 }, g);
+
+      // Left Bookshelf
+      wRect(g, 62, 215, 345, 645, { rx: 10, fill: C.woodDk, ...S }, 310);
+      for (const sy of [360, 520, 680]) el('rect', { x: 78, y: sy, width: 312, height: 18, fill: C.wood, stroke: C.navy, 'stroke-width': 4 }, g);
+      const bCols = [C.mint, C.yellow, C.pink, C.blue, C.orange];
+      [[88, 260, 44, 100], [142, 275, 38, 85], [190, 250, 48, 110], [250, 272, 42, 88], [308, 256, 46, 104],
+       [92, 425, 48, 95], [150, 412, 42, 108], [202, 435, 54, 85], [270, 418, 44, 102]].forEach(([bx, by, bw, bh], i) => {
+        el('rect', { x: bx, y: by, width: bw, height: bh, rx: 4, fill: bCols[i % bCols.length], stroke: C.navy, 'stroke-width': 4 }, g);
+      });
+
+      // Foreground Wood Desk + Notebook, Pen & Steaming Coffee Mug
+      el('rect', { x: 0, y: 855, width: 1920, height: 225, fill: C.wood, stroke: C.navy, 'stroke-width': 7 }, g);
+      el('rect', { x: 0, y: 882, width: 1920, height: 198, fill: C.woodDk, opacity: 0.45 }, g);
+      wRect(g, 130, 895, 255, 135, { rx: 8, fill: C.cream, ...S }, 311);
+      txt(g, 'INTERVIEW NOTES', { x: 258, y: 952, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 18, 'font-weight': 800, fill: C.blue });
+      el('line', { x1: 155, y1: 985, x2: 355, y2: 985, stroke: C.slate, 'stroke-width': 4 }, g);
+      el('line', { x1: 155, y1: 1006, x2: 315, y2: 1006, stroke: C.slate, 'stroke-width': 4 }, g);
+      // Mug sitting clearly on right foreground desk below polaroids
+      el('path', { d: 'M 1764 892 C 1790 892 1790 927 1764 927', fill: 'none', stroke: C.navy, 'stroke-width': 8 }, g);
+      wRect(g, 1710, 877, 56, 62, { rx: 8, fill: C.cream, ...S }, 312);
+      for (const sx of [1726, 1740, 1754]) el('path', { d: `M ${sx} 865 Q ${sx - 8} 845 ${sx + 4} 825`, fill: 'none', stroke: C.cream, 'stroke-width': 4, opacity: 0.65, 'stroke-linecap': 'round' }, g);
+
+      const title = chars(g, 'ROUND 1 INTERVIEW', {
+        x: 84, y: 148, size: 76, family: F.serif, fill: C.cream, shadow: { dx: 7, dy: 7, fill: C.mint },
+      });
+
+      // Large Studio Monitor Bezel framing cap_04_zoom_social.png (w:951, h:611 exact 11:7!)
+      el('rect', { x: 895, y: 845, width: 100, height: 75, fill: C.slate, ...S }, g);
+      el('rect', { x: 775, y: 905, width: 340, height: 26, rx: 8, fill: C.navy, stroke: C.cream, 'stroke-width': 4 }, g);
+      wRect(g, 450, 205, 991, 650, { rx: 20, fill: C.navy, stroke: C.cream, 'stroke-width': 6 }, 313);
+      el('circle', { cx: 945, cy: 218, r: 6, fill: C.mint }, g);
+
+      const cap = mountCapture(g, 'captures/cap_04_zoom_social.png', {
+        x: 470, y: 228, w: 951, h: 611, tag: 'EXHIBIT D // VIDEO CALL', dark: true, tape: false,
+      });
+
+      // Subtle animated audio wave bars inside HR Rep video tile
+      const eqBars = [];
+      for (let i = 0; i < 6; i++) {
+        const b = el('rect', { x: 640 + i * 16, y: 720, width: 10, height: 18, rx: 3, fill: C.mint }, g);
+        eqBars.push({ b, i });
+      }
+
+      // 4 Colorful Halftone Polaroid Snapshots fanning out across top-right (115.3..116.1s so all 4 show at 20.0s!)
+      function makePolaroid(cx, cy, label, bgCol, rot, drawArt) {
+        const pg = el('g', { filter: 'url(#boil)' }, g);
+        tf(pg, cx, cy, 1, rot);
+        el('rect', { x: -102, y: -112, width: 204, height: 238, rx: 8, fill: C.navy, opacity: 0.35, transform: 'translate(10 10)' }, pg);
+        wRect(pg, -102, -112, 204, 238, { rx: 8, fill: C.cream, ...S }, cx + cy);
+        el('rect', { x: -84, y: -94, width: 168, height: 156, rx: 4, fill: bgCol, stroke: C.navy, 'stroke-width': 4 }, pg);
+        drawArt(pg);
+        txt(pg, label, { x: 0, y: 98, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 18, 'font-weight': 800, fill: C.navy });
+        return pg;
+      }
+
+      const pol1 = makePolaroid(1535, 295, 'ALPS HIKE', C.yellow, -8, (pg) => {
+        el('polygon', { points: '-68,48 -18,-48 30,48', fill: C.blue, stroke: C.navy, 'stroke-width': 4 }, pg);
+        el('polygon', { points: '-12,48 34,-32 72,48', fill: C.mint, stroke: C.navy, 'stroke-width': 4 }, pg);
+        el('circle', { cx: 44, cy: -58, r: 16, fill: C.cream, stroke: C.navy, 'stroke-width': 4 }, pg);
+      });
+      const pol2 = makePolaroid(1730, 355, 'GOLDEN DOG', C.pink, 7, (pg) => {
+        el('ellipse', { cx: -32, cy: -12, rx: 16, ry: 28, fill: C.orange, stroke: C.navy, 'stroke-width': 4 }, pg);
+        el('ellipse', { cx: 32, cy: -12, rx: 16, ry: 28, fill: C.orange, stroke: C.navy, 'stroke-width': 4 }, pg);
+        el('circle', { cx: 0, cy: -14, r: 30, fill: C.yellow, stroke: C.navy, 'stroke-width': 4 }, pg);
+        el('circle', { cx: -10, cy: -20, r: 5, fill: C.navy }, pg);
+        el('circle', { cx: 10, cy: -20, r: 5, fill: C.navy }, pg);
+        el('circle', { cx: 0, cy: -6, r: 6, fill: C.navy }, pg);
+      });
+      const pol3 = makePolaroid(1545, 565, 'DINNER', C.mint, -5, (pg) => {
+        el('circle', { cx: 0, cy: -16, r: 36, fill: C.cream, stroke: C.navy, 'stroke-width': 4 }, pg);
+        el('circle', { cx: 0, cy: -16, r: 20, fill: C.red, stroke: C.navy, 'stroke-width': 3 }, pg);
+        el('line', { x1: -50, y1: -48, x2: -50, y2: 18, stroke: C.navy, 'stroke-width': 5 }, pg);
+        el('line', { x1: 50, y1: -48, x2: 50, y2: 18, stroke: C.navy, 'stroke-width': 5 }, pg);
+      });
+      const pol4 = makePolaroid(1735, 625, 'VIDEO CLIP', C.paper, 8, (pg) => {
+        el('rect', { x: -54, y: -48, width: 108, height: 68, rx: 12, fill: C.blue, stroke: C.navy, 'stroke-width': 4 }, pg);
+        el('polygon', { points: '-14,-30 22,-14 -14,2', fill: C.yellow, stroke: C.navy, 'stroke-width': 3 }, pg);
+      });
+
+      const stamp = makeStamp(g, 'ROUND 1 PASSED', C.mint, 520, 140, 48);
+
+      return (t) => {
+        charsPop(title, t, 110.00);
+        op(cap.g, E.out(seg(t, 110.0, 110.5)));
+
+        eqBars.forEach(({ b, i }) => {
+          const h = 8 + Math.abs(Math.sin(t * 9 + i * 1.1)) * 22;
+          b.setAttribute('height', h.toFixed(1));
+          b.setAttribute('y', (738 - h).toFixed(1));
+        });
+
+        const pols = [
+          [pol1, 1535, 295, -8, 115.30],
+          [pol2, 1730, 355, 7, 115.55],
+          [pol3, 1545, 565, -5, 115.80],
+          [pol4, 1735, 625, 8, 116.05],
+        ];
+        pols.forEach(([pg, cx, cy, rot, t0]) => {
+          const p = E.back(seg(t, t0, t0 + 0.35));
+          op(pg, clamp(p));
+          tf(pg, cx, lerp(cy + 65, cy, clamp(p)), Math.max(0.1, p), rot);
+        });
+
+        stampAnim(stamp, t, 124.00, 1020, 745, -7);
+      };
+    });
+
+    // =========================================================================
+    // SCENE 3C (124.54 - 132.78s): THE POTEMKIN STARTUP REVEAL!
+    // VO: "He passes round one. Then he does a round two interview with the supposed CEO of this company, a company that didn't even exist."
+    // =========================================================================
+    addScene(124.54, 132.78, { dark: true }, (g) => {
+      // OUTER DARK EMPTY WAREHOUSE (revealed when stageSet pulls back at 128.80s!)
+      const warehouse = el('g', {}, g);
+      el('rect', { width: 1920, height: 1080, fill: '#0A0D1B' }, warehouse);
+      // Corrugated steel warehouse ceiling trusses
+      el('rect', { x: 0, y: 0, width: 1920, height: 92, fill: C.night3, stroke: C.navy, 'stroke-width': 5 }, warehouse);
+      for (let x = 0; x < 1920; x += 220) {
+        el('line', { x1: x, y1: 0, x2: x + 110, y2: 92, stroke: C.slate, 'stroke-width': 5, opacity: 0.45 }, warehouse);
+        el('line', { x1: x + 110, y1: 92, x2: x + 220, y2: 0, stroke: C.slate, 'stroke-width': 5, opacity: 0.45 }, warehouse);
+      }
+      // Brick/steel warehouse back walls + moonlight cone
+      for (let x = 140; x < 1920; x += 360) el('line', { x1: x, y1: 92, x2: x, y2: 830, stroke: C.night2, 'stroke-width': 4 }, warehouse);
+      el('polygon', { points: '240,92 420,92 640,830 80,830', fill: 'url(#patDotsBlue)', opacity: 0.25 }, warehouse);
+      // Concrete warehouse floor + coiled cables
+      el('rect', { x: 0, y: 830, width: 1920, height: 250, fill: '#141B35', stroke: C.navy, 'stroke-width': 6 }, warehouse);
+      el('ellipse', { cx: 310, cy: 920, rx: 95, ry: 22, fill: 'none', stroke: C.slate, 'stroke-width': 7 }, warehouse);
+
+      // RAW WOODEN 2x4 A-FRAME SCAFFOLDING PROPS (behind left & right of cardboard set)
+      const props = el('g', {}, warehouse);
+      // Left 2x4 A-frame struts + sandbag
+      el('polygon', { points: '250,860 390,340 422,348 288,868', fill: C.wood, ...S }, props);
+      el('polygon', { points: '380,860 390,340 420,340 412,860', fill: C.woodDk, ...S }, props);
+      el('rect', { x: 225, y: 832, width: 110, height: 42, rx: 14, fill: C.slate, ...S }, props);
+      // Right 2x4 A-frame struts + sandbag
+      el('polygon', { points: '1670,860 1530,340 1498,348 1632,868', fill: C.wood, ...S }, props);
+      el('polygon', { points: '1540,860 1530,340 1500,340 1508,860', fill: C.woodDk, ...S }, props);
+      el('rect', { x: 1585, y: 832, width: 110, height: 42, rx: 14, fill: C.slate, ...S }, props);
+      // Raw tan cardboard back-edge flap tipping back on the right side!
+      const tipFlat = el('g', {}, props);
+      wRect(tipFlat, 1340, 220, 220, 620, { rx: 4, fill: '#B68652', stroke: C.navy, 'stroke-width': 6 }, 320);
+      el('line', { x1: 1450, y1: 230, x2: 1450, y2: 830, stroke: C.woodDk, 'stroke-width': 8 }, tipFlat);
+      el('line', { x1: 1350, y1: 420, x2: 1550, y2: 610, stroke: C.woodDk, 'stroke-width': 8 }, tipFlat);
+      txt(tipFlat, 'CARDBOARD FLAT', { x: 1450, y: 315, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 16, 'font-weight': 800, fill: C.navy });
+
+      // INNER STAGE SET: Sleek Glass Skyscraper Office (fills 1920x1080 at 124.5..128.8, then pulls back & reveals cardboard edge!)
+      const stageSet = el('g', {}, g);
+      // Cardboard outer rim (visible once scaled down at 128.8+)
+      el('rect', { x: -24, y: -18, width: 1968, height: 1116, rx: 8, fill: '#B68652', stroke: C.navy, 'stroke-width': 12 }, stageSet);
+      el('rect', { width: 1920, height: 1080, fill: C.night }, stageSet);
+      // Floor-to-ceiling glass skyscraper windows & evening skyline
+      el('rect', { x: 100, y: 90, width: 1720, height: 640, fill: C.night3, ...S }, stageSet);
+      for (const [bx, bw, bh] of [[150, 140, 410], [330, 175, 520], [560, 135, 350], [1180, 170, 500], [1395, 165, 430], [1605, 155, 380]]) {
+        el('rect', { x: bx, y: 726 - bh, width: bw, height: bh, fill: C.night2, stroke: C.navy, 'stroke-width': 4 }, stageSet);
+        el('rect', { x: bx + 28, y: 726 - bh + 44, width: 22, height: 26, fill: C.yellow, opacity: 0.78 }, stageSet);
+        el('rect', { x: bx + 76, y: 726 - bh + 98, width: 22, height: 26, fill: C.sky, opacity: 0.65 }, stageSet);
+      }
+      for (const wx of [510, 960, 1410]) el('line', { x1: wx, y1: 90, x2: wx, y2: 730, stroke: C.slate, 'stroke-width': 8 }, stageSet);
+      halftone(stageSet, { color: C.sky, step: 26, angle: 16, f: (x, y) => clamp(0.36 - Math.hypot(x - 960, y - 400) / 960) });
+
+      // Executive STEALTH AI Plaque behind CEO
+      wRect(stageSet, 735, 215, 450, 108, { rx: 12, fill: C.navy, stroke: C.yellow, 'stroke-width': 6 }, 321);
+      txt(stageSet, 'STEALTH AI // CEO SUITE', { x: 960, y: 282, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 26, 'font-weight': 800, fill: C.yellow });
+
+      // Charismatic "CEO" (slick hair, dark suit & red tie)
+      const ceo = personRig(stageSet, {
+        shirt: C.night2, hair: C.navy, hairStyle: 'slick', tie: C.red, mode: 'desk', expression: 'smile',
+      });
+      tf(ceo.g, 960, 560, 1.05);
+
+      // Sleek oak executive desk + brass nameplate
+      el('rect', { x: 0, y: 720, width: 1920, height: 360, fill: C.woodDk, stroke: C.navy, 'stroke-width': 7 }, stageSet);
+      el('rect', { x: 240, y: 735, width: 1440, height: 30, rx: 6, fill: C.wood, stroke: C.navy, 'stroke-width': 5 }, stageSet);
+      wRect(stageSet, 1260, 625, 220, 108, { rx: 8, fill: C.slate, ...S }, 322);
+      wRect(stageSet, 495, 682, 235, 52, { rx: 6, fill: C.yellow, ...S }, 323);
+      txt(stageSet, 'FOUNDER // CEO', { x: 612, y: 715, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 19, 'font-weight': 800, fill: C.navy });
+
+      // Headlines (swap cleanly at 128.80s!)
+      const title1 = chars(g, 'ROUND 2 · "CEO"', {
+        x: 84, y: 148, size: 74, family: F.serif, fill: C.cream, shadow: { dx: 7, dy: 7, fill: C.blue },
+      });
+      const title2 = chars(g, 'FAKE STARTUP', {
+        x: 84, y: 148, size: 76, family: F.serif, fill: C.cream, shadow: { dx: 7, dy: 7, fill: C.red },
+      });
+
+      const stamp = makeStamp(g, 'DOES NOT EXIST', C.red, 640, 148, 52);
+
+      return (t) => {
+        const isFake = t >= 128.80;
+        show(title1.g, !isFake);
+        show(title2.g, isFake);
+        if (!isFake) charsPop(title1, t, 124.64);
+        else charsPop(title2, t, 128.82);
+
+        if (!isFake) {
+          const gest = Math.sin(t * 5);
+          ceo.setState({
+            lookX: 0, lookY: -2, headRot: gest * 2.5,
+            lArm: [-102, 145, -180, 120 + gest * 24, -140, 55 + gest * 20],
+            rArm: [102, 145, 180, 120 - gest * 24, 140, 55 - gest * 20],
+          });
+        } else {
+          // Freeze CEO stiff like a cardboard cutout!
+          ceo.setState({ lookX: 0, lookY: 0, headRot: 0 });
+        }
+
+        // Dramatic pull-back & tip-over at 128.80s!
+        const pull = E.out(seg(t, 128.80, 129.85));
+        const sc = lerp(1.0, 0.54, pull);
+        const sx = lerp(0, 960 * (1 - sc) - 20, pull);
+        const sy = lerp(0, 540 * (1 - sc) - 34, pull);
+        const rot = lerp(0, -3.2, pull);
+        stageSet.setAttribute('transform', `translate(${sx.toFixed(1)} ${sy.toFixed(1)}) rotate(${rot.toFixed(2)} 540 300) scale(${sc.toFixed(4)})`);
+
+        // Tip-over cardboard panel swings open on right side
+        tipFlat.setAttribute('transform', `rotate(${(pull * 14).toFixed(1)} 1450 840)`);
+
+        stampAnim(stamp, t, 130.50, 960, 922, -4);
+      };
+    });
+
+    // =========================================================================
+    // SCENE 3D-1 (132.78 - 138.60s): Mechanical Keyboard Macro (RETURN -> setup.sh)
+    // VO: "At the end, they send him the standard coding take home test. He downloads it onto his work laptop and runs the setup script."
+    // =========================================================================
+    addScene(132.78, 138.60, { dark: true }, (g) => {
+      el('rect', { width: 1920, height: 1080, fill: C.night }, g);
+      halftone(g, { color: C.yellow, step: 26, angle: 16, f: (x, y) => clamp(0.40 - Math.hypot(x - 940, y - 620) / 860), opacity: 0.40 });
+      // Wood desk surface
+      el('rect', { x: 0, y: 460, width: 1920, height: 620, fill: C.woodDk, stroke: C.navy, 'stroke-width': 7 }, g);
+      el('rect', { x: 0, y: 460, width: 1920, height: 34, fill: C.wood, stroke: C.navy, 'stroke-width': 5 }, g);
+
+      const title = chars(g, 'TAKE-HOME TEST', {
+        x: 84, y: 148, size: 74, family: F.serif, fill: C.cream, shadow: { dx: 7, dy: 7, fill: C.yellow },
+      });
+
+      // Terminal screen top-right running setup.sh
+      wRect(g, 1110, 178, 710, 395, { rx: 14, fill: C.night3, stroke: C.cream, 'stroke-width': 6 }, 330);
+      el('rect', { x: 1110, y: 178, width: 710, height: 48, rx: 14, fill: C.navy, stroke: C.cream, 'stroke-width': 4 }, g);
+      txt(g, 'zsh — ~/takehome-test', { x: 1140, y: 209, 'font-family': F.mono, 'font-size': 19, 'font-weight': 800, fill: C.yellow });
+      txt(g, '$ chmod +x setup.sh', { x: 1145, y: 280, 'font-family': F.mono, 'font-size': 22, 'font-weight': 800, fill: C.sky });
+      txt(g, '$ ./setup.sh', { x: 1145, y: 332, 'font-family': F.mono, 'font-size': 26, 'font-weight': 800, fill: C.mint });
+      const termRun = txt(g, '▶ EXECUTING BACKGROUND PAYLOAD...', { x: 1145, y: 400, 'font-family': F.mono, 'font-size': 21, 'font-weight': 800, fill: C.pink });
+
+      // Macro Mechanical Keyboard Body
+      const kb = el('g', {}, g);
+      wRect(kb, 145, 515, 1020, 445, { rx: 24, fill: C.night2, ...S }, 331);
+      el('rect', { x: 175, y: 545, width: 960, height: 385, rx: 14, fill: C.night3, stroke: C.navy, 'stroke-width': 5 }, kb);
+      // Surrounding mechanical keycaps
+      const keyLabels = ['Q', 'W', 'E', 'R', 'T', 'Y', 'A', 'S', 'D', 'F', 'G', 'H'];
+      for (let r = 0; r < 2; r++) {
+        for (let c = 0; c < 6; c++) {
+          const kx = 205 + c * 114, ky = 575 + r * 124;
+          wRect(kb, kx, ky, 98, 104, { rx: 12, fill: C.cream, ...S }, 340 + r * 6 + c);
+          txt(kb, keyLabels[r * 6 + c], { x: kx + 49, y: ky + 62, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 28, 'font-weight': 800, fill: C.navy });
+        }
+      }
+      // Spacebar
+      wRect(kb, 265, 825, 560, 82, { rx: 12, fill: C.cream, ...S }, 332);
+
+      // Oversized Bright Gold RETURN Key
+      const retKey = el('g', { filter: 'url(#boil)' }, g);
+      wRect(retKey, 895, 675, 215, 145, { rx: 16, fill: C.yellow, ...S }, 333);
+      txt(retKey, 'RETURN ↵', { x: 1002, y: 758, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 26, 'font-weight': 800, fill: C.navy });
+
+      // Pressing Cartoon Finger/Hand descending onto RETURN
+      const hand = el('g', { filter: 'url(#boil)' }, g);
+      el('path', { d: 'M 40 20 L 210 -140 L 265 -80 L 95 75 Z', fill: C.mint, stroke: C.navy, 'stroke-width': 7 }, hand);
+      el('path', { d: 'M -15 -10 C -35 -25 -20 -55 12 -38 L 78 6 C 95 24 85 58 55 68 L 15 62 C -12 52 -25 22 -15 -10 Z', fill: C.skin, stroke: C.navy, 'stroke-width': 7 }, hand);
+
+      const rip = clickRipple(g, 1002, 745, C.yellow);
+
+      return (t) => {
+        charsPop(title, t, 132.88);
+        const hIn = E.out(seg(t, 134.8, 136.3));
+        const press = seg(t, 136.3, 136.55) * (1 - seg(t, 136.65, 137.1));
+        tf(hand, lerp(1360, 1002, hIn), lerp(480, 705, hIn) + press * 24);
+        tf(retKey, 0, press * 14);
+        rip(t, 136.50);
+        op(termRun, seg(t, 136.55, 137.0));
+      };
+    });
+
+    // =========================================================================
+    // SCENE 3D-2 (138.60 - 144.18s): Deep Blueprint Filesystem Corridors
+    // VO: "And inside that script, a tiny piece of code goes to work."
+    // =========================================================================
+    addScene(138.60, 144.18, {
+      dark: true,
+      camFn: (t) => {
+        const y = lerp(0, 24, smooth(seg(t, 138.60, 144.18)));
+        const k = 1 + 0.04 * smooth(seg(t, 138.60, 144.18));
+        return `translate(960 540) scale(${k.toFixed(4)}) translate(-960 ${(-540 - y).toFixed(1)})`;
+      }
+    }, (g) => {
+      el('rect', { width: 1920, height: 1080, fill: '#0D1938' }, g);
+      // Blueprint coordinate grid + converging depth lines
+      for (let gx = 120; gx < 1920; gx += 120) el('line', { x1: gx, y1: 0, x2: gx, y2: 1080, stroke: C.sky, 'stroke-width': 1.5, opacity: 0.16 }, g);
+      for (let gy = 120; gy < 1080; gy += 120) el('line', { x1: 0, y1: gy, x2: 1920, y2: gy, stroke: C.sky, 'stroke-width': 1.5, opacity: 0.16 }, g);
+      halftone(g, { color: C.blue, step: 26, angle: 16, f: (x, y) => clamp(0.48 - Math.hypot(x - 960, y - 560) / 860), opacity: 0.50 });
+
+      const title = chars(g, 'HIDDEN SUBROUTINE', {
+        x: 84, y: 148, size: 74, family: F.serif, fill: C.cream, shadow: { dx: 7, dy: 7, fill: C.red },
+      });
+
+      // Vertical Glowing Trojan Conduit down right-center channel (x=1315) clear of directory labels!
+      el('line', { x1: 1315, y1: 215, x2: 1315, y2: 985, stroke: C.navy, 'stroke-width': 28 }, g);
+      el('line', { x1: 1315, y1: 215, x2: 1315, y2: 985, stroke: C.red, 'stroke-width': 10, 'stroke-dasharray': '22 14' }, g);
+
+      // Three Stacked Glowing Blueprint Directory Gates (/Users, /Library, /usr/local/bin)
+      const tiers = [
+        { path: '/Users/eng2/takehome-test', sub: 'ENTRY: setup.sh', y: 235, col: C.sky },
+        { path: '/Library/Developer/Support', sub: 'BYPASS: NO PROMPT', y: 485, col: C.mint },
+        { path: '/usr/local/bin', sub: 'TARGET SYSTEM BINARY PATH', y: 735, col: C.yellow },
+      ];
+      tiers.forEach((tr, i) => {
+        const tg = el('g', {}, g);
+        wRect(tg, 495, tr.y, 930, 155, { rx: 14, fill: C.night3, stroke: tr.col, 'stroke-width': 6 }, 350 + i);
+        // Folder tab
+        wRect(tg, 495, tr.y - 32, 225, 36, { rx: 8, fill: tr.col, stroke: C.navy, 'stroke-width': 4 }, 355 + i);
+        txt(tg, `DIR 0${i + 1}`, { x: 607, y: tr.y - 8, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 18, 'font-weight': 800, fill: C.navy });
+        txt(tg, tr.path, { x: 545, y: tr.y + 72, 'text-anchor': 'start', 'font-family': F.mono, 'font-size': 31, 'font-weight': 800, fill: C.cream });
+        txt(tg, tr.sub, { x: 545, y: tr.y + 118, 'text-anchor': 'start', 'font-family': F.mono, 'font-size': 19, 'font-weight': 800, fill: tr.col });
+        // Port ring along conduit
+        el('circle', { cx: 1315, cy: tr.y + 78, r: 22, fill: C.night, stroke: tr.col, 'stroke-width': 4 }, tg);
+      });
+
+      // Left depth scale & Right blueprint telemetry card
+      for (let d = 0; d < 8; d++) {
+        el('line', { x1: 140, y1: 245 + d * 95, x2: 195, y2: 245 + d * 95, stroke: C.sky, 'stroke-width': 4 }, g);
+      }
+      txt(g, 'FS DEPTH', { x: 168, y: 220, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 17, 'font-weight': 800, fill: C.sky });
+
+      wRect(g, 1485, 250, 355, 360, { rx: 12, fill: C.night, stroke: C.red, 'stroke-width': 5 }, 359);
+      txt(g, 'TRACE // SUBROUTINE', { x: 1662, y: 298, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 19, 'font-weight': 800, fill: C.yellow });
+      txt(g, 'PID: 4821 [SILENT]', { x: 1515, y: 365, 'font-family': F.mono, 'font-size': 19, 'font-weight': 800, fill: C.cream });
+      txt(g, 'HOOK: ACTIVE', { x: 1515, y: 415, 'font-family': F.mono, 'font-size': 19, 'font-weight': 800, fill: C.pink });
+      txt(g, 'SCANNER: SLEEPING', { x: 1515, y: 465, 'font-family': F.mono, 'font-size': 19, 'font-weight': 800, fill: C.mint });
+      txt(g, 'SEEK: dev_tool', { x: 1515, y: 515, 'font-family': F.mono, 'font-size': 19, 'font-weight': 800, fill: C.yellow });
+
+      // Pulsing Crimson & Gold Trojan Subroutine Core burrowing down
+      const bug = el('g', { filter: 'url(#boil)' }, g);
+      el('circle', { cx: 0, cy: 0, r: 44, fill: C.red, stroke: C.yellow, 'stroke-width': 7 }, bug);
+      el('circle', { cx: 0, cy: 0, r: 22, fill: C.yellow, stroke: C.navy, 'stroke-width': 4 }, bug);
+      txt(bug, '70B', { x: 0, y: 7, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 18, 'font-weight': 800, fill: C.navy });
+
+      return (t) => {
+        charsPop(title, t, 138.68);
+        const p = smooth(seg(t, 138.60, 143.80));
+        const by = lerp(260, 815, p);
+        const sc = 1 + 0.12 * Math.sin(t * 14);
+        tf(bug, 1315, by, sc);
+      };
+    });
+
+    // =========================================================================
+    // SCENE 3E (144.18 - 159.66s): THE 70-BYTE INJECTION MASTERPIECE!
+    // VO: "It finds a normal developer tool buried in his system, a file that's exactly 3,344 bytes. It deletes it and drops in a lookalike that's 3,414 bytes, 70 bytes of difference."
+    // =========================================================================
+    addScene(144.18, 159.66, {
+      dark: true,
+      camFn: (t) => {
+        const k = 1 + 0.05 * smooth(seg(t, 153.8, 159.66));
+        return `translate(960 540) scale(${k.toFixed(4)}) translate(-960 -540)`;
+      }
+    }, (g) => {
+      // Brushed schematic diagnostic workbench
+      el('rect', { width: 1920, height: 1080, fill: C.night3 }, g);
+      for (let gx = 80; gx < 1920; gx += 80) el('line', { x1: gx, y1: 0, x2: gx, y2: 1080, stroke: C.night2, 'stroke-width': 2 }, g);
+      for (let gy = 80; gy < 1080; gy += 80) el('line', { x1: 0, y1: gy, x2: 1920, y2: gy, stroke: C.night2, 'stroke-width': 2 }, g);
+      halftone(g, { color: C.blue, step: 26, angle: 16, f: (x, y) => clamp(0.44 - Math.hypot(x - 480, y - 620) / 720), opacity: 0.45 });
+
+      // Precision caliper ruler edges (left & bottom)
+      for (let y = 180; y < 960; y += 30) el('line', { x1: 30, y1: y, x2: (y % 90 === 0) ? 62 : 46, y2: y, stroke: C.sky, 'stroke-width': 3, opacity: 0.7 }, g);
+      for (let x = 80; x < 1840; x += 40) el('line', { x1: x, y1: 1018, x2: x, y2: (x % 160 === 0) ? 1052 : 1036, stroke: C.sky, 'stroke-width': 3, opacity: 0.7 }, g);
+
+      // Diagnostic Metallic Workbench Deck (y: 775..1080) + Gantry Rail (y: 215)
+      el('rect', { x: 0, y: 775, width: 1920, height: 305, fill: C.night2, stroke: C.navy, 'stroke-width': 7 }, g);
+      el('rect', { x: 70, y: 215, width: 810, height: 28, rx: 6, fill: C.slate, ...S }, g);
+
+      // Socket Pedestal on left workbench (cx: 485, y: 775)
+      wRect(g, 290, 745, 390, 56, { rx: 8, fill: C.navy, stroke: C.sky, 'stroke-width': 5 }, 361);
+      txt(g, '/usr/local/bin/dev_tool', { x: 485, y: 781, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 21, 'font-weight': 800, fill: C.mint });
+
+      const title = chars(g, '70 BYTES DIFFERENCE', {
+        x: 84, y: 148, size: 74, family: F.serif, fill: C.cream, shadow: { dx: 7, dy: 7, fill: C.pink },
+      });
+
+      // RIGHT HALF: Mounted cap_05_terminal_hex_diff.png (exact 11:7 inner: 891x567 -> w:907, h:583)
+      const cap = mountCapture(g, 'captures/cap_05_terminal_hex_diff.png', {
+        x: 945, y: 315, w: 907, h: 583, tag: 'EXHIBIT E // HEX DIFF', dark: true, tape: true,
+      });
+      // Pulsing highlight box over DELTA: ONLY +70 BYTES inside cap_05 (u=0.51..0.97, v=0.42..0.63)
+      const diffHi = el('rect', {
+        x: 1410, y: 562, width: 416, height: 126, rx: 10, fill: 'none', stroke: C.yellow, 'stroke-width': 6,
+      }, g);
+
+      // Trash chute icon on far left top for deleted cube (positioned completely clear of claw shaft!)
+      wRect(g, 76, 265, 195, 58, { rx: 8, fill: C.night3, stroke: C.red, 'stroke-width': 4 }, 362);
+      txt(g, 'DELETED [RM]', { x: 173, y: 301, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 18, 'font-weight': 800, fill: C.red });
+
+      // CUBE A: Original Silver Cube (3,344 BYTES)
+      const cubeA = el('g', { filter: 'url(#boil)' }, g);
+      wRect(cubeA, -120, -95, 240, 190, { rx: 14, fill: C.cream, ...S }, 363);
+      el('rect', { x: -100, y: -76, width: 200, height: 42, rx: 6, fill: C.mint, stroke: C.navy, 'stroke-width': 4 }, cubeA);
+      txt(cubeA, 'ORIGINAL // SAFE', { x: 0, y: -48, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 17, 'font-weight': 800, fill: C.navy });
+      txt(cubeA, '3,344', { x: 0, y: 30, 'text-anchor': 'middle', 'font-family': F.bagel, 'font-size': 56, fill: C.navy });
+      txt(cubeA, 'BYTES', { x: 0, y: 70, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 22, 'font-weight': 800, fill: C.teal });
+
+      // CUBE B: Lookalike Cube (3,414 BYTES) with glowing crimson/gold +70 BYTES razor sliver!
+      const cubeB = el('g', { filter: 'url(#boil)' }, g);
+      wRect(cubeB, -120, -95, 240, 190, { rx: 14, fill: C.cream, ...S }, 364);
+      // Thin glowing razor sliver along right seam
+      el('rect', { x: 102, y: -92, width: 18, height: 184, rx: 4, fill: C.red, stroke: C.yellow, 'stroke-width': 4 }, cubeB);
+      el('rect', { x: -106, y: -76, width: 196, height: 42, rx: 6, fill: C.pink, stroke: C.navy, 'stroke-width': 4 }, cubeB);
+      txt(cubeB, 'LOOKALIKE', { x: -8, y: -48, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 18, 'font-weight': 800, fill: C.cream });
+      txt(cubeB, '3,414', { x: -24, y: 30, 'text-anchor': 'middle', 'font-family': F.bagel, 'font-size': 52, fill: C.red });
+      txt(cubeB, 'BYTES', { x: -24, y: 70, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 21, 'font-weight': 800, fill: C.navy });
+
+      // Mechanical Gantry Claw Arm (clipped cleanly beneath overhead gantry rail y=229!)
+      const clawClip = el('clipPath', { id: 'clawClip3E' }, g);
+      el('rect', { x: 0, y: 229, width: 920, height: 700 }, clawClip);
+      const clawWrap = el('g', { 'clip-path': 'url(#clawClip3E)' }, g);
+      const clawA = el('g', {}, clawWrap);
+      el('rect', { x: -12, y: -390, width: 24, height: 280, fill: C.yellow, ...S }, clawA);
+      el('path', { d: 'M -65 -115 L -120 -70 L -120 -25 M 65 -115 L 120 -70 L 120 -25', fill: 'none', stroke: C.yellow, 'stroke-width': 12, 'stroke-linecap': 'round' }, clawA);
+
+      // Precision Caliper Jaws locking onto slot width
+      const calL = el('g', {}, g);
+      el('path', { d: 'M 0 -55 L 0 55 L 36 55 L 36 22 L 16 22 L 16 -55 Z', fill: C.yellow, ...S }, calL);
+      const calR = el('g', {}, g);
+      el('path', { d: 'M 0 -55 L 0 55 L -36 55 L -36 22 L -16 22 L -16 -55 Z', fill: C.yellow, ...S }, calR);
+
+      // Magnifying Loupe zooming onto the +70 BYTES razor sliver (153.8s+)
+      const loupe = el('g', { filter: 'url(#boil)' }, g);
+      el('line', { x1: 72, y1: 72, x2: 158, y2: 158, stroke: C.navy, 'stroke-width': 22, 'stroke-linecap': 'round' }, loupe);
+      el('line', { x1: 72, y1: 72, x2: 158, y2: 158, stroke: C.yellow, 'stroke-width': 10, 'stroke-linecap': 'round' }, loupe);
+      el('circle', { cx: 0, cy: 0, r: 108, fill: '#121833', stroke: C.yellow, 'stroke-width': 12 }, loupe);
+      el('rect', { x: -16, y: -88, width: 32, height: 176, fill: C.red, stroke: C.yellow, 'stroke-width': 4 }, loupe);
+      el('rect', { x: -94, y: -32, width: 188, height: 64, rx: 10, fill: C.navy, stroke: C.yellow, 'stroke-width': 4 }, loupe);
+      txt(loupe, '+70 BYTES', { x: 0, y: 12, 'text-anchor': 'middle', 'font-family': F.bagel, 'font-size': 36, fill: C.yellow });
+
+      return (t) => {
+        charsPop(title, t, 144.28);
+        op(cap.g, E.out(seg(t, 144.3, 145.0)));
+
+        // Caliper clamps tight onto 3,344 BYTES cube (144.4..148.5s)
+        const clampP = E.out(seg(t, 144.4, 147.8));
+        tf(calL, lerp(285, 344, clampP), 660);
+        tf(calR, lerp(685, 626, clampP), 660);
+
+        // Cube A: sits in slot (144.2..150.5), plucked up-left by claw (150.5..153.5) -> shaft at x>=315 stays right of DELETED!
+        const liftP = E.out(seg(t, 150.5, 153.5));
+        const ax = lerp(485, 295, liftP);
+        const ay = lerp(646, 495, liftP);
+        tf(cubeA, ax, ay, lerp(1, 0.78, liftP), -liftP * 8);
+        op(cubeA, 1 - seg(t, 154.0, 154.8));
+
+        // Claw drops to grab Cube A then disappears cleanly once Cube B lands
+        const clawVis = seg(t, 149.8, 150.4) * (1 - seg(t, 153.5, 154.1));
+        op(clawA, clawVis);
+        tf(clawA, ax, ay);
+
+        // Cube B: slides in & drops flush into slot (150.8..153.8s) -> mid-drop at 56.0s (152.458s)!
+        const dropP = E.out(seg(t, 150.8, 153.8));
+        op(cubeB, seg(t, 150.6, 151.1));
+        tf(cubeB, lerp(690, 485, dropP), lerp(360, 646, dropP));
+
+        // Magnifying Loupe locks tight onto +70 BYTES sliver (153.8s+)
+        const lpP = E.back(seg(t, 153.8, 154.6));
+        op(loupe, clamp(lpP));
+        tf(loupe, lerp(795, 635, clamp(lpP)), lerp(450, 646, clamp(lpP)), Math.max(0.2, lpP));
+
+        // Highlight box on cap_05 pulses once delta is revealed
+        const hiOn = seg(t, 153.9, 154.5);
+        op(diffHi, hiOn * (0.65 + 0.35 * Math.sin(t * 7)));
+      };
+    });
+
+    // =========================================================================
+    // SCENE 3F-1 (159.66 - 164.60s): Security Radar Console -> 0 RED FLAGS // CLEAN
+    // VO: "Binance's endpoint security didn't blink. No pop-up, no red flag."
+    // =========================================================================
+    addScene(159.66, 164.60, { dark: true }, (g) => {
+      el('rect', { width: 1920, height: 1080, fill: C.night }, g);
+      halftone(g, { color: C.mint, step: 26, angle: 18, f: (x, y) => clamp(0.45 - Math.hypot(x - 560, y - 540) / 760), opacity: 0.40 });
+      el('rect', { x: 0, y: 800, width: 1920, height: 280, fill: C.night2, stroke: C.navy, 'stroke-width': 6 }, g);
+      // Console hardware telemetry strip along desk foreground
+      wRect(g, 110, 845, 760, 145, { rx: 12, fill: C.night3, stroke: C.mint, 'stroke-width': 4 }, 372);
+      txt(g, 'ENDPOINT AGENT v9.2 // MONITOR ACTIVE', { x: 490, y: 888, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 20, 'font-weight': 800, fill: C.mint });
+      for (let bx = 160; bx < 830; bx += 75) {
+        el('rect', { x: bx, y: 920, width: 44, height: 26, rx: 5, fill: C.mint, stroke: C.navy, 'stroke-width': 3 }, g);
+      }
+
+      const title = chars(g, 'NO POP-UP · NO FLAG', {
+        x: 84, y: 148, size: 74, family: F.serif, fill: C.cream, shadow: { dx: 7, dy: 7, fill: C.mint },
+      });
+
+      // Left Circular Green Sonar Radar Scope
+      const radar = el('g', {}, g);
+      tf(radar, 565, 535);
+      el('circle', { cx: 0, cy: 0, r: 285, fill: C.night3, stroke: C.mint, 'stroke-width': 9 }, radar);
+      for (const rr of [90, 180, 255]) el('circle', { cx: 0, cy: 0, r: rr, fill: 'none', stroke: C.teal, 'stroke-width': 3 }, radar);
+      el('line', { x1: -275, y1: 0, x2: 275, y2: 0, stroke: C.teal, 'stroke-width': 3 }, radar);
+      el('line', { x1: 0, y1: -275, x2: 0, y2: 275, stroke: C.teal, 'stroke-width': 3 }, radar);
+      // Rotating green sonar pie wedge
+      const wedge = el('path', { d: 'M 0 0 L 250 -100 A 270 270 0 0 1 250 100 Z', fill: C.mint, opacity: 0.34 }, radar);
+      const beam = el('line', { x1: 0, y1: 0, x2: 268, y2: 0, stroke: C.mint, 'stroke-width': 6, 'stroke-linecap': 'round' }, radar);
+      // Blipped target dev_tool (3,414 B) passed as CLEAN
+      el('circle', { cx: 120, cy: -85, r: 14, fill: C.mint, stroke: C.cream, 'stroke-width': 4 }, radar);
+      wRect(radar, 60, -148, 255, 42, { rx: 8, fill: C.navy, stroke: C.mint, 'stroke-width': 3 }, 370);
+      txt(radar, 'dev_tool (3,414 B)', { x: 187, y: -120, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 18, 'font-weight': 800, fill: C.mint });
+
+      // Right Endpoint Security Diagnostic Panel
+      wRect(g, 990, 235, 835, 560, { rx: 16, fill: C.night3, stroke: C.mint, 'stroke-width': 6 }, 371);
+      el('rect', { x: 1015, y: 260, width: 785, height: 56, rx: 8, fill: C.teal }, g);
+      txt(g, 'ENDPOINT SECURITY SCANNER v9.2', { x: 1408, y: 296, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 23, 'font-weight': 800, fill: C.cream });
+
+      const rows = [
+        '[OK] BINARY SIGNATURE ......... VERIFIED',
+        '[OK] POP-UP ALERTS ............ 0',
+        '[OK] RED FLAGS ................ 0',
+        '[OK] STATUS ................... TRUSTED',
+      ];
+      rows.forEach((r, idx) => {
+        txt(g, r, { x: 1045, y: 385 + idx * 66, 'font-family': F.mono, 'font-size': 23, 'font-weight': 800, fill: C.mint });
+      });
+
+      const stamp = makeStamp(g, '0 RED FLAGS // CLEAN', C.mint, 580, 128, 42);
+
+      return (t) => {
+        charsPop(title, t, 159.75);
+        const ang = ((t - 159.66) * 140) % 360;
+        wedge.setAttribute('transform', `rotate(${ang.toFixed(1)})`);
+        beam.setAttribute('transform', `rotate(${ang.toFixed(1)})`);
+        stampAnim(stamp, t, 161.85, 1408, 710, -6);
+      };
+    });
+
+    // =========================================================================
+    // SCENE 3F-2 (164.60 - 168.00s): Sunny Office — Happy Engineer #2 Snaps Laptop Shut
+    // VO: "And the engineer probably went on with his week thinking he just nailed an interview."
+    // =========================================================================
+    addScene(164.60, 168.00, { dark: false }, (g) => {
+      const office = E_.decorOfficeRoom(g, {
+        dark: false, wall: C.paper, deskY: 745, timeLabel: 'FRIDAY 5PM',
+        hasWindow: true, hasBookshelf: true, hasCorkboard: false, hasLamp: false,
+      });
+      halftone(g, { color: C.yellow, step: 26, angle: 16, f: (x, y) => clamp(0.45 - Math.hypot(x - 420, y - 340) / 860), opacity: 0.42 });
+
+      const title = chars(g, 'NAILED THE INTERVIEW!', {
+        x: 84, y: 148, size: 74, family: F.serif, fill: C.navy, shadow: { dx: 7, dy: 7, fill: C.yellow },
+      });
+
+      // Happy Engineer #2 leaning back proudly
+      const eng2 = personRig(g, {
+        shirt: C.mint, hair: C.navy, hairStyle: 'wavy', mode: 'desk', expression: 'proud',
+      });
+      tf(eng2.g, 820, 585, 1.02);
+
+      // Backpack sitting beside him on desk
+      wRect(g, 1140, 585, 175, 160, { rx: 28, fill: C.blue, ...S }, 380);
+      el('rect', { x: 1170, y: 650, width: 115, height: 68, rx: 10, fill: C.yellow, stroke: C.navy, 'stroke-width': 5 }, g);
+
+      // Laptop snapping lid shut on desk
+      const lapBase = el('rect', { x: 685, y: 722, width: 270, height: 24, rx: 6, fill: C.slate, ...S }, g);
+      const lapLid = el('rect', { x: 685, y: 585, width: 270, height: 140, rx: 8, fill: C.night2, ...S }, g);
+
+      return (t) => {
+        office.updateOffice(t);
+        charsPop(title, t, 164.68);
+        eng2.setState({
+          lookX: 0, lookY: -3, headRot: Math.sin(t * 4) * 3,
+          lArm: [-102, 145, -180, 90, -110, 40],
+          rArm: [102, 145, 180, 90, 110, 40],
+        });
+        const shut = E.out(seg(t, 166.1, 167.2));
+        lapLid.setAttribute('y', lerp(585, 708, shut).toFixed(1));
+        lapLid.setAttribute('height', lerp(140, 16, shut).toFixed(1));
+      };
+    });
+
+    // =========================================================================
+    // SCENE 3F-3 (168.00 - 170.1667s): Pitch-Dark Room + ONE Ominous Pulsing Amber Heartbeat LED
+    // =========================================================================
+    addScene(168.00, 170.1667, { dark: true }, (g) => {
+      // Pitch-dark room silhouette
+      el('rect', { width: 1920, height: 1080, fill: '#060813' }, g);
+      // Faint dark window frame & crescent reflection
+      el('rect', { x: 120, y: 195, width: 320, height: 260, rx: 6, fill: '#0B1024', stroke: '#162044', 'stroke-width': 5 }, g);
+      el('line', { x1: 280, y1: 195, x2: 280, y2: 455, stroke: '#162044', 'stroke-width': 5 }, g);
+      // Dark silhouette desk
+      el('rect', { x: 0, y: 690, width: 1920, height: 390, fill: '#0B0F20', stroke: '#182245', 'stroke-width': 5 }, g);
+
+      const title = chars(g, 'SILENT FOOTHOLD', {
+        x: 84, y: 148, size: 74, family: F.serif, fill: C.yellow, shadow: { dx: 6, dy: 6, fill: C.pink },
+      });
+
+      // Closed dark laptop resting silently center-desk (960, 655) with subtle thumb notch & metallic rim
+      el('rect', { x: 635, y: 662, width: 650, height: 28, rx: 8, fill: '#1A2346', stroke: '#354782', 'stroke-width': 4 }, g);
+      el('rect', { x: 658, y: 636, width: 604, height: 26, rx: 7, fill: '#121833', stroke: '#354782', 'stroke-width': 4 }, g);
+      el('rect', { x: 912, y: 662, width: 96, height: 10, rx: 4, fill: '#0A0E22' }, g);
+
+      // ONE ominous glowing amber heartbeat LED + concentric pulse rings at hinge (960, 650)
+      const ring1 = el('circle', { cx: 960, cy: 650, r: 24, fill: 'none', stroke: C.orange, 'stroke-width': 5 }, g);
+      const ring2 = el('circle', { cx: 960, cy: 650, r: 42, fill: 'none', stroke: C.yellow, 'stroke-width': 3 }, g);
+      const halo = el('circle', { cx: 960, cy: 650, r: 90, fill: C.orange, opacity: 0.25 }, g);
+      const led = el('circle', { cx: 960, cy: 650, r: 9, fill: C.yellow, stroke: C.orange, 'stroke-width': 4 }, g);
+
+      return (t) => {
+        op(title.g, 0.75);
+        // Two slow ominous heartbeat pulses: lub at 168.38s, dub peaking right at 168.96s (= localT 72.5!)
+        const p1 = Math.exp(-Math.pow((t - 168.38) / 0.20, 2));
+        const p2 = Math.exp(-Math.pow((t - 168.96) / 0.24, 2));
+        const p3 = Math.exp(-Math.pow((t - 169.72) / 0.26, 2));
+        const hb = clamp(0.28 + 0.72 * Math.max(p1, p2, p3));
+
+        op(led, hb);
+        op(halo, hb * 0.45);
+        halo.setAttribute('r', (38 + hb * 75).toFixed(1));
+
+        const rP = (t >= 168.80 && t < 169.65) ? seg(t, 168.80, 169.65) : seg(t, 168.20, 168.80);
+        ring1.setAttribute('r', (16 + rP * 115).toFixed(1));
+        op(ring1, (1 - rP) * 0.85);
+        ring2.setAttribute('r', (28 + rP * 175).toFixed(1));
+        op(ring2, (1 - rP) * 0.55);
+      };
+    });
+  }
+});
+</script>
+</body>
+</html>

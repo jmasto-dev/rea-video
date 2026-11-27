@@ -1,0 +1,1012 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Binance $6.3B Heist — Act 4 (Level-10 Halftone Dossier)</title>
+<link rel="stylesheet" href="shared/fonts.css">
+<style>
+  html, body { margin: 0; width: 1920px; height: 1080px; overflow: hidden; background: #F4ECDD; }
+  svg, canvas { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; }
+  #paper { mix-blend-mode: multiply; pointer-events: none; }
+  #fx { pointer-events: none; }
+  .mul { mix-blend-mode: multiply; }
+</style>
+</head>
+<body>
+<svg id="stage" viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg">
+  <defs></defs>
+  <g clip-path="url(#frameClip)">
+    <g id="cam"><g id="world"></g></g>
+    <g id="hud"></g>
+    <g id="wipe"></g>
+    <rect id="flash" width="1920" height="1080" fill="#FFFFFF" opacity="0"/>
+  </g>
+</svg>
+<canvas id="paper" width="1920" height="1080"></canvas>
+<canvas id="fx" width="960" height="540"></canvas>
+
+<script src="shared/engine.js"></script>
+<script>
+const E_ = window.Engine;
+const { C, F, el, txt, tf, op, show, clamp, seg, lerp, smooth, E, wRect, wLine, chars, charsPop, halftone, makeStamp, stampAnim, billNote, personRig, mountCapture } = E_;
+
+E_.createStage({
+  actNum: 4,
+  actTitle: 'LATERAL MOVEMENT & 50 BLANKS',
+  actOffset: 4084 / 24, // 170.1667s exact 24fps
+  frames: 2446,         // 170.1667s -> 272.0833s (101.9167s)
+  assets: ['captures/cap_06_etherscan_mixer.png'],
+  wipes: [
+    [180.38, C.blue],
+    [195.90, C.orange],
+    [210.54, C.yellow],
+    [223.50, C.pink],
+    [238.46, C.mint],
+    [250.06, C.yellow],
+  ],
+  shakes: [
+    [173.40, 12, 0.22],
+    [176.25, 14, 0.25],
+    [204.00, 14, 0.26],
+    [216.80, 14, 0.24],
+    [235.60, 12, 0.22],
+    [244.20, 14, 0.24],
+    [247.50, 16, 0.28],
+    [256.80, 10, 0.16],
+    [257.60, 10, 0.16],
+    [258.40, 10, 0.16],
+    [259.20, 10, 0.16],
+  ],
+  flashes: [
+    [176.25, 0.25, 0.18],
+    [204.00, 0.28, 0.18],
+    [247.50, 0.30, 0.20],
+  ],
+  hudCues: [
+    [170.16, 'INFILTRATION'],
+    [180.38, 'OCT 20 · BRIDGE'],
+    [195.90, 'LATERAL JUMP'],
+    [210.54, 'DEPLOY_TOKEN'],
+    [223.50, 'OCT 28 · MIXER'],
+    [233.50, 'OCT 29 · 5:15 PM'],
+    [238.46, 'PROD CONTAINER'],
+    [250.06, '50 BLANK SLIPS'],
+  ],
+
+  buildScenes(addScene) {
+    const S = { stroke: C.navy, 'stroke-width': 6, 'stroke-linejoin': 'round', 'stroke-linecap': 'round' };
+
+    // Helper for small industrial gear wheel
+    function drawGear(parent, cx, cy, r, teeth, fill, hubFill = C.cream) {
+      const g = el('g', {}, parent);
+      tf(g, cx, cy);
+      for (let i = 0; i < teeth; i++) {
+        el('rect', {
+          x: -11, y: -r - 16, width: 22, height: 24, rx: 4,
+          fill, stroke: C.navy, 'stroke-width': 5,
+          transform: `rotate(${(i * 360 / teeth).toFixed(1)})`
+        }, g);
+      }
+      el('circle', { cx: 0, cy: 0, r, fill, stroke: C.navy, 'stroke-width': 6 }, g);
+      el('circle', { cx: 0, cy: 0, r: r * 0.62, fill: 'none', stroke: C.navy, 'stroke-width': 4, opacity: 0.45 }, g);
+      el('circle', { cx: 0, cy: 0, r: r * 0.28, fill: hubFill, stroke: C.navy, 'stroke-width': 5 }, g);
+      return g;
+    }
+
+    // Helper for Deploy Token Hexagonal Badge
+    function drawDeployBadge(parent, x, y, sc = 1) {
+      const g = el('g', { filter: 'url(#boil)' }, parent);
+      tf(g, x, y, sc);
+      // Offset drop shadow
+      el('polygon', {
+        points: '10,-122 126,-56 126,76 10,142 -106,76 -106,-56',
+        fill: C.navy, opacity: 0.55
+      }, g);
+      // Brushed gold outer hex
+      el('polygon', {
+        points: '0,-132 116,-66 116,66 0,132 -116,66 -116,-66',
+        fill: C.yellow, stroke: C.navy, 'stroke-width': 8, 'stroke-linejoin': 'round'
+      }, g);
+      // Inner recessed plate
+      el('polygon', {
+        points: '0,-106 92,-53 92,53 0,106 -92,53 -92,-53',
+        fill: C.night, stroke: C.navy, 'stroke-width': 5, 'stroke-linejoin': 'round'
+      }, g);
+      // Keyring & circuit notches
+      el('circle', { cx: 0, cy: -84, r: 10, fill: C.yellow, stroke: C.navy, 'stroke-width': 4 }, g);
+      el('rect', { x: -72, y: -28, width: 144, height: 56, rx: 8, fill: C.yellow, stroke: C.navy, 'stroke-width': 4 }, g);
+      txt(g, 'DEPLOY_TOKEN', {
+        x: 0, y: 7, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 17, 'font-weight': 800, fill: C.navy
+      });
+      txt(g, 'PROD // AUTH', {
+        x: 0, y: 56, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 15, 'font-weight': 800, fill: C.mint
+      });
+      return g;
+    }
+
+    // =========================================================================
+    // SCENE 4A (170.17 - 180.38s): Vault Turnstile -> Fortress Cross-Section
+    // VO: "Now, you might be thinking, why go through all that trouble for a guy who doesn't even hold the keys to the vault? Because he doesn't need to. He just needs to be inside the building."
+    // =========================================================================
+    addScene(170.1667, 180.38, { dark: true }, (g) => {
+      // ---- BEAT 1 (170.17 - 175.50s): Titanium Vault Door + Access Denied ----
+      const b1 = el('g', {}, g);
+      E_.decorVaultHall(b1, { groundY: 850 });
+      const t1 = chars(b1, 'NO VAULT KEYS', {
+        x: 84, y: 150, size: 74, family: F.serif, fill: C.cream, shadow: { dx: 7, dy: 7, fill: C.blue },
+      });
+
+      // Security Turnstile Corridor
+      wRect(b1, 700, 620, 260, 230, { rx: 10, fill: C.slate, ...S }, 401);
+      el('rect', { x: 735, y: 650, width: 190, height: 34, rx: 6, fill: C.night3, stroke: C.cream, 'stroke-width': 3 }, b1);
+      txt(b1, 'CARD SCANNER', { x: 830, y: 673, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 17, 'font-weight': 800, fill: C.yellow });
+      const scanLed = el('rect', { x: 780, y: 710, width: 100, height: 42, rx: 8, fill: C.red, stroke: C.navy, 'stroke-width': 4 }, b1);
+      const scanTxt = txt(b1, 'SCAN...', { x: 830, y: 738, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 18, 'font-weight': 800, fill: C.cream });
+
+      // Giant Circular Titanium Vault Door blocking right corridor
+      wRect(b1, 1045, 200, 760, 650, { rx: 16, fill: C.night2, stroke: C.cream, 'stroke-width': 6 }, 402);
+      el('rect', { x: 1185, y: 218, width: 480, height: 48, rx: 8, fill: C.night3, stroke: C.yellow, 'stroke-width': 4 }, b1);
+      txt(b1, 'VAULT MASTER KEYS // LOCKED', { x: 1425, y: 249, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 21, 'font-weight': 800, fill: C.yellow });
+      el('circle', { cx: 1425, cy: 565, r: 245, fill: C.slate, stroke: C.cream, 'stroke-width': 10 }, b1);
+      el('circle', { cx: 1425, cy: 565, r: 205, fill: C.night3, stroke: C.navy, 'stroke-width': 6 }, b1);
+      for (let a = 0; a < 12; a++) {
+        const ang = (a / 12) * Math.PI * 2;
+        el('circle', { cx: 1425 + Math.cos(ang) * 224, cy: 565 + Math.sin(ang) * 224, r: 7, fill: C.cream }, b1);
+      }
+      // Spoked locking wheel
+      el('circle', { cx: 1425, cy: 565, r: 95, fill: 'none', stroke: C.yellow, 'stroke-width': 18 }, b1);
+      for (let s = 0; s < 6; s++) {
+        const ang = (s / 6) * Math.PI * 2;
+        el('line', { x1: 1425, y1: 565, x2: 1425 + Math.cos(ang) * 95, y2: 565 + Math.sin(ang) * 95, stroke: C.yellow, 'stroke-width': 12 }, b1);
+      }
+      el('circle', { cx: 1425, cy: 565, r: 30, fill: C.navy, stroke: C.yellow, 'stroke-width': 6 }, b1);
+
+      // Engineer #2 scanning badge
+      const eng2 = personRig(b1, { shirt: C.teal, hair: C.navy, hairStyle: 'wavy', badge: true, expression: 'neutral' });
+      tf(eng2.g, 415, 620, 0.98);
+      const badgeCard = el('g', {}, b1);
+      el('rect', { x: -34, y: -22, width: 68, height: 44, rx: 6, fill: C.yellow, ...S }, badgeCard);
+      txt(badgeCard, 'ENG#2', { x: 0, y: 6, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 15, 'font-weight': 800, fill: C.navy });
+
+      const denyStamp = makeStamp(b1, 'NO VAULT KEYS', C.red, 480, 118, 44);
+      const denyBanner = el('g', {}, b1);
+      wRect(denyBanner, 120, 895, 620, 56, { rx: 10, fill: C.red, stroke: C.cream, 'stroke-width': 4 }, 403);
+      txt(denyBanner, 'ACCESS DENIED: NO VAULT KEYS', { x: 430, y: 931, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 22, 'font-weight': 800, fill: C.cream });
+
+      // ---- BEAT 2 (175.50 - 180.38s): Fortress Cross-Section Cutaway ----
+      const b2 = el('g', {}, g);
+      el('rect', { width: 1920, height: 1080, fill: C.night3 }, b2);
+      // Left exterior stormy zone
+      el('rect', { x: 0, y: 0, width: 790, height: 860, fill: C.night }, b2);
+      halftone(b2, { x0: 0, y0: 0, w: 790, h: 860, color: C.blue, step: 26, angle: 16, f: (x, y) => clamp(0.45 - Math.hypot(x - 320, y - 420) / 760) });
+      // Crescent moon & exterior night skyline silhouettes (clear of headline!)
+      el('circle', { cx: 185, cy: 270, r: 34, fill: C.yellow }, b2);
+      el('circle', { cx: 200, cy: 262, r: 29, fill: C.night }, b2);
+      for (const [bx, bh] of [[70, 220], [160, 310], [260, 190], [360, 260], [460, 180]]) {
+        el('rect', { x: bx, y: 860 - bh, width: 78, height: bh, fill: C.night2, stroke: C.navy, 'stroke-width': 4 }, b2);
+      }
+      // Right warm illuminated inner courtyard corridor!
+      el('rect', { x: 790, y: 195, width: 1130, height: 665, fill: '#2B355C', stroke: C.cream, 'stroke-width': 5 }, b2);
+      halftone(b2, { x0: 790, y0: 195, w: 1130, h: 665, color: C.yellow, step: 24, angle: 18, f: (x, y) => clamp(0.50 - Math.hypot(x - 1340, y - 490) / 780) });
+      // Courtyard arched colonnade & glowing pendant lamps
+      for (const px of [930, 1240, 1550]) {
+        wRect(b2, px, 240, 68, 620, { rx: 4, fill: C.cream, ...S }, px);
+        el('rect', { x: px - 14, y: 226, width: 96, height: 28, rx: 4, fill: C.yellow, ...S }, b2);
+        el('rect', { x: px - 14, y: 830, width: 96, height: 30, rx: 4, fill: C.slate, ...S }, b2);
+      }
+      for (const lx of [1110, 1420, 1730]) {
+        el('polygon', { points: `${lx - 20},250 ${lx + 20},250 ${lx + 150},860 ${lx - 150},860`, fill: 'url(#patDotsGold)', opacity: 0.32 }, b2);
+        el('line', { x1: lx, y1: 195, x2: lx, y2: 230, stroke: C.cream, 'stroke-width': 4 }, b2);
+        el('path', { d: `M ${lx - 38} 254 C ${lx - 30} 222 ${lx + 30} 222 ${lx + 38} 254 Z`, fill: C.yellow, ...S }, b2);
+      }
+      el('rect', { x: 1680, y: 400, width: 180, height: 460, rx: 10, fill: C.night2, stroke: C.mint, 'stroke-width': 6 }, b2);
+      txt(b2, 'INNER', { x: 1770, y: 485, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 22, 'font-weight': 800, fill: C.mint });
+      txt(b2, 'SYSTEMS', { x: 1770, y: 515, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 22, 'font-weight': 800, fill: C.mint });
+
+      // Ground floor & thick stone/steel Fortress Perimeter Wall dividing outside & inside!
+      el('rect', { x: 0, y: 860, width: 1920, height: 220, fill: C.night2, stroke: C.navy, 'stroke-width': 7 }, b2);
+      el('rect', { x: 0, y: 852, width: 1920, height: 14, fill: 'url(#patStripeDanger)' }, b2);
+      wRect(b2, 715, 225, 110, 635, { rx: 6, fill: C.slate, stroke: C.cream, 'stroke-width': 6 }, 404);
+      for (let wy = 270; wy < 840; wy += 68) el('line', { x1: 720, y1: wy, x2: 820, y2: wy, stroke: C.navy, 'stroke-width': 4 }, b2);
+      el('rect', { x: 678, y: 188, width: 184, height: 38, rx: 6, fill: C.night2, stroke: C.cream, 'stroke-width': 4 }, b2);
+      txt(b2, 'PERIMETER WALL', { x: 770, y: 213, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 16, 'font-weight': 800, fill: C.yellow });
+
+      // Outside Patrolling Security Guards with Flashlight Cones watching outside wall
+      const guards = [245, 490].map((gx, idx) => {
+        const gg = el('g', { filter: 'url(#boil)' }, b2);
+        tf(gg, gx, 745);
+        // Flashlight beam pointing left/outward away from courtyard!
+        el('polygon', { points: '-42,-8 -245,-70 -245,95 -42,16', fill: 'url(#patDotsGold)', opacity: 0.65 }, gg);
+        // Legs & boots
+        el('rect', { x: -20, y: 65, width: 16, height: 48, rx: 4, fill: C.navy, stroke: C.cream, 'stroke-width': 3 }, gg);
+        el('rect', { x: 4, y: 65, width: 16, height: 48, rx: 4, fill: C.navy, stroke: C.cream, 'stroke-width': 3 }, gg);
+        el('rect', { x: -30, y: -40, width: 60, height: 112, rx: 14, fill: C.blue, ...S }, gg);
+        el('circle', { cx: 0, cy: -66, r: 30, fill: C.skin, ...S }, gg);
+        el('path', { d: 'M -36 -74 L 36 -74 L 22 -98 L -22 -98 Z', fill: C.navy, stroke: C.cream, 'stroke-width': 3 }, gg);
+        el('rect', { x: -46, y: -76, width: 22, height: 8, rx: 3, fill: C.navy }, gg);
+        el('rect', { x: -58, y: -14, width: 28, height: 16, rx: 4, fill: C.yellow, ...S }, gg);
+        return { gg, gx, idx };
+      });
+      wRect(b2, 130, 900, 460, 50, { rx: 8, fill: C.navy, stroke: C.cream, 'stroke-width': 3 }, 405);
+      txt(b2, 'GUARDS WATCHING OUTSIDE', { x: 360, y: 932, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 20, 'font-weight': 800, fill: C.cream });
+
+      // Glowing-Eyed Intruder leaning casually against Inner Courtyard Pillar!
+      const intruder = el('g', { filter: 'url(#boil)' }, b2);
+      tf(intruder, 1345, 650);
+      el('path', { d: 'M -65 210 L -52 -30 C -48 -95 48 -95 52 -30 L 65 210 Z', fill: '#0A0D1A', stroke: C.cream, 'stroke-width': 6 }, intruder);
+      // Hood & glowing pink eyes
+      el('path', { d: 'M -52 -40 C -52 -130 52 -130 52 -40 Z', fill: '#0A0D1A', stroke: C.cream, 'stroke-width': 6 }, intruder);
+      el('circle', { cx: -18, cy: -58, r: 8, fill: C.pink }, intruder);
+      el('circle', { cx: 18, cy: -58, r: 8, fill: C.pink }, intruder);
+      // Casual crossed arms + glowing phone/coffee
+      el('path', { d: 'M -42 30 Q 0 55 44 25', fill: 'none', stroke: C.cream, 'stroke-width': 12, 'stroke-linecap': 'round' }, intruder);
+      wRect(b2, 1080, 900, 560, 50, { rx: 8, fill: C.pink, stroke: C.cream, 'stroke-width': 4 }, 406);
+      txt(b2, 'ALREADY INSIDE THE BUILDING', { x: 1360, y: 932, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 21, 'font-weight': 800, fill: C.navy });
+
+      const t2 = chars(b2, 'INSIDE THE BUILDING', {
+        x: 84, y: 150, size: 78, family: F.serif, fill: C.cream, shadow: { dx: 7, dy: 7, fill: C.pink },
+      });
+      const inStamp = makeStamp(b2, 'ALREADY INSIDE', C.pink, 500, 120, 44);
+
+      return (t) => {
+        const beat2 = t >= 175.50;
+        show(b1, !beat2);
+        show(b2, beat2);
+
+        if (!beat2) {
+          charsPop(t1, t, 170.30);
+          const reach = E.out(seg(t, 171.6, 173.1));
+          eng2.setState({ lookX: 8, lookY: 2, rArm: [102, 145, lerp(155, 220, reach), lerp(195, 130, reach), lerp(110, 315, reach), lerp(230, 105, reach)] });
+          tf(badgeCard, lerp(540, 765, reach), lerp(765, 725, reach), 1, lerp(-12, 6, reach));
+          if (t >= 173.3) {
+            scanLed.setAttribute('fill', C.red);
+            scanTxt.textContent = 'DENIED';
+          }
+          stampAnim(denyStamp, t, 173.40, 1140, 430, -9);
+          op(denyBanner, E.out(seg(t, 173.4, 173.9)));
+        } else {
+          charsPop(t2, t, 175.60);
+          guards.forEach(({ gg, gx, idx }) => {
+            const dx = Math.sin(t * 2.2 + idx * 1.4) * 32;
+            tf(gg, gx + dx, 745);
+          });
+          tf(intruder, 1355, 650 + Math.sin(t * 2.6) * 3);
+          stampAnim(inStamp, t, 176.25, 1230, 340, -7);
+        }
+      };
+    });
+
+    // =========================================================================
+    // SCENE 4B (180.38 - 195.90s): OCT 20 Dark-Mode Isometric Architectural Network Map
+    // VO: "On October 20th, sitting silently inside that second engineer's laptop, the attackers don't look for crypto wallets. They look for a bridge. And they find one, right inside Binance's own office software, an internal AI tool."
+    // =========================================================================
+    addScene(180.38, 195.90, { dark: true }, (g) => {
+      el('rect', { width: 1920, height: 1080, fill: C.night3 }, g);
+      halftone(g, { color: C.blue, step: 28, angle: 16, f: (x, y) => clamp(0.42 - Math.hypot(x - 960, y - 560) / 1100) });
+
+      // Isometric blueprint grid floor across stage
+      for (let i = -8; i <= 14; i++) {
+        el('line', { x1: i * 190 - 200, y1: 1080, x2: i * 190 + 700, y2: 140, stroke: C.night2, 'stroke-width': 2.5, opacity: 0.55 }, g);
+        el('line', { x1: i * 190 + 200, y1: 1080, x2: i * 190 - 700, y2: 140, stroke: C.night2, 'stroke-width': 2.5, opacity: 0.55 }, g);
+      }
+
+      const title = chars(g, 'OCT 20 · THE BRIDGE', {
+        x: 84, y: 150, size: 78, family: F.serif, fill: C.cream, shadow: { dx: 7, dy: 7, fill: C.yellow },
+      });
+
+      // Top-Right Armored COLD WALLETS [SEALED] Wing (skipped by attackers)
+      const coldG = el('g', {}, g);
+      // Isometric 3D thick steel slab
+      el('polygon', { points: '1040,185 1780,185 1840,265 1100,265', fill: C.slate, ...S }, coldG);
+      el('polygon', { points: '1100,265 1840,265 1840,340 1100,340', fill: C.night2, ...S }, coldG);
+      el('polygon', { points: '1040,185 1100,265 1100,340 1040,260', fill: C.night, ...S }, coldG);
+      el('rect', { x: 1125, y: 202, width: 620, height: 48, rx: 6, fill: C.night3, stroke: C.mint, 'stroke-width': 4 }, coldG);
+      txt(coldG, 'COLD WALLETS // [SEALED · IGNORED]', {
+        x: 1435, y: 233, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 21, 'font-weight': 800, fill: C.mint,
+      });
+      // Armored vault lock icons on slab
+      for (const lx of [1180, 1435, 1690]) {
+        el('rect', { x: lx - 20, y: 280, width: 40, height: 34, rx: 5, fill: C.yellow, stroke: C.navy, 'stroke-width': 4 }, coldG);
+        el('path', { d: `M ${lx - 11} 280 L ${lx - 11} 268 A 11 11 0 0 1 ${lx + 11} 268 L ${lx + 11} 280`, fill: 'none', stroke: C.cream, 'stroke-width': 5 }, coldG);
+      }
+
+      // Dark Jagged Chasm separating Office LAN & Wallet Core
+      el('polygon', {
+        points: '730,360 1185,360 1235,510 1160,670 1225,860 1140,1040 675,1040 735,840 665,650 755,480',
+        fill: '#080B1A', stroke: C.navy, 'stroke-width': 7
+      }, g);
+      // Chasm jagged cliff rim walls
+      el('polyline', { points: '730,360 755,480 665,650 735,840 675,1040', fill: 'none', stroke: C.blue, 'stroke-width': 6, opacity: 0.7 }, g);
+      el('polyline', { points: '1185,360 1235,510 1160,670 1225,860 1140,1040', fill: 'none', stroke: C.pink, 'stroke-width': 6, opacity: 0.7 }, g);
+      txt(g, 'AIRGAP / FIREWALL CHASM', {
+        x: 952, y: 970, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 22, 'font-weight': 800, fill: C.slate,
+      });
+
+      // Left Isometric Platform: CORPORATE OFFICE LAN
+      el('polygon', { points: '95,380 710,380 650,860 55,860', fill: C.night2, ...S }, g);
+      el('polygon', { points: '55,860 650,860 650,920 55,920', fill: C.night, ...S }, g);
+      el('rect', { x: 118, y: 400, width: 470, height: 48, rx: 8, fill: C.night3, stroke: C.cream, 'stroke-width': 3 }, g);
+      txt(g, 'CORPORATE OFFICE LAN', { x: 353, y: 431, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 21, 'font-weight': 800, fill: C.cream });
+
+      // Engineer #2 Laptop Node waking amber on Left Platform
+      const nodeRing1 = el('circle', { cx: 360, cy: 615, r: 95, fill: 'none', stroke: C.yellow, 'stroke-width': 5, 'stroke-dasharray': '12 8' }, g);
+      const nodeRing2 = el('circle', { cx: 360, cy: 615, r: 132, fill: 'none', stroke: C.orange, 'stroke-width': 4 }, g);
+      wRect(g, 245, 530, 230, 145, { rx: 10, fill: C.night3, stroke: C.yellow, 'stroke-width': 6 }, 411);
+      el('rect', { x: 268, y: 552, width: 184, height: 85, rx: 5, fill: C.orange }, g);
+      txt(g, 'ENG #2', { x: 360, y: 598, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 24, 'font-weight': 800, fill: C.navy });
+      txt(g, '70-BYTE FOOTHOLD', { x: 360, y: 626, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 14, 'font-weight': 800, fill: C.navy });
+      el('polygon', { points: '220,680 500,680 525,710 195,710', fill: C.cream, ...S }, g);
+      // Office software icon stack
+      for (const [ox, oy, ol] of [[155, 760, 'CHAT'], [325, 760, 'MAIL'], [495, 760, 'AI TOOL']]) {
+        wRect(g, ox - 60, oy - 24, 120, 48, { rx: 8, fill: ol === 'AI TOOL' ? C.yellow : C.slate, stroke: C.navy, 'stroke-width': 4 }, ox);
+        txt(g, ol, { x: ox, y: oy + 7, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 16, 'font-weight': 800, fill: ol === 'AI TOOL' ? C.navy : C.cream });
+      }
+
+      // Right Isometric Platform: WALLET CORE NETWORK
+      el('polygon', { points: '1220,410 1850,410 1880,860 1245,860', fill: C.night2, ...S }, g);
+      el('polygon', { points: '1245,860 1880,860 1880,920 1245,920', fill: C.night, ...S }, g);
+      el('rect', { x: 1270, y: 430, width: 540, height: 48, rx: 8, fill: C.night3, stroke: C.pink, 'stroke-width': 3 }, g);
+      txt(g, 'WALLET CORE INFRASTRUCTURE', { x: 1540, y: 461, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 21, 'font-weight': 800, fill: C.pink });
+      for (const [wx, wy, wl] of [[1415, 600, 'ENG #3 NODE'], [1665, 600, 'ENG #1 NODE'], [1540, 765, 'SIGNING SYSTEM']]) {
+        wRect(g, wx - 115, wy - 42, 230, 84, { rx: 10, fill: C.night3, stroke: C.cream, 'stroke-width': 4 }, wx + wy);
+        txt(g, wl, { x: wx, y: wy + 7, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 18, 'font-weight': 800, fill: C.cream });
+      }
+
+      // Radar Search Arcs sweeping from Eng #2
+      const radarArcs = [1, 2, 3].map(k => el('path', {
+        d: `M 475 590 A ${110 * k} ${110 * k} 0 0 1 ${475 + 95 * k} ${590 - 95 * k}`,
+        fill: 'none', stroke: C.sky, 'stroke-width': 5, 'stroke-dasharray': '14 10'
+      }, g));
+      const skipBadge = el('g', {}, g);
+      wRect(skipBadge, 770, 240, 240, 44, { rx: 8, fill: C.night, stroke: C.mint, 'stroke-width': 4 }, 412);
+      txt(skipBadge, 'NO KEYS -> SKIP', { x: 890, y: 268, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 17, 'font-weight': 800, fill: C.mint });
+
+      // GLOWING AMBER ARCH TRUSS BRIDGE spanning the Chasm: INTERNAL AI TOOL
+      const bridgeG = el('g', {}, g);
+      halftone(bridgeG, { x0: 620, y0: 430, w: 680, h: 310, color: C.yellow, step: 22, angle: 20, f: (x, y) => clamp(0.60 - Math.hypot(x - 960, y - 590) / 360) });
+      // Arch truss beams
+      el('path', { d: 'M 635 615 Q 960 445 1285 615', fill: 'none', stroke: C.navy, 'stroke-width': 26, 'stroke-linecap': 'round' }, bridgeG);
+      el('path', { d: 'M 635 615 Q 960 445 1285 615', fill: 'none', stroke: C.yellow, 'stroke-width': 14, 'stroke-linecap': 'round' }, bridgeG);
+      // Deck span
+      el('rect', { x: 635, y: 605, width: 650, height: 32, rx: 6, fill: C.orange, ...S }, bridgeG);
+      // Vertical truss struts
+      for (let bx = 700; bx <= 1220; bx += 65) {
+        const u = (bx - 635) / 650;
+        const archY = 615 - Math.sin(u * Math.PI) * 85;
+        el('line', { x1: bx, y1: archY, x2: bx, y2: 605, stroke: C.yellow, 'stroke-width': 6 }, bridgeG);
+      }
+      // Bridge Banner Plaque
+      wRect(bridgeG, 745, 654, 430, 62, { rx: 10, fill: C.yellow, stroke: C.navy, 'stroke-width': 6 }, 413);
+      txt(bridgeG, 'INTERNAL AI TOOL', { x: 960, y: 695, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 27, 'font-weight': 800, fill: C.navy });
+
+      // Animated energy pulses racing across the bridge
+      const pulses = Array.from({ length: 6 }, (_, i) => el('circle', {
+        cx: 650, cy: 618, r: 10, fill: i % 2 === 0 ? C.cream : C.pink, stroke: C.navy, 'stroke-width': 3
+      }, bridgeG));
+
+      return (t) => {
+        charsPop(title, t, 180.52);
+        const pulseScale = 1 + 0.08 * Math.sin(t * 5);
+        tf(nodeRing1, 0, 0, 1);
+        nodeRing1.setAttribute('r', (95 * pulseScale).toFixed(1));
+        nodeRing2.setAttribute('r', (130 + 16 * Math.sin(t * 4)).toFixed(1));
+
+        radarArcs.forEach((arc, i) => {
+          const p = seg(t, 182.5 + i * 0.45, 184.5 + i * 0.45);
+          op(arc, p * (0.45 + 0.45 * Math.sin(t * 6 + i)));
+        });
+        op(skipBadge, E.out(seg(t, 184.2, 185.0)));
+
+        const brOn = E.out(seg(t, 187.4, 189.0));
+        op(bridgeG, brOn);
+        pulses.forEach((pEl, i) => {
+          const u = ((t - 187.5) * 0.85 + i / 6) % 1;
+          const px = lerp(645, 1275, u);
+          pEl.setAttribute('cx', px.toFixed(1));
+          pEl.setAttribute('cy', (616 - Math.sin(u * Math.PI) * 14).toFixed(1));
+        });
+      };
+    });
+
+    // =========================================================================
+    // SCENE 4C (195.90 - 210.54s): Lateral Jump Arcs -> Eng #1 Night Office + Cracked Folder
+    // VO: "Using that AI tool as a springboard, they jump sideways onto two other computers. One belongs to another wallet software engineer, and the other belongs to the exact same guy from June, the one whose laptop Binance thought they'd cleaned up months earlier."
+    // =========================================================================
+    addScene(195.90, 210.54, { dark: true }, (g) => {
+      // ---- BEAT 1 (195.90 - 202.00s): Springboard Jump onto Eng #3 & Eng #1 ----
+      const b1 = el('g', {}, g);
+      el('rect', { width: 1920, height: 1080, fill: C.night }, b1);
+      halftone(b1, { color: C.orange, step: 26, angle: 20, f: (x, y) => clamp(0.45 - Math.hypot(x - 960, y - 560) / 960) });
+      for (let x = 180; x < 1920; x += 280) wLine(b1, x, 140, x, 980, { stroke: C.night2, 'stroke-width': 3 }, x);
+
+      const t1 = chars(b1, 'SPRINGBOARD JUMP', {
+        x: 84, y: 150, size: 78, family: F.serif, fill: C.cream, shadow: { dx: 7, dy: 7, fill: C.orange },
+      });
+
+      // Left Springboard Node: INTERNAL AI TOOL
+      wRect(b1, 105, 420, 440, 290, { rx: 14, fill: C.night2, stroke: C.yellow, 'stroke-width': 7 }, 420);
+      el('rect', { x: 130, y: 445, width: 390, height: 52, rx: 8, fill: C.yellow }, b1);
+      txt(b1, 'INTERNAL AI TOOL', { x: 325, y: 479, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 24, 'font-weight': 800, fill: C.navy });
+      txt(b1, 'SPRINGBOARD // PIVOT', { x: 325, y: 555, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 21, 'font-weight': 800, fill: C.cream });
+      el('path', { d: 'M 210 620 L 440 620', stroke: C.orange, 'stroke-width': 12, 'stroke-linecap': 'round' }, b1);
+      el('polygon', { points: '440,595 485,620 440,645', fill: C.orange }, b1);
+
+      // Right Target Workstation Cards
+      const targets = [
+        { y: 225, tag: 'WALLET ENG #3', sub: 'ACTIVE WALLET SOFTWARE', col: C.pink, badge: 'BREACHED' },
+        { y: 605, tag: 'WALLET ENG #1 (JUNE)', sub: 'SAME ENGINEER CLEANED IN JUNE', col: C.yellow, badge: 'RE-INFECTED' },
+      ];
+      const targetCards = targets.map((tg, idx) => {
+        const cg = el('g', {}, b1);
+        wRect(cg, 1060, tg.y, 750, 285, { rx: 16, fill: C.night3, stroke: tg.col, 'stroke-width': 7 }, 421 + idx);
+        // Workstation monitor graphic inside card
+        wRect(cg, 1095, tg.y + 38, 220, 145, { rx: 8, fill: C.night2, stroke: C.cream, 'stroke-width': 5 }, 425 + idx);
+        el('rect', { x: 1112, y: tg.y + 54, width: 186, height: 100, rx: 4, fill: tg.col, opacity: 0.9 }, cg);
+        txt(cg, 'LAPTOP', { x: 1205, y: tg.y + 112, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 22, 'font-weight': 800, fill: C.navy });
+        el('polygon', { points: `1075,${tg.y + 195} 1335,${tg.y + 195} 1355,${tg.y + 225} 1055,${tg.y + 225}`, fill: C.cream, ...S }, cg);
+        // Text details on right of workstation
+        txt(cg, tg.tag, { x: 1365, y: tg.y + 82, 'font-family': F.mono, 'font-size': 25, 'font-weight': 800, fill: tg.col });
+        txt(cg, tg.sub, { x: 1365, y: tg.y + 125, 'font-family': F.mono, 'font-size': 16, 'font-weight': 800, fill: C.cream });
+        const st = el('rect', { x: 1365, y: tg.y + 165, width: 225, height: 48, rx: 8, fill: C.red, stroke: C.cream, 'stroke-width': 4 }, cg);
+        const stTxt = txt(cg, tg.badge, { x: 1477, y: tg.y + 197, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 21, 'font-weight': 800, fill: C.cream });
+        return { cg, st, stTxt };
+      });
+
+      // Lateral Jump Arcs
+      const arc1 = el('path', { d: 'M 545 500 C 740 240 890 250 1050 365', fill: 'none', stroke: C.pink, 'stroke-width': 12, 'stroke-dasharray': '22 14', 'stroke-linecap': 'round' }, b1);
+      const arc2 = el('path', { d: 'M 545 620 C 760 760 900 790 1050 745', fill: 'none', stroke: C.yellow, 'stroke-width': 12, 'stroke-dasharray': '22 14', 'stroke-linecap': 'round' }, b1);
+      const orb1 = el('circle', { cx: 545, cy: 500, r: 16, fill: C.cream, stroke: C.pink, 'stroke-width': 6 }, b1);
+      const orb2 = el('circle', { cx: 545, cy: 620, r: 16, fill: C.cream, stroke: C.yellow, 'stroke-width': 6 }, b1);
+
+      // ---- BEAT 2 (202.00 - 210.54s): Eng #1 Midnight Office + Cracked CONTAINED Folder ----
+      const b2 = el('g', {}, g);
+      const office = E_.decorOfficeRoom(b2, {
+        dark: true, wall: C.night, deskY: 710, timeLabel: 'OCT 20 · NIGHT',
+        hasWindow: true, hasBookshelf: true, hasCorkboard: true, hasLamp: true,
+      });
+      const t2 = chars(b2, 'SAME GUY FROM JUNE', {
+        x: 84, y: 150, size: 74, family: F.serif, fill: C.cream, shadow: { dx: 7, dy: 7, fill: C.pink },
+      });
+
+      // Brand-New Replacement MacBook waking ominous amber on right side of desk
+      const macG = el('g', {}, b2);
+      el('polygon', { points: '960,410 1445,410 1495,565 1010,565', fill: 'url(#patDotsGold)', opacity: 0.35 }, macG);
+      wRect(macG, 980, 325, 450, 295, { rx: 14, fill: C.cream, ...S }, 428);
+      el('rect', { x: 1002, y: 348, width: 406, height: 248, rx: 6, fill: C.night3, stroke: C.navy, 'stroke-width': 4 }, macG);
+      const macGlow = el('rect', { x: 1014, y: 360, width: 382, height: 224, rx: 4, fill: C.orange }, macG);
+      txt(macG, 'ENG #1 // NEW MACBOOK', { x: 1205, y: 416, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 23, 'font-weight': 800, fill: C.navy });
+      txt(macG, 'STATUS: BACKDOOR ACTIVE', { x: 1205, y: 472, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 21, 'font-weight': 800, fill: C.cream });
+      el('rect', { x: 1085, y: 505, width: 240, height: 42, rx: 6, fill: C.red, stroke: C.navy, 'stroke-width': 4 }, macG);
+      txt(macG, 'REMOTE SHELL ON', { x: 1205, y: 533, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 18, 'font-weight': 800, fill: C.cream });
+      // Aluminum laptop base on desk
+      el('polygon', { points: '980,620 1430,620 1515,725 900,725', fill: C.cream, ...S }, macG);
+      el('rect', { x: 1000, y: 642, width: 410, height: 48, rx: 4, fill: C.slate }, macG);
+
+      // Foreground Left-Center on Desk: June's Green CONTAINED Manila Folder splitting cleanly down a jagged crack!
+      const folderSplit = el('g', {}, b2);
+      const defs = document.querySelector('#stage defs');
+      const cpL = el('clipPath', { id: 'clipFolderL' }, defs);
+      el('path', { d: 'M 280 650 L 585 650 L 568 745 L 598 815 L 570 890 L 592 995 L 280 995 Z' }, cpL);
+      const cpR = el('clipPath', { id: 'clipFolderR' }, defs);
+      el('path', { d: 'M 585 650 L 900 650 L 900 995 L 592 995 L 570 890 L 598 815 L 568 745 Z' }, cpR);
+
+      function buildWholeFolder(parent) {
+        wRect(parent, 325, 675, 530, 300, { rx: 12, fill: C.paper, ...S }, 429);
+        el('rect', { x: 355, y: 702, width: 180, height: 42, rx: 6, fill: C.yellow, stroke: C.navy, 'stroke-width': 4 }, parent);
+        txt(parent, 'JUNE #0614', { x: 445, y: 730, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 20, 'font-weight': 800, fill: C.navy });
+        txt(parent, 'CLOSED TICKET', { x: 725, y: 730, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 18, 'font-weight': 800, fill: C.slate });
+        el('rect', { x: 375, y: 782, width: 430, height: 96, rx: 10, fill: C.mint, stroke: C.navy, 'stroke-width': 6 }, parent);
+        txt(parent, 'CONTAINED', { x: 590, y: 848, 'text-anchor': 'middle', 'font-family': F.bagel, 'font-size': 52, fill: C.navy });
+        // Jagged crack border edge
+        el('path', { d: 'M 585 675 L 568 745 L 598 815 L 570 890 L 592 975', fill: 'none', stroke: C.navy, 'stroke-width': 5 }, parent);
+      }
+      const fLeft = el('g', { 'clip-path': 'url(#clipFolderL)' }, folderSplit);
+      buildWholeFolder(fLeft);
+      const fRight = el('g', { 'clip-path': 'url(#clipFolderR)' }, folderSplit);
+      buildWholeFolder(fRight);
+
+      // Jagged crimson lightning crack down middle
+      const crackLine = el('path', {
+        d: 'M 585 665 L 564 745 L 602 815 L 568 890 L 596 985',
+        fill: 'none', stroke: C.red, 'stroke-width': 11, 'stroke-linecap': 'round', 'stroke-linejoin': 'round'
+      }, folderSplit);
+
+      const failStamp = makeStamp(b2, 'COMPROMISED', C.pink, 480, 114, 42);
+
+      return (t) => {
+        const beat2 = t >= 202.00;
+        show(b1, !beat2);
+        show(b2, beat2);
+
+        if (!beat2) {
+          charsPop(t1, t, 196.05);
+          const p1 = E.out(seg(t, 196.5, 198.4));
+          const p2 = E.out(seg(t, 198.2, 200.2));
+          op(arc1, p1);
+          op(arc2, p2);
+          tf(orb1, lerp(545, 1050, p1), lerp(500, 365, p1) - Math.sin(p1 * Math.PI) * 160);
+          tf(orb2, lerp(545, 1050, p2), lerp(620, 745, p2) + Math.sin(p2 * Math.PI) * 90);
+          op(targetCards[0].st, seg(t, 198.3, 198.7));
+          op(targetCards[0].stTxt, seg(t, 198.3, 198.7));
+          op(targetCards[1].st, seg(t, 200.1, 200.5));
+          op(targetCards[1].stTxt, seg(t, 200.1, 200.5));
+        } else {
+          office.updateOffice(t);
+          charsPop(t2, t, 202.15);
+          const wake = E.out(seg(t, 202.3, 203.2));
+          op(macGlow, 0.35 + 0.65 * wake);
+          const splitP = E.out(seg(t, 203.2, 204.4));
+          tf(fLeft, -26 * splitP, 4 * splitP, 1, -4 * splitP);
+          tf(fRight, 26 * splitP, -4 * splitP, 1, 4 * splitP);
+          op(crackLine, splitP);
+          stampAnim(failStamp, t, 204.00, 620, 565, -8);
+        }
+      };
+    });
+
+    // =========================================================================
+    // SCENE 4D (210.54 - 223.50s): DEPLOY_TOKEN -> PROD INFRASTRUCTURE -> 8-Day Wait
+    // VO: "And sitting right there on his machine is a deployment token. Basically, a digital badge that lets you push new software on the company infrastructure. Still, nothing moves. They wait another eight days."
+    // =========================================================================
+    addScene(210.54, 223.50, { dark: true }, (g) => {
+      // ---- BEAT 1 (210.54 - 218.50s): DEPLOY_TOKEN Badge -> Production Gate ----
+      const b1 = el('g', {}, g);
+      el('rect', { width: 1920, height: 1080, fill: C.night }, b1);
+      halftone(b1, { color: C.yellow, step: 26, angle: 16, f: (x, y) => clamp(0.42 - Math.hypot(x - 960, y - 520) / 860) });
+      // Industrial wall plates & floor
+      for (let x = 160; x < 1920; x += 320) wLine(b1, x, 0, x, 850, { stroke: C.night2, 'stroke-width': 4 }, x);
+      el('rect', { x: 0, y: 850, width: 1920, height: 230, fill: C.night3, stroke: C.navy, 'stroke-width': 7 }, b1);
+      el('rect', { x: 0, y: 842, width: 1920, height: 14, fill: 'url(#patStripeDanger)' }, b1);
+
+      const t1 = chars(b1, 'DEPLOYMENT TOKEN', {
+        x: 84, y: 150, size: 78, family: F.serif, fill: C.cream, shadow: { dx: 7, dy: 7, fill: C.yellow },
+      });
+
+      // Left: Eng #1 Machine Workbench
+      wRect(b1, 100, 700, 440, 150, { rx: 8, fill: C.slate, ...S }, 430);
+      wRect(b1, 145, 445, 350, 235, { rx: 12, fill: C.cream, ...S }, 431);
+      el('rect', { x: 165, y: 465, width: 310, height: 195, rx: 6, fill: C.night3 }, b1);
+      txt(b1, 'ENG #1 LAPTOP', { x: 320, y: 522, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 23, 'font-weight': 800, fill: C.yellow });
+      txt(b1, '~/.ssh/deploy_tok', { x: 320, y: 568, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 18, 'font-weight': 800, fill: C.mint });
+      el('polygon', { points: '125,680 515,680 535,705 105,705', fill: C.cream, ...S }, b1);
+
+      // Right: Armored Steel PRODUCTION INFRASTRUCTURE Gate
+      wRect(b1, 1265, 220, 560, 630, { rx: 16, fill: C.night2, stroke: C.cream, 'stroke-width': 7 }, 432);
+      el('rect', { x: 1295, y: 245, width: 500, height: 76, rx: 8, fill: C.night3, stroke: C.yellow, 'stroke-width': 4 }, b1);
+      txt(b1, 'PRODUCTION', { x: 1545, y: 277, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 22, 'font-weight': 800, fill: C.yellow });
+      txt(b1, 'INFRASTRUCTURE GATE', { x: 1545, y: 306, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 20, 'font-weight': 800, fill: C.cream });
+      // Armored vertical door ribs & hex slot
+      wRect(b1, 1340, 345, 410, 425, { rx: 10, fill: C.slate, ...S }, 433);
+      el('polygon', { points: '1545,425 1645,482 1645,598 1545,655 1445,598 1445,482', fill: C.night3, stroke: C.yellow, 'stroke-width': 6 }, b1);
+      txt(b1, 'BADGE SLOT', { x: 1545, y: 546, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 18, 'font-weight': 800, fill: C.yellow });
+      const gateStatus = el('rect', { x: 1385, y: 785, width: 320, height: 48, rx: 8, fill: C.night3, stroke: C.cream, 'stroke-width': 4 }, b1);
+      const gateTxt = txt(b1, 'AWAITING TOKEN...', { x: 1545, y: 817, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 20, 'font-weight': 800, fill: C.cream });
+
+      // Dashed telemetry track from laptop to gate
+      const beam = el('path', { d: 'M 495 545 C 760 460 1120 460 1445 540', fill: 'none', stroke: C.mint, 'stroke-width': 8, 'stroke-dasharray': '16 12' }, b1);
+
+      // Hero Brushed-Gold DEPLOY_TOKEN Hex Badge
+      const badge = drawDeployBadge(b1, 900, 495, 1.32);
+
+      // Callout pill explaining role
+      const rolePill = el('g', {}, b1);
+      wRect(rolePill, 635, 705, 530, 68, { rx: 12, fill: C.cream, ...S }, 434);
+      txt(rolePill, 'PUSH SOFTWARE TO PROD', { x: 900, y: 747, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 24, 'font-weight': 800, fill: C.navy });
+
+      // ---- BEAT 2 (218.50 - 223.50s): 8 Sweeping Vertical Sunbeams in Silent Server Hall ----
+      const b2 = el('g', {}, g);
+      const corr = E_.decorServerCorridor(b2, { alertMode: false });
+      const t2 = chars(b2, '8 DAYS OF SILENCE', {
+        x: 84, y: 150, size: 78, family: F.serif, fill: C.cream, shadow: { dx: 7, dy: 7, fill: C.blue },
+      });
+
+      // 8 Vertical Sunbeams across corridor (DAY 1 .. DAY 8)
+      const beams = Array.from({ length: 8 }, (_, i) => {
+        const bx = 210 + i * 214;
+        const bg = el('g', {}, b2);
+        el('polygon', { points: `${bx - 40},180 ${bx + 40},180 ${bx + 85},870 ${bx - 85},870`, fill: 'url(#patDotsGold)', opacity: 0.45 }, bg);
+        wRect(bg, bx - 54, 880, 108, 46, { rx: 8, fill: C.yellow, stroke: C.navy, 'stroke-width': 4 }, 436 + i);
+        txt(bg, `DAY ${i + 1}`, { x: bx, y: 911, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 21, 'font-weight': 800, fill: C.navy });
+        return bg;
+      });
+      wRect(b2, 580, 948, 760, 56, { rx: 10, fill: C.night3, stroke: C.mint, 'stroke-width': 4 }, 445);
+      const dayStat = txt(b2, 'OCT 21 -> OCT 28 · NOTHING MOVES', { x: 960, y: 984, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 23, 'font-weight': 800, fill: C.mint });
+
+      return (t) => {
+        const beat2 = t >= 218.50;
+        show(b1, !beat2);
+        show(b2, beat2);
+
+        if (!beat2) {
+          charsPop(t1, t, 210.68);
+          const rise = E.back(seg(t, 211.0, 212.5));
+          const dock = E.io(seg(t, 215.6, 217.0));
+          const bx = lerp(330, 900, rise);
+          const fx = lerp(bx, 1545, dock);
+          const fy = lerp(lerp(565, 495, rise), 540, dock) + Math.sin(t * 3.5) * 6 * (1 - dock);
+          const fsc = lerp(0.55, 1.32, rise) * lerp(1.0, 0.86, dock);
+          tf(badge, fx, fy, fsc, Math.sin(t * 2.2) * 3 * (1 - dock));
+          op(beam, seg(t, 212.0, 213.2));
+          op(rolePill, E.out(seg(t, 213.4, 214.2)));
+          if (t >= 216.8) {
+            gateStatus.setAttribute('fill', C.mint);
+            gateTxt.setAttribute('fill', C.navy);
+            gateTxt.textContent = 'PROD ACCESS: GRANTED';
+          }
+        } else {
+          corr.updateLeds(t);
+          charsPop(t2, t, 218.65);
+          const dayCount = clamp(Math.floor((t - 218.6) / 0.55) + 1, 1, 8);
+          beams.forEach((bg, idx) => op(bg, idx < dayCount ? (idx === dayCount - 1 ? 1.0 : 0.42) : 0.08));
+          dayStat.textContent = `DAY ${dayCount} OF 8 · ZERO ALERTS · NOTHING MOVES`;
+        }
+      };
+    });
+
+    // =========================================================================
+    // SCENE 4E (223.50 - 238.46s): OCT 28 Mixer Vortex + cap_06 -> Split-Flap Clock
+    // VO: "On October 28th, a brand new wallet quietly pulls three tiny withdrawals out of a crypto mixer. Just 0.1 ether at a time to pay for transaction fees. 36 hours later, on October 29th at 5:15 pm UTC,"
+    // =========================================================================
+    addScene(223.50, 238.46, { dark: true }, (g) => {
+      // ---- BEAT 1 (223.50 - 233.50s): Forensic Crypto Mixer Desk + cap_06 ----
+      const b1 = el('g', {}, g);
+      el('rect', { width: 1920, height: 1080, fill: C.night }, b1);
+      halftone(b1, { color: C.blue, step: 26, angle: 22, f: (x, y) => clamp(0.45 - Math.hypot(x - 470, y - 460) / 760) });
+      // Lab obsidian wall grid & wooden/steel bench
+      for (let x = 160; x < 1920; x += 240) wLine(b1, x, 0, x, 850, { stroke: C.night2, 'stroke-width': 3 }, x);
+      el('rect', { x: 0, y: 840, width: 1920, height: 240, fill: C.night3, stroke: C.navy, 'stroke-width': 7 }, b1);
+      el('rect', { x: 0, y: 840, width: 1920, height: 22, fill: C.slate, stroke: C.navy, 'stroke-width': 4 }, b1);
+
+      const t1 = chars(b1, 'OCT 28 · TINY GAS FEES', {
+        x: 84, y: 150, size: 78, family: F.serif, fill: C.cream, shadow: { dx: 7, dy: 7, fill: C.pink },
+      });
+
+      // Left Apparatus: Crypto Mixer Vortex Funnel -> Glass Drip Tube -> Fresh Wallet
+      wRect(b1, 105, 220, 710, 620, { rx: 16, fill: C.night2, stroke: C.cream, 'stroke-width': 5 }, 450);
+      el('rect', { x: 135, y: 240, width: 650, height: 48, rx: 8, fill: C.night3, stroke: C.sky, 'stroke-width': 4 }, b1);
+      txt(b1, 'CRYPTO MIXER // GAS SEEDER', { x: 460, y: 272, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 21, 'font-weight': 800, fill: C.sky });
+
+      // Funnel housing & spinning blue-purple vortex
+      el('polygon', { points: '250,315 670,315 510,490 410,490', fill: C.night3, ...S }, b1);
+      const vortexG = el('g', {}, b1);
+      tf(vortexG, 460, 380);
+      for (const [rx, ry, col, ang] of [[155, 42, C.blue, 0], [115, 32, C.pink, 12], [72, 22, C.sky, -15], [36, 12, C.cream, 20]]) {
+        el('ellipse', { cx: 0, cy: 0, rx, ry, fill: 'none', stroke: col, 'stroke-width': 7, 'stroke-dasharray': '28 14', transform: `rotate(${ang})` }, vortexG);
+      }
+      // Glass siphon tube descending into beaker
+      el('rect', { x: 432, y: 490, width: 56, height: 170, fill: 'rgba(107, 164, 255, 0.25)', stroke: C.cream, 'stroke-width': 5 }, b1);
+      // 3 cyan ETH droplets + 3 cumulative droplet bars inside beaker
+      const drops = [0, 1, 2].map(i => {
+        const dg = el('g', {}, b1);
+        el('path', { d: 'M 0 -22 C 16 2 16 24 0 24 C -16 24 -16 2 0 -22 Z', fill: C.mint, stroke: C.navy, 'stroke-width': 4 }, dg);
+        txt(dg, '0.1', { x: 0, y: 12, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 11, 'font-weight': 800, fill: C.navy });
+        return dg;
+      });
+      // Beaker: BRAND NEW WALLET 0x7a9f...c41e
+      wRect(b1, 185, 650, 550, 165, { rx: 14, fill: C.night3, stroke: C.mint, 'stroke-width': 6 }, 451);
+      txt(b1, 'NEW WALLET · 0x7a9f...c41e', { x: 460, y: 690, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 21, 'font-weight': 800, fill: C.cream });
+      const ethBars = [0, 1, 2].map(i => {
+        const bg = el('g', {}, b1);
+        el('rect', { x: 225 + i * 165, y: 706, width: 145, height: 42, rx: 6, fill: C.sky, stroke: C.navy, 'stroke-width': 4 }, bg);
+        txt(bg, '0.1 ETH', { x: 297 + i * 165, y: 734, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 18, 'font-weight': 800, fill: C.navy });
+        return bg;
+      });
+      const gasTotalTxt = txt(b1, '0.00 ETH GAS', { x: 460, y: 794, 'text-anchor': 'middle', 'font-family': F.bagel, 'font-size': 36, fill: C.mint });
+      wRect(b1, 240, 865, 440, 52, { rx: 10, fill: C.mint, stroke: C.navy, 'stroke-width': 4 }, 452);
+      txt(b1, 'TOO SMALL TO TRIGGER ALERTS', { x: 460, y: 899, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 19, 'font-weight': 800, fill: C.navy });
+
+      // Right Exhibit: cap_06_etherscan_mixer.png
+      const cap6 = mountCapture(b1, 'captures/cap_06_etherscan_mixer.png', {
+        x: 875, y: 220, w: 940, h: 600, tag: 'EXHIBIT F // OCT 28 MIXER', dark: true, tape: true,
+      });
+
+      // ---- BEAT 2 (233.50 - 238.46s): Brass Split-Flap Station Clock -> OCT 29 5:15 PM UTC ----
+      const b2 = el('g', {}, g);
+      el('rect', { width: 1920, height: 1080, fill: C.paper }, b2);
+      halftone(b2, { color: C.orange, step: 24, angle: 16, f: (x, y) => clamp(0.45 - Math.hypot(x - 960, y - 540) / 880) });
+      // Station architectural wall moldings & girders
+      for (let x = 240; x < 1920; x += 360) wLine(b2, x, 0, x, 900, { stroke: C.navy, 'stroke-width': 4, opacity: 0.2 }, x);
+      el('rect', { x: 0, y: 880, width: 1920, height: 200, fill: C.night2, stroke: C.navy, 'stroke-width': 7 }, b2);
+
+      const t2 = chars(b2, '36 HOURS LATER', {
+        x: 84, y: 150, size: 78, family: F.serif, fill: C.navy, shadow: { dx: 7, dy: 7, fill: C.yellow },
+      });
+
+      // Oversized Brass Split-Flap Clock Housing
+      const clkBox = el('g', { filter: 'url(#boil)' }, b2);
+      wRect(clkBox, 210, 260, 1500, 560, { rx: 28, fill: C.woodDk, stroke: C.navy, 'stroke-width': 10 }, 455);
+      el('rect', { x: 250, y: 300, width: 1420, height: 480, rx: 18, fill: C.night3, stroke: C.yellow, 'stroke-width': 6 }, clkBox);
+      txt(clkBox, '+36 HOURS ELAPSED · BINANCE ATTACK WINDOW', {
+        x: 960, y: 358, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 24, 'font-weight': 800, fill: C.yellow,
+      });
+
+      // Left flap: DATE, Right flap: TIME
+      wRect(clkBox, 300, 395, 560, 330, { rx: 14, fill: C.night2, stroke: C.cream, 'stroke-width': 5 }, 456);
+      wRect(clkBox, 900, 395, 720, 330, { rx: 14, fill: C.night2, stroke: C.cream, 'stroke-width': 5 }, 457);
+      const flapDate = txt(clkBox, 'OCT 28', { x: 580, y: 590, 'text-anchor': 'middle', 'font-family': F.bagel, 'font-size': 108, fill: C.cream });
+      const flapTime = txt(clkBox, '05:15 AM', { x: 1260, y: 590, 'text-anchor': 'middle', 'font-family': F.bagel, 'font-size': 112, fill: C.yellow });
+      // Split-flap horizontal hinge bar across both tiles
+      el('line', { x1: 295, y1: 560, x2: 865, y2: 560, stroke: C.navy, 'stroke-width': 9 }, clkBox);
+      el('line', { x1: 895, y1: 560, x2: 1625, y2: 560, stroke: C.navy, 'stroke-width': 9 }, clkBox);
+      txt(clkBox, 'UTC // COORDINATION TIME', { x: 1260, y: 700, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 21, 'font-weight': 800, fill: C.mint });
+
+      return (t) => {
+        const beat2 = t >= 233.50;
+        show(b1, !beat2);
+        show(b2, beat2);
+
+        if (!beat2) {
+          charsPop(t1, t, 223.65);
+          tf(vortexG, 460, 380, 1, (t - 223.5) * 140);
+          op(cap6.g, E.out(seg(t, 224.0, 224.8)));
+          const dropStarts = [224.8, 227.0, 229.4];
+          let landed = 0;
+          drops.forEach((dg, i) => {
+            const p = seg(t, dropStarts[i], dropStarts[i] + 1.35);
+            if (p >= 0.85) landed++;
+            if (p <= 0 || p >= 1) { op(dg, 0); }
+            else {
+              op(dg, 1);
+              tf(dg, 460, lerp(495, 645, E.in(p)));
+            }
+          });
+          ethBars.forEach((eb, i) => op(eb, i < landed ? 1 : 0.18));
+          gasTotalTxt.textContent = `0.${landed}0 ETH GAS (${landed}/3)`;
+        } else {
+          charsPop(t2, t, 233.65);
+          const u = seg(t, 233.8, 235.6);
+          const dates = ['OCT 28', 'OCT 28', 'OCT 29', 'OCT 29'];
+          const times = ['05:15 AM', '11:30 PM', '12:00 PM', '5:15 PM'];
+          const idx = clamp(Math.floor(u * 3.99), 0, 3);
+          flapDate.textContent = dates[idx];
+          flapTime.textContent = times[idx];
+          flapTime.setAttribute('fill', idx === 3 ? C.pink : C.yellow);
+        }
+      };
+    });
+
+    // =========================================================================
+    // SCENE 4F (238.46 - 250.06s): Industrial Gantry Relay -> PROD_CONTAINER -> Withdrawal Floor
+    // VO: "the attackers log on to that third engineer's computer, grab the deployment token. They lift it from the first guy, launch a container, and walk straight into the system that approves withdrawals."
+    // =========================================================================
+    addScene(238.46, 250.06, { dark: true }, (g) => {
+      el('rect', { width: 1920, height: 1080, fill: C.night }, g);
+      halftone(g, { color: C.mint, step: 26, angle: 16, f: (x, y) => clamp(0.45 - Math.hypot(x - 1450, y - 540) / 860) });
+      // Industrial Gantry Ceiling Rail
+      el('rect', { x: 0, y: 185, width: 1920, height: 48, fill: C.slate, ...S }, g);
+      for (let x = 80; x < 1920; x += 160) el('line', { x1: x, y1: 185, x2: x + 80, y2: 233, stroke: C.navy, 'stroke-width': 5 }, g);
+      el('rect', { x: 0, y: 860, width: 1920, height: 220, fill: C.night3, stroke: C.navy, 'stroke-width': 7 }, g);
+      el('rect', { x: 0, y: 852, width: 1920, height: 14, fill: 'url(#patStripeDanger)' }, g);
+
+      const title = chars(g, 'INTO WITHDRAWAL CORE', {
+        x: 84, y: 150, size: 76, family: F.serif, fill: C.cream, shadow: { dx: 7, dy: 7, fill: C.mint },
+      });
+
+      // Desk 1: ENG #3 (Left) & Desk 2: ENG #1 (Center-Left) with rich workstation details
+      for (const [dx, lbl, sub, col] of [[105, 'ENG #3', 'REMOTE LOGIN', C.pink], [465, 'ENG #1', 'TOKEN SOURCE', C.yellow]]) {
+        wRect(g, dx, 635, 305, 225, { rx: 10, fill: C.woodDk, ...S }, dx);
+        el('rect', { x: dx + 18, y: 655, width: 269, height: 22, rx: 4, fill: C.wood, stroke: C.navy, 'stroke-width': 4 }, g);
+        el('rect', { x: dx + 45, y: 705, width: 215, height: 54, rx: 6, fill: C.night2, stroke: C.navy, 'stroke-width': 4 }, g);
+        txt(g, 'WORKSTATION', { x: dx + 152, y: 738, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 16, 'font-weight': 800, fill: C.cream });
+        wRect(g, dx + 35, 480, 235, 145, { rx: 8, fill: C.cream, ...S }, dx + 1);
+        el('rect', { x: dx + 52, y: 496, width: 201, height: 112, rx: 4, fill: C.night3 }, g);
+        txt(g, lbl, { x: dx + 152, y: 545, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 25, 'font-weight': 800, fill: col });
+        txt(g, sub, { x: dx + 152, y: 582, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 16, 'font-weight': 800, fill: C.cream });
+      }
+      // Relay Lightning link between Eng #3 and Eng #1
+      const relayZap = el('path', {
+        d: 'M 410 555 L 440 530 L 445 568 L 480 545',
+        fill: 'none', stroke: C.yellow, 'stroke-width': 9, 'stroke-linecap': 'round', 'stroke-linejoin': 'round'
+      }, g);
+
+      // Armored Firewall Wall (Center-Right, label cleanly at lower base so crane clears top!)
+      wRect(g, 1110, 485, 92, 375, { rx: 8, fill: C.slate, stroke: C.red, 'stroke-width': 6 }, 460);
+      el('rect', { x: 1124, y: 505, width: 64, height: 335, fill: 'url(#patStripeDanger)', opacity: 0.75 }, g);
+      wRect(g, 1065, 765, 182, 48, { rx: 8, fill: C.red, stroke: C.cream, 'stroke-width': 4 }, 461);
+      txt(g, 'FIREWALL', { x: 1156, y: 797, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 21, 'font-weight': 800, fill: C.cream });
+
+      // Right Wing: Withdrawal Approval Floor Iris/Bay Doors
+      wRect(g, 1300, 270, 535, 590, { rx: 16, fill: C.night2, stroke: C.mint, 'stroke-width': 7 }, 462);
+      // Glowing Approval Floor inside bay
+      el('rect', { x: 1330, y: 350, width: 475, height: 485, rx: 10, fill: C.night3, stroke: C.mint, 'stroke-width': 4 }, g);
+      halftone(g, { x0: 1330, y0: 350, w: 475, h: 485, color: C.mint, step: 22, angle: 16, f: (x, y) => clamp(0.55 - Math.hypot(x - 1568, y - 590) / 360) });
+      txt(g, 'WITHDRAWAL', { x: 1568, y: 470, 'text-anchor': 'middle', 'font-family': F.serif, 'font-size': 42, 'font-weight': 900, fill: C.cream });
+      txt(g, 'APPROVAL FLOOR', { x: 1568, y: 525, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 25, 'font-weight': 800, fill: C.mint });
+      el('rect', { x: 1418, y: 565, width: 300, height: 54, rx: 8, fill: C.mint, stroke: C.navy, 'stroke-width': 4 }, g);
+      txt(g, 'DIRECT ACCESS OPEN', { x: 1568, y: 600, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 20, 'font-weight': 800, fill: C.navy });
+
+      // Sliding armored bay doors that swing open on arrival
+      const doorL = el('rect', { x: 1330, y: 350, width: 238, height: 485, fill: C.slate, stroke: C.navy, 'stroke-width': 6 }, g);
+      const doorR = el('rect', { x: 1568, y: 350, width: 237, height: 485, fill: C.slate, stroke: C.navy, 'stroke-width': 6 }, g);
+      el('rect', { x: 1345, y: 282, width: 445, height: 50, rx: 8, fill: C.night3, stroke: C.mint, 'stroke-width': 4 }, g);
+      txt(g, 'WITHDRAWAL APPROVAL CORE', { x: 1568, y: 314, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 20, 'font-weight': 800, fill: C.mint });
+
+      // Overhead Gantry Crane Trolley + PROD_CONTAINER Docker Module
+      const craneG = el('g', {}, g);
+      el('rect', { x: -75, y: 205, width: 150, height: 48, rx: 8, fill: C.yellow, ...S }, craneG);
+      el('line', { x1: 0, y1: 253, x2: 0, y2: 335, stroke: C.cream, 'stroke-width': 10 }, craneG);
+      // Heavy steel PROD_CONTAINER
+      wRect(craneG, -175, 335, 350, 210, { rx: 12, fill: C.blue, stroke: C.cream, 'stroke-width': 7 }, 465);
+      for (const rx of [-115, -45, 25, 95]) el('rect', { x: rx, y: 365, width: 20, height: 145, rx: 4, fill: C.night2, opacity: 0.6 }, craneG);
+      el('rect', { x: -145, y: 355, width: 290, height: 54, rx: 8, fill: C.night3, stroke: C.yellow, 'stroke-width': 4 }, craneG);
+      txt(craneG, 'PROD_CONTAINER', { x: 0, y: 390, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 24, 'font-weight': 800, fill: C.yellow });
+      // Mini docked DEPLOY_TOKEN inside container window
+      const miniTok = el('g', {}, craneG);
+      el('polygon', { points: '0,432 48,458 48,504 0,530 -48,504 -48,458', fill: C.yellow, stroke: C.navy, 'stroke-width': 5 }, miniTok);
+      txt(miniTok, 'TOKEN', { x: 0, y: 487, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 15, 'font-weight': 800, fill: C.navy });
+
+      // Floating extracted token rising from Eng #1 into crane container
+      const flyTok = drawDeployBadge(g, 617, 520, 0.55);
+      const depStamp = makeStamp(g, 'DEPLOYED', C.mint, 390, 114, 52);
+
+      return (t) => {
+        charsPop(title, t, 238.60);
+        op(relayZap, (Math.floor(t * 8) % 2) ? 1 : 0.35);
+
+        const lift = E.io(seg(t, 240.5, 242.6));
+        const docked = t >= 242.6;
+        show(flyTok, !docked);
+        show(miniTok, docked);
+        if (!docked) tf(flyTok, lerp(617, 740, lift), lerp(520, 480, lift), 0.55);
+
+        // Crane swings PROD_CONTAINER right across firewall wall
+        const swing = E.io(seg(t, 242.8, 246.2));
+        const drop = E.out(seg(t, 246.2, 247.4));
+        tf(craneG, lerp(740, 1568, swing), lerp(0, 120, drop));
+
+        // Iris/bay doors slide open cleanly
+        const doorOpen = E.out(seg(t, 246.5, 247.9));
+        doorL.setAttribute('width', (238 * (1 - doorOpen)).toFixed(1));
+        doorR.setAttribute('x', (1568 + 237 * doorOpen).toFixed(1));
+        doorR.setAttribute('width', (237 * (1 - doorOpen)).toFixed(1));
+
+        stampAnim(depStamp, t, 247.50, 1568, 725, -7);
+      };
+    });
+
+    // =========================================================================
+    // SCENE 4G (250.06 - 272.0833s): Cavernous Vault Chamber -> Automated Teller 50 Blanks -> Nonce Queue
+    // VO: "Here's the part that sounds crazy until you picture it. They didn't steal the vault's master keys. They walked up to the automated teller inside the vault and got it to pre-sign 50 blank permission slips on Ethereum. Why 50? Because every account has a running counter. And they just needed one of those 50 slips to land on the exact number waiting in the queue."
+    // =========================================================================
+    addScene(250.06, 272.0834, { dark: true }, (g) => {
+      el('rect', { width: 1920, height: 1080, fill: C.night }, g);
+      halftone(g, { color: C.blue, step: 26, angle: 16, f: (x, y) => clamp(0.45 - Math.hypot(x - 960, y - 500) / 1150) });
+
+      // Panning 3300px wide Vault Architecture Chamber
+      const chamber = el('g', {}, g);
+      // Vault structural pillars, arched trusses & checkerboard marble floor across 3400px
+      for (let x = 140; x < 3400; x += 380) {
+        wRect(chamber, x, 165, 64, 695, { rx: 4, fill: C.night2, stroke: C.navy, 'stroke-width': 5 }, x);
+        el('rect', { x: x - 14, y: 150, width: 92, height: 28, rx: 4, fill: C.slate, ...S }, chamber);
+      }
+      el('rect', { x: 0, y: 0, width: 3400, height: 74, fill: C.night3, stroke: C.navy, 'stroke-width': 5 }, chamber);
+      el('rect', { x: 0, y: 860, width: 3400, height: 220, fill: C.night3, stroke: C.navy, 'stroke-width': 7 }, chamber);
+      el('rect', { x: 0, y: 852, width: 3400, height: 14, fill: 'url(#patStripeDanger)' }, chamber);
+      for (let fx = 0; fx < 3400; fx += 240) {
+        el('line', { x1: fx, y1: 866, x2: fx - 120, y2: 1080, stroke: C.night2, 'stroke-width': 3 }, chamber);
+      }
+
+      // ZONE 1 (World x: 160..580): Untouched MASTER KEYS Glass Pedestal
+      const keyPod = el('g', {}, chamber);
+      halftone(keyPod, { x0: 150, y0: 320, w: 420, h: 480, color: C.mint, step: 22, angle: 24, f: (x, y) => clamp(0.55 - Math.hypot(x - 360, y - 560) / 240) });
+      wRect(keyPod, 210, 740, 300, 120, { rx: 8, fill: C.slate, ...S }, 470);
+      txt(keyPod, 'MASTER KEYS', { x: 360, y: 792, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 23, 'font-weight': 800, fill: C.yellow });
+      txt(keyPod, '[UNTOUCHED]', { x: 360, y: 826, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 18, 'font-weight': 800, fill: C.mint });
+      el('path', { d: 'M 235 740 L 235 520 A 125 125 0 0 1 485 520 L 485 740 Z', fill: 'rgba(255,244,226,0.35)', stroke: C.cream, 'stroke-width': 6 }, keyPod);
+      el('circle', { cx: 360, cy: 540, r: 34, fill: C.yellow, ...S }, keyPod);
+      el('rect', { x: 349, y: 574, width: 22, height: 105, fill: C.yellow, ...S }, keyPod);
+      el('rect', { x: 371, y: 634, width: 30, height: 18, fill: C.yellow, ...S }, keyPod);
+
+      // ZONE 2 (World x: 850..1760): Towering Brass-and-Steel AUTOMATED TELLER MACHINE
+      const atm = el('g', {}, chamber);
+      wRect(atm, 855, 225, 510, 635, { rx: 20, fill: C.blue, stroke: C.cream, 'stroke-width': 8 }, 472);
+      el('rect', { x: 890, y: 255, width: 440, height: 66, rx: 10, fill: C.night3, stroke: C.yellow, 'stroke-width': 5 }, atm);
+      txt(atm, 'AUTOMATED TELLER', { x: 1110, y: 298, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 26, 'font-weight': 800, fill: C.yellow });
+      // Screen & ETH signet
+      wRect(atm, 915, 345, 390, 165, { rx: 10, fill: C.night3, stroke: C.cream, 'stroke-width': 4 }, 473);
+      txt(atm, 'ETH PERMISSION ENGINE', { x: 1110, y: 392, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 20, 'font-weight': 800, fill: C.mint });
+      const atmCountTxt = txt(atm, 'SIGNING: 00 / 50', { x: 1110, y: 465, 'text-anchor': 'middle', 'font-family': F.bagel, 'font-size': 44, fill: C.yellow });
+      // Press bed + emerging slip + mechanical stamping arm
+      wRect(atm, 915, 675, 390, 95, { rx: 10, fill: C.night3, stroke: C.cream, 'stroke-width': 5 }, 474);
+      el('rect', { x: 960, y: 695, width: 300, height: 55, rx: 8, fill: C.cream, stroke: C.navy, 'stroke-width': 4 }, atm);
+      txt(atm, 'ETH PERMISSION SLIP', { x: 1110, y: 730, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 18, 'font-weight': 800, fill: C.navy });
+      const stampArm = el('g', { filter: 'url(#boil)' }, atm);
+      el('rect', { x: 1092, y: 515, width: 36, height: 105, fill: C.wood, ...S }, stampArm);
+      el('rect', { x: 1015, y: 605, width: 190, height: 48, rx: 8, fill: C.red, ...S }, stampArm);
+      txt(stampArm, 'PRE-SIGN', { x: 1110, y: 637, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 20, 'font-weight': 800, fill: C.cream });
+
+      // Cascading Fan of 50 Blank Numbered Ethereum Permission Slips (#01 .. #50)
+      const fanG = el('g', {}, chamber);
+      tf(fanG, 1615, 535);
+      const slips = Array.from({ length: 10 }, (_, i) => {
+        const sg = el('g', {}, fanG);
+        const num = i === 9 ? 50 : Math.max(1, i * 5 + 1);
+        const ang = lerp(-38, 30, i / 9);
+        const sx = i * 9 - 25;
+        const sy = Math.sin(ang * Math.PI / 180) * 145;
+        tf(sg, sx, sy, 1, ang);
+        el('rect', { x: -115, y: -62, width: 230, height: 124, rx: 10, fill: C.cream, stroke: C.navy, 'stroke-width': 5 }, sg);
+        el('rect', { x: -99, y: -48, width: 198, height: 28, rx: 4, fill: C.night2 }, sg);
+        txt(sg, `ETH SLIP #${String(num).padStart(2, '0')}`, { x: 0, y: -28, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 16, 'font-weight': 800, fill: C.yellow });
+        txt(sg, 'BLANK · SIGNED', { x: 0, y: 12, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 15, 'font-weight': 800, fill: C.navy });
+        el('rect', { x: 12, y: 20, width: 84, height: 26, rx: 4, fill: C.mint, stroke: C.navy, 'stroke-width': 3 }, sg);
+        txt(sg, 'VALID', { x: 54, y: 38, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 14, 'font-weight': 800, fill: C.navy });
+        return sg;
+      });
+      const fanLabel = el('g', {}, chamber);
+      wRect(fanLabel, 1450, 775, 420, 58, { rx: 10, fill: C.yellow, stroke: C.navy, 'stroke-width': 5 }, 475);
+      txt(fanLabel, 'PRE-SIGNED: 50 BLANKS', { x: 1660, y: 812, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 23, 'font-weight': 800, fill: C.navy });
+
+      // ZONE 3 (World x: 1850..3250): Curved Brass Pneumatic Tube -> Spinning ETH Nonce Queue Odometer Gear
+      // Curved brass chute shooting from world x=1790 up & right to x=2320 (cleanly clear of slip card text!)
+      el('path', { d: 'M 1785 690 C 1980 690 2060 310 2320 310', fill: 'none', stroke: C.navy, 'stroke-width': 58, 'stroke-linecap': 'round' }, chamber);
+      el('path', { d: 'M 1785 690 C 1980 690 2060 310 2320 310', fill: 'none', stroke: C.yellow, 'stroke-width': 40, 'stroke-linecap': 'round' }, chamber);
+      el('path', { d: 'M 1785 690 C 1980 690 2060 310 2320 310', fill: 'none', stroke: C.cream, 'stroke-width': 12, 'stroke-dasharray': '16 14', opacity: 0.7 }, chamber);
+      // Chute mouth flange
+      wRect(chamber, 2295, 255, 42, 110, { rx: 8, fill: C.orange, ...S }, 476);
+
+      // Hovering Stack of 50 Slips poised above Ethereum Nonce Queue Gear
+      const hoverStack = el('g', { filter: 'url(#boil)' }, chamber);
+      tf(hoverStack, 2740, 315);
+      for (let k = 4; k >= 0; k--) {
+        el('rect', { x: -165 + k * 8, y: -55 + k * 8, width: 330, height: 110, rx: 10, fill: k === 0 ? C.yellow : C.cream, stroke: C.navy, 'stroke-width': 5 }, hoverStack);
+      }
+      txt(hoverStack, '50 SIGNED SLIPS', { x: 0, y: -6, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 23, 'font-weight': 800, fill: C.navy });
+      txt(hoverStack, 'POISED FOR EXACT NONCE', { x: 0, y: 26, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 16, 'font-weight': 800, fill: C.red });
+      // Target drop arrow pointing straight down at gear slot
+      el('path', { d: 'M 2740 392 L 2740 448', stroke: C.pink, 'stroke-width': 12, 'stroke-linecap': 'round' }, chamber);
+      el('polygon', { points: '2715,438 2765,438 2740,472', fill: C.pink }, chamber);
+
+      // Giant Spinning Ethereum Nonce Queue Odometer Gear (world cx=2740, cy=685)
+      const nonceGear = drawGear(chamber, 2740, 685, 195, 16, C.blue, C.yellow);
+      // Odometer Queue Counter Readout Plaque overlaying lower hub
+      wRect(chamber, 2495, 625, 490, 120, { rx: 14, fill: C.night3, stroke: C.yellow, 'stroke-width': 6 }, 478);
+      txt(chamber, 'ETH NONCE QUEUE COUNTER', { x: 2740, y: 662, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 19, 'font-weight': 800, fill: C.mint });
+      const nonceReadout = txt(chamber, '#104,881', { x: 2740, y: 718, 'text-anchor': 'middle', 'font-family': F.bagel, 'font-size': 50, fill: C.yellow });
+
+      // Screen-space Headlines
+      const tA = chars(g, '50 BLANK CHECKS', {
+        x: 84, y: 150, size: 78, family: F.serif, fill: C.cream, shadow: { dx: 7, dy: 7, fill: C.yellow },
+      });
+      const tB = chars(g, 'WAITING FOR A MATCH', {
+        x: 84, y: 150, size: 74, family: F.serif, fill: C.cream, shadow: { dx: 7, dy: 7, fill: C.pink },
+      });
+
+      return (t) => {
+        const beatB = t >= 262.0;
+        show(tA.g, !beatB);
+        show(tB.g, beatB);
+        if (!beatB) charsPop(tA, t, 250.20);
+        else charsPop(tB, t, 262.10);
+
+        // Smooth camera pan across Vault Chamber:
+        // 250..252.5: 0 (shows Master Keys + Teller entering)
+        // 252.5..255.2: 0 -> -460 (Teller centered + 50 slip fan!)
+        // 261.8..264.5: -460 -> -1380 (Pneumatic chute + 50 slips hovering above Nonce Gear!)
+        const p1 = E.io(seg(t, 252.5, 255.2));
+        const p2 = E.io(seg(t, 261.8, 264.5));
+        const panX = lerp(0, -560, p1) + lerp(0, -820, p2);
+        tf(chamber, panX, 0);
+
+        // Mechanical Teller stamping arm strikes at 256.8, 257.6, 258.4, 259.2
+        const strikes = [256.8, 257.6, 258.4, 259.2].reduce((acc, st) => acc + Math.exp(-Math.pow((t - st) / 0.14, 2)), 0);
+        tf(stampArm, 0, strikes * 34);
+        const signedNum = clamp(Math.floor(seg(t, 255.2, 260.6) * 50), 0, 50);
+        atmCountTxt.textContent = `SIGNING: ${String(signedNum).padStart(2, '0')} / 50`;
+
+        // Staggered card fan reveal
+        slips.forEach((sg, idx) => op(sg, E.out(seg(t, 255.6 + idx * 0.28, 256.2 + idx * 0.28))));
+        op(fanLabel, E.out(seg(t, 257.2, 257.9)));
+
+        // Nonce Gear rotation + rolling queue counter (#104,881 -> #104,884+)
+        nonceGear.setAttribute('transform', `translate(2740 685) rotate(${((t - 250) * 32).toFixed(1)})`);
+        const nTick = Math.floor(Math.max(0, t - 262.0) * 0.7);
+        nonceReadout.textContent = `#104,${881 + (nTick % 6)}`;
+        tf(hoverStack, 2740, 315 + Math.sin(t * 4.5) * 7);
+      };
+    });
+  }
+});
+</script>
+</body>
+</html>

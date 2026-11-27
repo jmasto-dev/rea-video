@@ -1,7 +1,15 @@
 */out/
+**/out/
 */stills/
+**/stills/
 */voices/
 */voice/
 */raw/
+*/_raw/
+**/_raw/
+**/__pycache__/
 *.wav
 alcatraz-raft/alcatraz-raft.mp4
+binance-heist-full/binance-heist-full.mp4
+binance-heist-full/audio/lib/
+binance-heist-full/qa/

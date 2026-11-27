@@ -1,0 +1,936 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Binance $6.3B Heist — Act 5 (Level-10 Halftone Dossier)</title>
+<link rel="stylesheet" href="shared/fonts.css">
+<style>
+  html, body { margin: 0; width: 1920px; height: 1080px; overflow: hidden; background: #F4ECDD; }
+  svg, canvas { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; }
+  #paper { mix-blend-mode: multiply; pointer-events: none; }
+  #fx { pointer-events: none; }
+  .mul { mix-blend-mode: multiply; }
+</style>
+</head>
+<body>
+<svg id="stage" viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg">
+  <defs></defs>
+  <g clip-path="url(#frameClip)">
+    <g id="cam"><g id="world"></g></g>
+    <g id="hud"></g>
+    <g id="wipe"></g>
+    <rect id="flash" width="1920" height="1080" fill="#FFFFFF" opacity="0"/>
+  </g>
+</svg>
+<canvas id="paper" width="1920" height="1080"></canvas>
+<canvas id="fx" width="960" height="540"></canvas>
+
+<script src="shared/engine.js"></script>
+<script>
+const E_ = window.Engine;
+const { C, F, el, txt, tf, op, show, clamp, seg, lerp, smooth, E, wRect, wLine, chars, charsPop, halftone, makeStamp, stampAnim, billNote, personRig, mountCapture } = E_;
+
+E_.createStage({
+  actNum: 5,
+  actTitle: 'THE 20-MINUTE DRAIN & FREEZE RACE',
+  actOffset: 6530 / 24, // 272.0833s exact 24fps
+  frames: 2542,         // 272.0833s -> 378.0000s (105.9167s)
+  assets: [
+    'captures/cap_07_tx_drain_feed.png',
+    'captures/cap_08_tether_freeze_alert.png',
+  ],
+  wipes: [
+    [283.06, C.yellow],
+    [301.54, C.paper],
+    [317.18, C.red],
+    [334.34, C.orange],
+    [359.02, C.cream],
+  ],
+  shakes: [
+    [272.80, 22, 0.34],
+    [283.60, 16, 0.28],
+    [297.50, 18, 0.30],
+    [323.50, 11, 0.18],
+    [324.20, 11, 0.18],
+    [324.90, 11, 0.18],
+    [325.60, 13, 0.20],
+    [328.50, 18, 0.28],
+    [355.20, 22, 0.36],
+    [371.20, 10, 0.18],
+    [372.40, 10, 0.18],
+    [373.60, 12, 0.20],
+  ],
+  flashes: [
+    [272.80, 0.40, 0.24],
+    [283.60, 0.34, 0.20],
+    [355.20, 0.42, 0.26],
+  ],
+  hudCues: [
+    [272.08, '8:05 PM · LAUNCH'],
+    [283.06, '8:20 PM · ETH MATCH'],
+    [291.50, '03:24 · $1.6B SWEPT'],
+    [301.54, '$5K VS $6.3B'],
+    [317.18, 'CRISIS WAR ROOM'],
+    [322.50, 'EMERGENCY BRAKES'],
+    [334.34, 'BEAT THE FREEZE'],
+    [343.20, 'DEFI LAUNDRY'],
+    [350.00, '12:10 AM · CUT OFF'],
+    [359.02, 'FINAL SCOREBOARD'],
+  ],
+
+  buildScenes(addScene) {
+    const S = { stroke: C.navy, 'stroke-width': 6, 'stroke-linejoin': 'round', 'stroke-linecap': 'round' };
+
+    function drawGear(parent, cx, cy, r, teeth, fill, hubFill = C.cream) {
+      const g = el('g', {}, parent);
+      tf(g, cx, cy);
+      for (let i = 0; i < teeth; i++) {
+        el('rect', {
+          x: -10, y: -r - 15, width: 20, height: 22, rx: 4,
+          fill, stroke: C.navy, 'stroke-width': 5,
+          transform: `rotate(${(i * 360 / teeth).toFixed(1)})`
+        }, g);
+      }
+      el('circle', { cx: 0, cy: 0, r, fill, stroke: C.navy, 'stroke-width': 6 }, g);
+      el('circle', { cx: 0, cy: 0, r: r * 0.62, fill: 'none', stroke: C.navy, 'stroke-width': 4, opacity: 0.45 }, g);
+      el('circle', { cx: 0, cy: 0, r: r * 0.28, fill: hubFill, stroke: C.navy, 'stroke-width': 5 }, g);
+      return g;
+    }
+
+    function ethDiamond(parent, x, y, sc = 1, fill = C.sky) {
+      const g = el('g', {}, parent);
+      tf(g, x, y, sc);
+      el('polygon', { points: '0,-24 16,0 0,8 -16,0', fill, stroke: C.navy, 'stroke-width': 4, 'stroke-linejoin': 'round' }, g);
+      el('polygon', { points: '0,24 16,4 0,12 -16,4', fill: C.mint, stroke: C.navy, 'stroke-width': 4, 'stroke-linejoin': 'round' }, g);
+      return g;
+    }
+
+    function btcCoin(parent, x, y, r = 24) {
+      const g = el('g', {}, parent);
+      tf(g, x, y);
+      el('circle', { cx: 0, cy: 0, r, fill: C.yellow, stroke: C.navy, 'stroke-width': 4.5 }, g);
+      el('circle', { cx: 0, cy: 0, r: r * 0.72, fill: 'none', stroke: C.orange, 'stroke-width': 3 }, g);
+      txt(g, '₿', { x: 0, y: r * 0.34, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': Math.round(r * 1.1), 'font-weight': 800, fill: C.navy });
+      return g;
+    }
+
+    // =========================================================================
+    // SCENE 5A (272.08 - 283.06s): Main Breaker Slam -> 10-Chain Conduit Atrium
+    // VO: "At 8:05 pm, they flipped the switch. Funds start leaving Binance across 10 blockchains at once. XRP, Bitcoin, Tron, Solana, Ethereum."
+    // =========================================================================
+    addScene(272.0833, 283.06, { dark: true }, (g) => {
+      // ---- BEAT 1 (272.08 - 275.00s): Heavy Steel Breaker Panel & Main Switch Slam ----
+      const b1 = el('g', {}, g);
+      el('rect', { width: 1920, height: 1080, fill: C.night3 }, b1);
+      halftone(b1, { color: C.red, step: 26, angle: 16, f: (x, y) => clamp(0.45 - Math.hypot(x - 960, y - 540) / 860) });
+      for (let x = 160; x < 1920; x += 320) wLine(b1, x, 0, x, 1080, { stroke: C.night2, 'stroke-width': 4 }, x);
+
+      const t1 = chars(b1, '8:05 PM · SWITCH FLIPPED', {
+        x: 84, y: 150, size: 74, family: F.serif, fill: C.cream, shadow: { dx: 7, dy: 7, fill: C.red },
+      });
+
+      // Heavy Industrial Steel Breaker Box
+      wRect(b1, 560, 220, 800, 740, { rx: 22, fill: C.slate, stroke: C.cream, 'stroke-width': 8 }, 501);
+      el('rect', { x: 590, y: 250, width: 740, height: 680, rx: 14, fill: C.night2, stroke: C.navy, 'stroke-width': 6 }, b1);
+      el('rect', { x: 630, y: 280, width: 660, height: 70, rx: 8, fill: C.night3, stroke: C.yellow, 'stroke-width': 4 }, b1);
+      txt(b1, 'MAIN OUTBOUND BREAKER // 10 CHAINS', { x: 960, y: 325, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 25, 'font-weight': 800, fill: C.yellow });
+      // Danger stripes around switch pit
+      el('rect', { x: 830, y: 390, width: 260, height: 420, rx: 14, fill: 'url(#patStripeDanger)', ...S }, b1);
+      el('rect', { x: 865, y: 425, width: 190, height: 350, rx: 10, fill: C.night3, ...S }, b1);
+      txt(b1, 'OFF', { x: 960, y: 472, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 28, 'font-weight': 800, fill: C.slate });
+      txt(b1, 'DRAIN ON', { x: 960, y: 748, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 28, 'font-weight': 800, fill: C.red });
+
+      // Animated Colossal Red Breaker Lever Arm + Gripping Hand (upright text, clean vertical throw!)
+      const leverShaft = el('rect', { x: 938, y: 430, width: 44, height: 170, rx: 10, fill: C.cream, ...S }, b1);
+      const leverHandle = el('g', { filter: 'url(#boil)' }, b1);
+      el('rect', { x: -155, y: -32, width: 310, height: 64, rx: 16, fill: C.red, stroke: C.navy, 'stroke-width': 8 }, leverHandle);
+      const leverTxt = txt(leverHandle, 'PULL', { x: -24, y: 12, 'text-anchor': 'middle', 'font-family': F.bagel, 'font-size': 34, fill: C.cream });
+      el('path', { d: 'M 95 -44 C 145 -52 195 -28 188 18 L 135 38 L 95 22 Z', fill: '#0A0D1A', stroke: C.cream, 'stroke-width': 5 }, leverHandle);
+
+      // ---- BEAT 2 (275.00 - 283.06s): Giant 10-Chain Conduit Atrium ----
+      const b2 = el('g', {}, g);
+      el('rect', { width: 1920, height: 1080, fill: C.night }, b2);
+      halftone(b2, { color: C.night2, step: 26, angle: 16, f: (x, y) => 0.56 - Math.hypot(x - 960, y - 500) / 1450 });
+      for (let x = 180; x <= 1740; x += 260) {
+        wLine(b2, x, 0, x, 870, { stroke: C.night2, 'stroke-width': 4 }, x);
+      }
+      el('rect', { x: 0, y: 0, width: 1920, height: 74, fill: C.night3, stroke: C.navy, 'stroke-width': 5 }, b2);
+      for (let x = 60; x < 1920; x += 180) {
+        el('line', { x1: x, y1: 0, x2: x + 90, y2: 74, stroke: C.night2, 'stroke-width': 5 }, b2);
+        el('line', { x1: x + 90, y1: 74, x2: x + 180, y2: 0, stroke: C.night2, 'stroke-width': 5 }, b2);
+      }
+      // Single overhead lamp clear of headline & banner + right CCTV camera
+      el('polygon', { points: '1494,74 1546,74 1760,870 1280,870', fill: 'url(#patDotsGold)', opacity: 0.25 }, b2);
+      el('line', { x1: 1520, y1: 0, x2: 1520, y2: 112, stroke: C.cream, 'stroke-width': 4 }, b2);
+      el('path', { d: 'M 1470 134 C 1478 98 1562 98 1570 134 Z', fill: C.yellow, ...S }, b2);
+      const camG = el('g', {}, b2);
+      el('rect', { x: 1650, y: 88, width: 20, height: 44, fill: C.slate, ...S }, camG);
+      el('polygon', { points: '1660,110 1568,136 1578,172 1670,146', fill: C.cream, ...S }, camG);
+      const camLed = el('circle', { cx: 1590, cy: 144, r: 6, fill: C.red }, camG);
+      // Perspective floor
+      el('rect', { x: 0, y: 870, width: 1920, height: 210, fill: C.night3 }, b2);
+      el('rect', { x: 0, y: 858, width: 1920, height: 16, fill: 'url(#patStripeDanger)', stroke: C.navy, 'stroke-width': 4 }, b2);
+      for (let i = -5; i <= 5; i++) {
+        el('line', { x1: 960 + i * 165, y1: 874, x2: 960 + i * 310, y2: 1080, stroke: C.night2, 'stroke-width': 3 }, b2);
+      }
+
+      const t2 = chars(b2, '10 CHAINS AT ONCE', {
+        x: 84, y: 150, size: 76, family: F.serif, fill: C.cream, shadow: { dx: 7, dy: 7, fill: C.yellow },
+      });
+
+      wRect(b2, 875, 88, 575, 48, { rx: 8, fill: C.navy, stroke: C.yellow, 'stroke-width': 4 }, 502);
+      txt(b2, 'ALL 10 NETWORK CONDUITS // WIDE OPEN', {
+        x: 1162, y: 119, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 19, 'font-weight': 800, fill: C.yellow,
+      });
+
+      // Left Distribution Core: BINANCE OUTFLOW CORE
+      wRect(b2, 95, 240, 405, 630, { rx: 16, fill: C.blue, stroke: C.cream, 'stroke-width': 7 }, 503);
+      el('rect', { x: 125, y: 268, width: 345, height: 64, rx: 8, fill: C.night3, stroke: C.yellow, 'stroke-width': 4 }, b2);
+      txt(b2, 'BINANCE OUTFLOW CORE', { x: 297, y: 308, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 21, 'font-weight': 800, fill: C.yellow });
+      el('circle', { cx: 297, cy: 560, r: 125, fill: C.night3, stroke: C.yellow, 'stroke-width': 9 }, b2);
+      el('circle', { cx: 297, cy: 560, r: 78, fill: C.red, stroke: C.cream, 'stroke-width': 5 }, b2);
+      txt(b2, 'SURGE', { x: 297, y: 571, 'text-anchor': 'middle', 'font-family': F.bagel, 'font-size': 32, fill: C.cream });
+
+      // Right Architectural Manifold Housing 10 Pipes (5 Hero Named Chains + 5 Companion Chains)
+      wRect(b2, 1345, 165, 505, 725, { rx: 16, fill: C.night2, stroke: C.cream, 'stroke-width': 6 }, 504);
+
+      const CHAINS = [
+        { name: 'XRP',      hero: true,  col: C.sky,    cue: 278.5 },
+        { name: 'BNB',      hero: false, col: C.orange, cue: 276.0 },
+        { name: 'BITCOIN',  hero: true,  col: C.yellow, cue: 279.2 },
+        { name: 'USDT',     hero: false, col: C.mint,   cue: 276.0 },
+        { name: 'TRON',     hero: true,  col: C.red,    cue: 279.9 },
+        { name: 'AVAX',     hero: false, col: C.pink,   cue: 276.0 },
+        { name: 'SOLANA',   hero: true,  col: C.mint,   cue: 280.6 },
+        { name: 'ADA',      hero: false, col: C.sky,    cue: 276.0 },
+        { name: 'ETHEREUM', hero: true,  col: C.pink,   cue: 281.3 },
+        { name: 'LINK',     hero: false, col: C.yellow, cue: 276.0 },
+      ];
+      const pipes = CHAINS.map((ch, i) => {
+        const pg = el('g', {}, b2);
+        const y = 205 + i * 69;
+        const pathD = `M 422 560 C 780 560 980 ${y} 1375 ${y}`;
+        el('path', { d: pathD, fill: 'none', stroke: C.navy, 'stroke-width': ch.hero ? 26 : 18, 'stroke-linecap': 'round' }, pg);
+        el('path', { d: pathD, fill: 'none', stroke: ch.col, 'stroke-width': ch.hero ? 14 : 9, 'stroke-linecap': 'round' }, pg);
+        const p1 = el('circle', { cx: 422, cy: 560, r: ch.hero ? 11 : 8, fill: C.cream, stroke: C.navy, 'stroke-width': 4 }, pg);
+        const p2 = el('circle', { cx: 422, cy: 560, r: ch.hero ? 10 : 7, fill: C.yellow, stroke: C.navy, 'stroke-width': 3 }, pg);
+        const boxW = ch.hero ? 430 : 280;
+        const boxX = ch.hero ? 1375 : 1450;
+        const hdr = el('rect', {
+          x: boxX, y: y - (ch.hero ? 26 : 21), width: boxW, height: ch.hero ? 52 : 42,
+          rx: 10, fill: ch.col, stroke: C.navy, 'stroke-width': ch.hero ? 6 : 4
+        }, pg);
+        txt(pg, ch.name, {
+          x: boxX + boxW / 2, y: y + (ch.hero ? 11 : 8),
+          'text-anchor': 'middle', 'font-family': ch.hero ? F.bagel : F.mono,
+          'font-size': ch.hero ? 30 : 21, 'font-weight': 800, fill: C.navy,
+        });
+        return { pg, p1, p2, hdr, y, ch, i };
+      });
+
+      const bills = Array.from({ length: 18 }, (_, i) => ({ g: billNote(b2), i }));
+
+      return (t) => {
+        const beat2 = t >= 275.00;
+        show(b1, !beat2);
+        show(b2, beat2);
+
+        if (!beat2) {
+          charsPop(t1, t, 272.20);
+          const slam = E.in(seg(t, 272.45, 272.82));
+          const hy = lerp(420, 770, slam);
+          tf(leverHandle, 960, hy);
+          leverShaft.setAttribute('y', Math.min(600, hy).toFixed(1));
+          leverShaft.setAttribute('height', Math.max(12, Math.abs(hy - 600)).toFixed(1));
+          leverTxt.textContent = slam > 0.7 ? 'ENGAGED!' : 'PULL';
+        } else {
+          charsPop(t2, t, 275.15);
+          op(camLed, (Math.floor(t * 4) % 2) ? 1 : 0.25);
+          bills.forEach(({ g: bg, i }) => {
+            const cyc = ((t - 275.0) * 1.45 + i * 0.14) % 1.2 / 1.2;
+            const x = lerp(340, 1340, cyc);
+            const y = 560 + Math.sin(cyc * Math.PI * 2 + i) * 165 + (i - 9) * 18 * cyc;
+            tf(bg, x, y, 0.88, cyc * 65 - 32);
+          });
+          pipes.forEach(({ p1, p2, hdr, y, ch, i }) => {
+            const u = (t * 1.8 + i * 0.13) % 1;
+            const u2 = (t * 1.8 + i * 0.13 + 0.5) % 1;
+            const easeU = v => v * v * (3 - 2 * v);
+            p1.setAttribute('cx', lerp(422, 1372, u).toFixed(1));
+            p1.setAttribute('cy', lerp(560, y, easeU(u)).toFixed(1));
+            p2.setAttribute('cx', lerp(422, 1372, u2).toFixed(1));
+            p2.setAttribute('cy', lerp(560, y, easeU(u2)).toFixed(1));
+            if (ch.hero && t >= ch.cue) {
+              hdr.setAttribute('stroke', C.cream);
+            }
+          });
+        }
+      };
+    });
+
+    // =========================================================================
+    // SCENE 5B (283.06 - 301.54s): Slip #37 Match -> Self-Emptying Cash & ETH Machine + 03:24 + cap_07
+    // VO: "20 minutes past the hour, one of those 50 slips catches on Ethereum, turning a main Binance wallet into a self emptying machine. Three minutes and 24 seconds later, over 167,000 ether and $1.6 billion in tether disappear in a single sweep."
+    // =========================================================================
+    addScene(283.06, 301.54, { dark: true }, (g) => {
+      el('rect', { width: 1920, height: 1080, fill: C.night }, g);
+      halftone(g, { color: C.yellow, step: 26, angle: 18, f: (x, y) => clamp(0.42 - Math.hypot(x - 520, y - 560) / 860) });
+      for (let x = 180; x < 1920; x += 280) wLine(g, x, 0, x, 870, { stroke: C.night2, 'stroke-width': 3 }, x);
+      el('rect', { x: 0, y: 870, width: 1920, height: 210, fill: C.night3, stroke: C.navy, 'stroke-width': 7 }, g);
+      el('rect', { x: 0, y: 862, width: 1920, height: 14, fill: 'url(#patStripeDanger)' }, g);
+
+      const title = chars(g, 'SELF-EMPTYING VAULT', {
+        x: 84, y: 150, size: 76, family: F.serif, fill: C.cream, shadow: { dx: 7, dy: 7, fill: C.mint },
+      });
+
+      // Top-Left: Spinning Ethereum Nonce Gear + SLIP #37 Locking In!
+      const nonceGear = drawGear(g, 260, 390, 122, 14, C.blue, C.yellow);
+      const slip37 = el('g', { filter: 'url(#boil)' }, g);
+      el('rect', { x: -102, y: -44, width: 204, height: 88, rx: 10, fill: C.yellow, stroke: C.navy, 'stroke-width': 6 }, slip37);
+      txt(slip37, 'SLIP #37', { x: 0, y: -4, 'text-anchor': 'middle', 'font-family': F.bagel, 'font-size': 32, fill: C.navy });
+      txt(slip37, 'ETH NONCE MATCH!', { x: 0, y: 26, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 15, 'font-weight': 800, fill: C.red });
+
+      // Top-Center: 8:20 PM Clock + Giant Racing LED Stopwatch (00:00 -> 03:24)
+      wRect(g, 520, 215, 455, 165, { rx: 16, fill: C.night3, stroke: C.red, 'stroke-width': 6 }, 510);
+      txt(g, '8:20 PM · DRAIN STOPWATCH', { x: 747, y: 256, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 20, 'font-weight': 800, fill: C.yellow });
+      const timerTxt = txt(g, '00:00', { x: 747, y: 344, 'text-anchor': 'middle', 'font-family': F.bagel, 'font-size': 92, fill: C.red });
+
+      // Lower-Left/Center: Roaring Self-Emptying Cash & ETH Machine
+      wRect(g, 115, 535, 860, 335, { rx: 18, fill: C.night2, stroke: C.cream, 'stroke-width': 6 }, 511);
+      el('rect', { x: 145, y: 558, width: 800, height: 50, rx: 8, fill: C.night3, stroke: C.mint, 'stroke-width': 4 }, g);
+      txt(g, 'BINANCE MAIN ETH HOT WALLET -> EMPTYING', { x: 545, y: 590, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 21, 'font-weight': 800, fill: C.mint });
+      // Cash & ETH particles placed BEFORE funnel so they emerge cleanly from below SPIGOT mouth!
+      const drainBills = Array.from({ length: 14 }, (_, i) => ({ g: billNote(g), i }));
+      const drainEths = Array.from({ length: 10 }, (_, i) => ({ g: ethDiamond(g, 0, 0, 1.15, i % 2 ? C.sky : C.yellow), i }));
+      // Chute drawn cleanly on top of particle spawn point
+      el('polygon', { points: '240,624 460,624 420,715 280,715', fill: C.yellow, ...S }, g);
+      txt(g, 'SPIGOT', { x: 350, y: 678, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 22, 'font-weight': 800, fill: C.navy });
+
+      // Right Exhibit: cap_07_tx_drain_feed.png
+      const cap7 = mountCapture(g, 'captures/cap_07_tx_drain_feed.png', {
+        x: 1020, y: 200, w: 815, h: 525, tag: 'EXHIBIT G // ONE SWEEP', dark: true, tape: true,
+      });
+      wRect(g, 1020, 745, 815, 112, { rx: 14, fill: C.night3, stroke: C.yellow, 'stroke-width': 5 }, 512);
+      txt(g, '167,000+ ETH  +  $1.6B USDT', { x: 1427, y: 805, 'text-anchor': 'middle', 'font-family': F.bagel, 'font-size': 44, fill: C.yellow });
+      txt(g, 'GONE IN 3 MINUTES 24 SECONDS', { x: 1427, y: 840, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 18, 'font-weight': 800, fill: C.mint });
+
+      const sweepStamp = makeStamp(g, 'ONE SWEEP', C.red, 390, 114, 52);
+
+      return (t) => {
+        charsPop(title, t, 283.20);
+        const lockP = E.back(seg(t, 283.1, 283.7));
+        nonceGear.setAttribute('transform', `translate(260 390) rotate(${(lockP < 1 ? (t - 283) * 160 : 128).toFixed(1)})`);
+        tf(slip37, lerp(440, 260, lockP), lerp(215, 315, lockP), 1, lerp(-14, 0, lockP));
+
+        // Racing stopwatch 00:00 -> 03:24 (total 204s scaled smoothly 287.5 -> 292.3s)
+        const swP = seg(t, 287.5, 292.3);
+        const secs = Math.round(swP * 204);
+        const mm = String(Math.floor(secs / 60)).padStart(2, '0');
+        const ss = String(secs % 60).padStart(2, '0');
+        timerTxt.textContent = `${mm}:${ss}`;
+        timerTxt.setAttribute('fill', swP >= 0.99 ? C.red : C.yellow);
+
+        // Hurricane torrent emerging cleanly from bottom mouth of SPIGOT
+        const pour = E.out(seg(t, 285.5, 286.6));
+        drainBills.forEach(({ g: bg, i }) => {
+          op(bg, pour);
+          const cyc = ((t - 285.0) * 1.4 + i * 0.14) % 1;
+          tf(bg, lerp(360, 910, cyc), 748 + Math.sin(cyc * 7 + i) * 46 + cyc * 45, 0.90, cyc * 85 - 40);
+        });
+        drainEths.forEach(({ g: eg, i }) => {
+          op(eg, pour);
+          const cyc = ((t - 285.0) * 1.55 + i * 0.17 + 0.3) % 1;
+          tf(eg, lerp(355, 900, cyc), 758 + Math.cos(cyc * 6 + i) * 44 + cyc * 35, 1.1, cyc * 40);
+        });
+
+        op(cap7.g, E.out(seg(t, 288.0, 288.8)));
+        stampAnim(sweepStamp, t, 297.50, 1430, 650, -8);
+      };
+    });
+
+    // =========================================================================
+    // SCENE 5C (301.54 - 317.18s): US-Audience Split-Screen ($5K Bank Manager vs $6.3B Empty Bay)
+    // VO: "People watching online that night couldn't wrap their heads around it. If you try to pull $5,000 out of a regular bank, a manager calls your phone. Somehow $6.3 billion just walked out in 20 minutes without a single human stepping in front of the door."
+    // =========================================================================
+    addScene(301.54, 317.18, { dark: false }, (g) => {
+      // ---- LEFT HALF (0..954): Warm Daylight Regular Bank Lobby ----
+      const leftG = el('g', {}, g);
+      el('rect', { x: 0, y: 0, width: 956, height: 1080, fill: C.paper }, leftG);
+      halftone(leftG, { x0: 0, y0: 0, w: 956, h: 1080, color: C.yellow, step: 26, angle: 16, f: (x, y) => clamp(0.40 - Math.hypot(x - 480, y - 520) / 760) });
+      // Classic Marble Bank Pilasters & Daylight Window
+      for (const px of [45, 845]) el('rect', { x: px, y: 185, width: 65, height: 555, fill: C.cream, ...S }, leftG);
+      wRect(leftG, 165, 225, 280, 235, { rx: 8, fill: '#D9EEFF', ...S }, 520);
+      el('line', { x1: 305, y1: 225, x2: 305, y2: 460, stroke: C.navy, 'stroke-width': 6 }, leftG);
+      el('line', { x1: 165, y1: 342, x2: 445, y2: 342, stroke: C.navy, 'stroke-width': 6 }, leftG);
+      // Teller Window Bars behind Manager
+      wRect(leftG, 490, 230, 320, 495, { rx: 10, fill: C.cream, ...S }, 521);
+      for (let bx = 530; bx < 800; bx += 56) el('line', { x1: bx, y1: 235, x2: bx, y2: 720, stroke: C.yellow, 'stroke-width': 8 }, leftG);
+      // Sweating Bank Manager bursting forward!
+      const mgr = personRig(leftG, {
+        shirt: C.navy, hair: C.woodDk, hairStyle: 'slick', tie: C.red, badge: true, expression: 'worried',
+      });
+      tf(mgr.g, 640, 560, 0.96);
+
+      // Mahogany Teller Counter
+      el('rect', { x: 0, y: 725, width: 956, height: 355, fill: C.wood, stroke: C.navy, 'stroke-width': 7 }, leftG);
+      el('rect', { x: 0, y: 725, width: 956, height: 32, fill: C.woodDk, stroke: C.navy, 'stroke-width': 5 }, leftG);
+
+      // $5,000 Check Withdrawal Slip on Counter + Shaking Bright Red Phone
+      const slip5k = el('g', {}, leftG);
+      wRect(slip5k, 80, 775, 360, 145, { rx: 10, fill: C.cream, ...S }, 522);
+      txt(slip5k, 'BANK WITHDRAWAL', { x: 260, y: 816, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 18, 'font-weight': 800, fill: C.blue });
+      txt(slip5k, '$5,000', { x: 260, y: 888, 'text-anchor': 'middle', 'font-family': F.bagel, 'font-size': 62, fill: C.red });
+
+      const redPhone = el('g', { filter: 'url(#boil)' }, leftG);
+      tf(redPhone, 680, 815);
+      el('path', { d: 'M -62 25 L 62 25 L 44 -22 L -44 -22 Z', fill: C.red, ...S }, redPhone);
+      el('path', { d: 'M -76 -26 C -68 -66 68 -66 76 -26 L 48 -14 C 36 -34 -36 -34 -48 -14 Z', fill: C.red, ...S }, redPhone);
+      el('circle', { cx: 0, cy: 4, r: 16, fill: C.cream, stroke: C.navy, 'stroke-width': 4 }, redPhone);
+      // Sound ring arcs + warning flag next to Bank Manager
+      const ringWaves = el('g', {}, leftG);
+      el('path', { d: 'M 575 765 Q 555 795 575 825 M 785 765 Q 805 795 785 825', fill: 'none', stroke: C.yellow, 'stroke-width': 7, 'stroke-linecap': 'round' }, ringWaves);
+      txt(ringWaves, 'RING!', { x: 805, y: 765, 'font-family': F.bagel, 'font-size': 28, fill: C.yellow, stroke: C.navy, 'stroke-width': 4, 'paint-order': 'stroke' });
+      const warnFlag = el('g', { filter: 'url(#boil)' }, leftG);
+      el('line', { x1: 445, y1: 585, x2: 400, y2: 420, stroke: C.navy, 'stroke-width': 8, 'stroke-linecap': 'round' }, warnFlag);
+      el('polygon', { points: '400,420 270,455 295,525 418,485', fill: C.red, stroke: C.navy, 'stroke-width': 5 }, warnFlag);
+      txt(warnFlag, 'HOLD!', { x: 342, y: 484, 'text-anchor': 'middle', 'font-family': F.bagel, 'font-size': 26, fill: C.cream, transform: 'rotate(-14 342 484)' });
+
+      const bankTag = el('g', {}, leftG);
+      wRect(bankTag, 80, 945, 795, 62, { rx: 10, fill: C.red, stroke: C.navy, 'stroke-width': 5 }, 523);
+      txt(bankTag, 'REGULAR BANK: MANAGER CALLS OVER $5K!', { x: 477, y: 984, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 21, 'font-weight': 800, fill: C.cream });
+
+      // ---- RIGHT HALF (964..1920): Dark Binance Loading Bay (0 Humans!) ----
+      const rightG = el('g', {}, g);
+      el('rect', { x: 964, y: 0, width: 956, height: 1080, fill: C.night }, rightG);
+      halftone(rightG, { x0: 964, y0: 0, w: 956, h: 1080, color: C.blue, step: 26, angle: 16, f: (x, y) => clamp(0.45 - Math.hypot(x - 1500, y - 500) / 760) });
+      // Open Industrial Steel Roll-Up Garage Doorway into Night Street
+      wRect(rightG, 1340, 175, 520, 625, { rx: 8, fill: '#080C1C', stroke: C.cream, 'stroke-width': 6 }, 524);
+      // Night sky crescent moon & distant silhouettes visible through open exit door
+      el('circle', { cx: 1750, cy: 335, r: 28, fill: C.yellow }, rightG);
+      el('circle', { cx: 1763, cy: 328, r: 24, fill: '#080C1C' }, rightG);
+      for (const [bx, bh] of [[1365, 190], [1455, 250], [1560, 165], [1665, 215]]) {
+        el('rect', { x: bx, y: 795 - bh, width: 76, height: bh, fill: C.night3, stroke: C.night2, 'stroke-width': 3 }, rightG);
+      }
+      el('polygon', { points: '1360,260 1840,260 1890,800 1290,800', fill: 'url(#patDotsBlue)', opacity: 0.35 }, rightG);
+      el('rect', { x: 1340, y: 175, width: 520, height: 90, fill: C.slate, stroke: C.navy, 'stroke-width': 6 }, rightG);
+      for (let ry = 195; ry < 260; ry += 18) el('line', { x1: 1345, y1: ry, x2: 1855, y2: ry, stroke: C.navy, 'stroke-width': 4 }, rightG);
+      txt(rightG, 'EXIT // WIDE OPEN', { x: 1600, y: 230, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 22, 'font-weight': 800, fill: C.yellow });
+
+      // Empty Unmanned Security Booth (Empty Swivel Chair + Steaming Coffee Cup)
+      wRect(rightG, 1005, 430, 290, 370, { rx: 10, fill: C.night2, stroke: C.cream, 'stroke-width': 6 }, 525);
+      el('rect', { x: 1025, y: 452, width: 250, height: 42, rx: 6, fill: C.red }, rightG);
+      txt(rightG, 'SECURITY: EMPTY', { x: 1150, y: 480, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 18, 'font-weight': 800, fill: C.cream });
+      // Glass booth window showing empty swivel chair + steaming mug!
+      el('rect', { x: 1030, y: 508, width: 240, height: 180, rx: 6, fill: C.night3, stroke: C.sky, 'stroke-width': 4 }, rightG);
+      // Empty swivel chair
+      el('rect', { x: 1068, y: 558, width: 56, height: 74, rx: 8, fill: C.slate, stroke: C.cream, 'stroke-width': 3 }, rightG);
+      el('rect', { x: 1058, y: 632, width: 76, height: 18, rx: 4, fill: C.slate, stroke: C.cream, 'stroke-width': 3 }, rightG);
+      el('line', { x1: 1096, y1: 650, x2: 1096, y2: 684, stroke: C.cream, 'stroke-width': 6 }, rightG);
+      // Steaming hot coffee mug
+      el('rect', { x: 1188, y: 638, width: 34, height: 40, rx: 4, fill: C.cream, stroke: C.navy, 'stroke-width': 3 }, rightG);
+      const boothSteam = el('path', { d: 'M 1198 628 Q 1190 606 1204 588 M 1212 628 Q 1206 606 1218 588', fill: 'none', stroke: C.cream, 'stroke-width': 3.5, opacity: 0.7 }, rightG);
+
+      // Loading bay concrete floor
+      el('rect', { x: 964, y: 800, width: 956, height: 280, fill: C.night3, stroke: C.navy, 'stroke-width': 7 }, rightG);
+      el('rect', { x: 964, y: 792, width: 956, height: 14, fill: 'url(#patStripeDanger)' }, rightG);
+
+      // Massive $6.3B Automated Pallets rolling casually right out the door!
+      const pallets = [0, 1].map(i => {
+        const pg = el('g', { filter: 'url(#boil)' }, rightG);
+        el('rect', { x: -165, y: -35, width: 330, height: 32, rx: 4, fill: C.wood, ...S }, pg);
+        el('circle', { cx: -120, cy: 4, r: 16, fill: C.slate, ...S }, pg);
+        el('circle', { cx: 120, cy: 4, r: 16, fill: C.slate, ...S }, pg);
+        // Stacked gold & mint money crates
+        el('rect', { x: -145, y: -135, width: 290, height: 100, rx: 8, fill: C.mint, ...S }, pg);
+        el('rect', { x: -120, y: -220, width: 240, height: 85, rx: 8, fill: C.yellow, ...S }, pg);
+        txt(pg, '$6.3B', { x: 0, y: -164, 'text-anchor': 'middle', 'font-family': F.bagel, 'font-size': 48, fill: C.navy });
+        txt(pg, 'OUT THE DOOR', { x: 0, y: -74, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 21, 'font-weight': 800, fill: C.navy });
+        return { pg, i };
+      });
+
+      wRect(rightG, 1025, 945, 830, 62, { rx: 10, fill: C.yellow, stroke: C.navy, 'stroke-width': 5 }, 526);
+      txt(rightG, 'BINANCE BAY: $6.3B OUT · 0 HUMANS IN THE WAY', { x: 1440, y: 984, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 21, 'font-weight': 800, fill: C.navy });
+
+      // Bold Center Split Divider + VS Medallion
+      el('rect', { x: 950, y: 0, width: 20, height: 1080, fill: C.navy }, g);
+      el('circle', { cx: 960, cy: 540, r: 46, fill: C.yellow, stroke: C.navy, 'stroke-width': 8 }, g);
+      txt(g, 'VS', { x: 960, y: 554, 'text-anchor': 'middle', 'font-family': F.bagel, 'font-size': 38, fill: C.navy });
+
+      // Left-panel Headline (cleanly inside 0..940!)
+      const title = chars(g, '$5K VS $6.3B', {
+        x: 76, y: 150, size: 78, family: F.serif, fill: C.navy, shadow: { dx: 7, dy: 7, fill: C.yellow },
+      });
+
+      return (t) => {
+        charsPop(title, t, 301.68);
+        const shakePhone = Math.sin(t * 48) * 7;
+        tf(redPhone, 680 + shakePhone, 815 + Math.abs(Math.sin(t * 32)) * -8, 1, shakePhone * 0.8);
+        mgr.setState({
+          lookX: -4, lookY: 3, sweatOn: true,
+          headRot: Math.sin(t * 9) * 4,
+          lArm: [-102, 145, -170, 85, -195, 25],
+          rArm: [102, 145, 165, 185, 65, 235],
+        });
+        boothSteam.setAttribute('transform', `translate(${(Math.sin(t * 3) * 3).toFixed(1)} ${(-(t * 14 % 16)).toFixed(1)})`);
+
+        pallets.forEach(({ pg, i }) => {
+          const u = ((t - 301.54) * 0.22 + i * 0.5) % 1;
+          tf(pg, lerp(1140, 2040, u), 785);
+        });
+      };
+    });
+
+    // =========================================================================
+    // SCENE 5D (317.18 - 334.34s): SOC Crisis War Room -> 4-Panel Emergency Brake Wall (~$2.7B FROZEN)
+    // VO: "And then, the real race started. Binance froze withdrawals and hit the phones. Within hours, Tether, Circle, Ripple, and Arbitrum slammed the emergency brakes on their networks. Blacklisting wallets and locking up roughly $2.7 billion in stablecoins before they could move."
+    // =========================================================================
+    addScene(317.18, 334.34, { dark: true }, (g) => {
+      // ---- BEAT 1 (317.18 - 322.50s): SOC Panic + Freeze Shutter & Phones ----
+      const b1 = el('g', {}, g);
+      const soc = E_.decorSOCWarRoom(b1);
+      const t1 = chars(b1, 'HIT THE PHONES!', {
+        x: 84, y: 138, size: 74, family: F.serif, fill: C.cream, shadow: { dx: 7, dy: 7, fill: C.red },
+      });
+
+      const op1 = personRig(b1, { shirt: C.blue, hair: C.navy, hairStyle: 'crop', headset: true, expression: 'shocked' });
+      tf(op1.g, 480, 520, 0.96);
+      const op2 = personRig(b1, { shirt: C.orange, hair: C.navy, hairStyle: 'bob', headset: true, expression: 'worried' });
+      tf(op2.g, 1420, 520, 0.96);
+
+      // Desk foreground + giant red FREEZE WITHDRAWALS shutter button + ringing phone
+      el('rect', { x: 0, y: 760, width: 1920, height: 320, fill: C.night2, stroke: C.navy, 'stroke-width': 7 }, b1);
+      wRect(b1, 300, 785, 360, 86, { rx: 14, fill: C.red, stroke: C.cream, 'stroke-width': 6 }, 530);
+      txt(b1, 'FREEZE WITHDRAWALS', { x: 480, y: 836, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 24, 'font-weight': 800, fill: C.cream });
+
+      wRect(b1, 1210, 785, 420, 86, { rx: 14, fill: C.yellow, stroke: C.navy, 'stroke-width': 6 }, 531);
+      txt(b1, 'CALLING ISSUERS NOW!', { x: 1420, y: 836, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 24, 'font-weight': 800, fill: C.navy });
+
+      // ---- BEAT 2 (322.50 - 334.34s): 4-Panel Emergency Brake Wall + Jail Bars + cap_08 ----
+      const b2 = el('g', {}, g);
+      el('rect', { width: 1920, height: 1080, fill: C.night }, b2);
+      halftone(b2, { color: C.sky, step: 26, angle: 16, f: (x, y) => clamp(0.42 - Math.hypot(x - 530, y - 780) / 760) });
+      for (let x = 180; x < 1920; x += 280) wLine(b2, x, 0, x, 920, { stroke: C.night2, 'stroke-width': 3 }, x);
+      el('rect', { x: 0, y: 920, width: 1920, height: 160, fill: C.night3, stroke: C.navy, 'stroke-width': 7 }, b2);
+
+      const t2 = chars(b2, 'THE FREEZE RACE', {
+        x: 84, y: 150, size: 78, family: F.serif, fill: C.cream, shadow: { dx: 7, dy: 7, fill: C.red },
+      });
+
+      // 4-Panel Emergency Brake Wall (TETHER, CIRCLE, RIPPLE, ARBITRUM) — upright handle & text!
+      const ISSUERS = [
+        { name: 'TETHER',   col: C.mint,   tHit: 323.5 },
+        { name: 'CIRCLE',   col: C.sky,    tHit: 324.2 },
+        { name: 'RIPPLE',   col: C.yellow, tHit: 324.9 },
+        { name: 'ARBITRUM', col: C.pink,   tHit: 325.6 },
+      ];
+      const levers = ISSUERS.map((is, i) => {
+        const px = 84 + i * 228;
+        wRect(b2, px, 215, 208, 390, { rx: 14, fill: C.night2, stroke: C.cream, 'stroke-width': 5 }, 534 + i);
+        el('rect', { x: px + 14, y: 232, width: 180, height: 48, rx: 8, fill: is.col, stroke: C.navy, 'stroke-width': 4 }, b2);
+        txt(b2, is.name, { x: px + 104, y: 263, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 22, 'font-weight': 800, fill: C.navy });
+        // Lever track slot + dynamic shaft
+        el('rect', { x: px + 80, y: 300, width: 48, height: 225, rx: 8, fill: C.night3, stroke: C.navy, 'stroke-width': 4 }, b2);
+        const shaft = el('rect', { x: px + 90, y: 330, width: 28, height: 85, rx: 6, fill: C.cream, ...S }, b2);
+        const lv = el('g', {}, b2);
+        tf(lv, px + 104, 330);
+        el('rect', { x: -64, y: -21, width: 128, height: 42, rx: 10, fill: C.red, ...S }, lv);
+        txt(lv, 'BRAKE', { x: 0, y: 7, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 17, 'font-weight': 800, fill: C.cream });
+        const stBar = el('rect', { x: px + 24, y: 540, width: 160, height: 42, rx: 8, fill: C.night3, stroke: C.cream, 'stroke-width': 3 }, b2);
+        const stLbl = txt(b2, 'ARMED', { x: px + 104, y: 568, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 17, 'font-weight': 800, fill: C.yellow });
+        return { lv, shaft, stBar, stLbl, px, is };
+      });
+
+      // Lower-Left Jail Cage Locking ~$2.7B Stablecoins (crates aligned cleanly inside bar gaps!)
+      wRect(b2, 84, 635, 892, 285, { rx: 16, fill: C.night3, stroke: C.sky, 'stroke-width': 6 }, 540);
+      for (const cx of [146, 344, 542, 740]) {
+        wRect(b2, cx, 715, 166, 165, { rx: 10, fill: C.mint, ...S }, cx);
+        txt(b2, 'USDT', { x: cx + 83, y: 785, 'text-anchor': 'middle', 'font-family': F.bagel, 'font-size': 32, fill: C.navy });
+        txt(b2, 'LOCKED', { x: cx + 83, y: 830, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 17, 'font-weight': 800, fill: C.navy });
+      }
+      // Vertical steel jail bars spaced cleanly between crates!
+      const jailBars = el('g', {}, b2);
+      for (const bx of [118, 318, 516, 714, 922]) {
+        el('rect', { x: bx, y: 635, width: 14, height: 285, fill: C.sky, stroke: C.navy, 'stroke-width': 4 }, jailBars);
+      }
+      el('rect', { x: 84, y: 635, width: 892, height: 44, rx: 6, fill: C.sky, stroke: C.navy, 'stroke-width': 5 }, jailBars);
+      txt(jailBars, 'BLACKLISTED // ~$2.7B FROZEN IN PLACE', { x: 530, y: 665, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 21, 'font-weight': 800, fill: C.navy });
+
+      // Right Exhibit: cap_08_tether_freeze_alert.png
+      const cap8 = mountCapture(b2, 'captures/cap_08_tether_freeze_alert.png', {
+        x: 1020, y: 215, w: 815, h: 525, tag: 'EXHIBIT H // FREEZE RACE', dark: true, tape: true,
+      });
+      wRect(b2, 1020, 765, 815, 105, { rx: 14, fill: C.night3, stroke: C.yellow, 'stroke-width': 5 }, 541);
+      txt(b2, '~$2.7 BILLION FROZEN', { x: 1427, y: 832, 'text-anchor': 'middle', 'font-family': F.bagel, 'font-size': 48, fill: C.yellow });
+
+      const frozStamp = makeStamp(b2, 'FROZEN', C.red, 360, 114, 56);
+
+      return (t) => {
+        const beat2 = t >= 322.50;
+        show(b1, !beat2);
+        show(b2, beat2);
+
+        if (!beat2) {
+          soc.updateSOC(t);
+          charsPop(t1, t, 317.30);
+          op1.setState({ lookX: 4, headRot: Math.sin(t * 10) * 3, rArm: [102, 145, 140, 180, 30, 175] });
+          op2.setState({ lookX: -4, headRot: Math.cos(t * 10) * 3, lArm: [-102, 145, -145, 70, -90, 20] });
+        } else {
+          charsPop(t2, t, 322.62);
+          op(cap8.g, E.out(seg(t, 322.7, 323.5)));
+          levers.forEach(({ lv, shaft, stBar, stLbl, px, is }) => {
+            const p = E.in(seg(t, is.tHit - 0.35, is.tHit));
+            const hy = lerp(330, 495, p);
+            tf(lv, px + 104, hy);
+            shaft.setAttribute('y', Math.min(412, hy).toFixed(1));
+            shaft.setAttribute('height', Math.max(12, Math.abs(hy - 412)).toFixed(1));
+            if (p > 0.85) {
+              stBar.setAttribute('fill', C.red);
+              stLbl.setAttribute('fill', C.cream);
+              stLbl.textContent = 'LOCKED!';
+            }
+          });
+          const barDrop = E.out(seg(t, 325.0, 325.9));
+          tf(jailBars, 0, lerp(-285, 0, barDrop));
+          op(jailBars, barDrop);
+          stampAnim(frozStamp, t, 328.50, 1430, 650, -8);
+        }
+      };
+    });
+
+    // =========================================================================
+    // SCENE 5E (334.34 - 359.02s): Hacker Dumping -> DeFi Lending Machine -> 12:10 AM Circuit Shears
+    // VO: "Except the attackers weren't sitting back watching the scoreboard. They knew the freeze buttons were coming. So they started dumping at-risk tether to market makers as fast as they could. They even shoved $60 million of stolen tether into a lending protocol just to borrow clean ether against it. By midnight, they pulled off one final wave on Avalanche and Polygon before Binance finally cut the access off at 12:10 AM."
+    // =========================================================================
+    addScene(334.34, 359.02, { dark: true }, (g) => {
+      // ---- BEAT 1 (334.34 - 343.20s): Hacker Keyboard Bay -> Market Makers Conveyor ----
+      const b1 = el('g', {}, g);
+      el('rect', { width: 1920, height: 1080, fill: C.night3 }, b1);
+      halftone(b1, { color: C.red, step: 26, angle: 20, f: (x, y) => clamp(0.48 - Math.hypot(x - 460, y - 540) / 860) });
+      el('rect', { x: 0, y: 840, width: 1920, height: 240, fill: C.night2, stroke: C.navy, 'stroke-width': 7 }, b1);
+
+      const t1 = chars(b1, 'BEATING THE FREEZE', {
+        x: 84, y: 150, size: 78, family: F.serif, fill: C.cream, shadow: { dx: 7, dy: 7, fill: C.red },
+      });
+
+      // Left Hacker Dark Ops Monitors & Keyboard Bay
+      wRect(b1, 100, 235, 620, 355, { rx: 14, fill: C.night, stroke: C.red, 'stroke-width': 6 }, 550);
+      el('rect', { x: 125, y: 260, width: 570, height: 50, rx: 6, fill: C.red }, b1);
+      txt(b1, 'BLACKLIST INCOMING // DUMP NOW!', { x: 410, y: 293, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 21, 'font-weight': 800, fill: C.cream });
+      txt(b1, 'SWAP -> MARKET MAKERS', { x: 410, y: 405, 'text-anchor': 'middle', 'font-family': F.bagel, 'font-size': 42, fill: C.yellow });
+      txt(b1, 'SPEED: MAXIMUM // BEAT FREEZE', { x: 410, y: 465, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 21, 'font-weight': 800, fill: C.mint });
+      // Keyboard foreground + keycap rows + articulated typing hacker hands
+      el('polygon', { points: '120,665 700,665 745,815 75,815', fill: C.slate, ...S }, b1);
+      for (let ky = 688; ky <= 764; ky += 26) {
+        el('line', { x1: 140, y1: ky, x2: 680, y2: ky, stroke: C.night3, 'stroke-width': 12, 'stroke-dasharray': '22 10' }, b1);
+      }
+      const hkHands = el('g', { filter: 'url(#boil)' }, b1);
+      for (const hx of [270, 550]) {
+        el('rect', { x: hx - 46, y: 735, width: 92, height: 55, rx: 18, fill: '#0A0D1A', stroke: C.cream, 'stroke-width': 5 }, hkHands);
+        for (const fx of [-28, -8, 12, 30]) {
+          el('rect', { x: hx + fx - 6, y: 712, width: 12, height: 28, rx: 6, fill: C.skin, stroke: C.navy, 'stroke-width': 3 }, hkHands);
+        }
+      }
+
+      // Right Market Makers Chute + Red-Hot AT-RISK USDT Bags racing under Blacklist Gate
+      wRect(b1, 860, 620, 960, 74, { rx: 28, fill: C.slate, ...S }, 551);
+      wRect(b1, 1365, 250, 440, 560, { rx: 16, fill: C.night2, stroke: C.mint, 'stroke-width': 6 }, 552);
+      txt(b1, 'MARKET MAKERS', { x: 1585, y: 310, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 26, 'font-weight': 800, fill: C.mint });
+      txt(b1, 'OFFLOADED FAST', { x: 1585, y: 350, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 18, 'font-weight': 800, fill: C.yellow });
+
+      const usdtBags = Array.from({ length: 5 }, (_, i) => {
+        const bg = el('g', {}, b1);
+        el('rect', { x: -70, y: -64, width: 140, height: 96, rx: 18, fill: C.red, stroke: C.yellow, 'stroke-width': 5 }, bg);
+        txt(bg, 'USDT', { x: 0, y: -10, 'text-anchor': 'middle', 'font-family': F.bagel, 'font-size': 30, fill: C.cream });
+        txt(bg, 'HOT', { x: 0, y: 18, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 15, 'font-weight': 800, fill: C.yellow });
+        return { bg, i };
+      });
+      // Descending Blacklist Gate Shutter trying to close at x=1220
+      const gateShutter = el('g', {}, b1);
+      wRect(gateShutter, 1140, 240, 150, 290, { rx: 10, fill: C.red, stroke: C.cream, 'stroke-width': 5 }, 553);
+      txt(gateShutter, 'FREEZE', { x: 1215, y: 400, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 22, 'font-weight': 800, fill: C.cream });
+      txt(gateShutter, 'GATE', { x: 1215, y: 432, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 22, 'font-weight': 800, fill: C.cream });
+
+      // ---- BEAT 2 (343.20 - 350.00s): Mechanical DeFi Lending Machine ($60M USDT -> CLEAN ETH) ----
+      const b2 = el('g', {}, g);
+      el('rect', { width: 1920, height: 1080, fill: C.night }, b2);
+      halftone(b2, { color: C.mint, step: 26, angle: 16, f: (x, y) => clamp(0.45 - Math.hypot(x - 1350, y - 550) / 860) });
+      for (let x = 180; x < 1920; x += 280) wLine(b2, x, 0, x, 860, { stroke: C.night2, 'stroke-width': 3 }, x);
+      el('rect', { x: 0, y: 860, width: 1920, height: 220, fill: C.night3, stroke: C.navy, 'stroke-width': 7 }, b2);
+      el('rect', { x: 0, y: 852, width: 1920, height: 14, fill: 'url(#patStripeDanger)' }, b2);
+
+      const t2 = chars(b2, 'LAUNDERED VIA DEFI', {
+        x: 84, y: 150, size: 78, family: F.serif, fill: C.cream, shadow: { dx: 7, dy: 7, fill: C.mint },
+      });
+
+      // Left Collateral In Hopper: $60M TAINTED USDT + stacked sacks
+      wRect(b2, 95, 360, 420, 500, { rx: 16, fill: C.night2, stroke: C.red, 'stroke-width': 6 }, 560);
+      el('rect', { x: 125, y: 388, width: 360, height: 54, rx: 8, fill: C.red }, b2);
+      txt(b2, 'COLLATERAL IN', { x: 305, y: 423, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 23, 'font-weight': 800, fill: C.cream });
+      txt(b2, '$60M', { x: 305, y: 540, 'text-anchor': 'middle', 'font-family': F.bagel, 'font-size': 86, fill: C.yellow });
+      txt(b2, 'TAINTED USDT', { x: 305, y: 595, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 25, 'font-weight': 800, fill: C.red });
+      // Stacked tainted USDT sacks inside lower hopper
+      for (const [sx, sy] of [[155, 745], [315, 745], [235, 650]]) {
+        wRect(b2, sx, sy, 140, 82, { rx: 12, fill: C.red, stroke: C.yellow, 'stroke-width': 4 }, sx + sy);
+        txt(b2, 'USDT', { x: sx + 70, y: sy + 50, 'text-anchor': 'middle', 'font-family': F.bagel, 'font-size': 26, fill: C.cream });
+      }
+      // Pipe feeding center machine with directional arrow
+      el('rect', { x: 515, y: 530, width: 125, height: 74, fill: C.slate, ...S }, b2);
+      el('polygon', { points: '555,550 605,567 555,584', fill: C.yellow }, b2);
+
+      // Center Mechanical DeFi Lending Press
+      wRect(b2, 640, 235, 640, 625, { rx: 22, fill: C.blue, stroke: C.cream, 'stroke-width': 8 }, 561);
+      el('rect', { x: 675, y: 265, width: 570, height: 68, rx: 10, fill: C.night3, stroke: C.yellow, 'stroke-width': 5 }, b2);
+      txt(b2, 'DEFI LENDING PROTOCOL', { x: 960, y: 309, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 26, 'font-weight': 800, fill: C.yellow });
+      // Pumping hydraulic pistons
+      const pistonL = el('g', { filter: 'url(#boil)' }, b2);
+      el('rect', { x: 745, y: 360, width: 90, height: 195, rx: 10, fill: C.orange, ...S }, pistonL);
+      el('rect', { x: 715, y: 535, width: 150, height: 42, rx: 8, fill: C.yellow, ...S }, pistonL);
+      const pistonR = el('g', { filter: 'url(#boil)' }, b2);
+      el('rect', { x: 1085, y: 360, width: 90, height: 195, rx: 10, fill: C.orange, ...S }, pistonR);
+      el('rect', { x: 1055, y: 535, width: 150, height: 42, rx: 8, fill: C.yellow, ...S }, pistonR);
+      // Spinning gears & central swap plaque
+      const dGear1 = drawGear(b2, 855, 725, 68, 12, C.slate, C.yellow);
+      const dGear2 = drawGear(b2, 1065, 725, 68, 12, C.slate, C.mint);
+      wRect(b2, 745, 595, 430, 80, { rx: 12, fill: C.night3, stroke: C.mint, 'stroke-width': 5 }, 562);
+      txt(b2, 'BORROW AGAINST USDT', { x: 960, y: 643, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 23, 'font-weight': 800, fill: C.mint });
+
+      // Right Output Conveyor: CLEAN ETH
+      el('rect', { x: 1280, y: 530, width: 125, height: 74, fill: C.slate, ...S }, b2);
+      wRect(b2, 1405, 360, 420, 500, { rx: 16, fill: C.night2, stroke: C.mint, 'stroke-width': 6 }, 563);
+      el('rect', { x: 1435, y: 388, width: 360, height: 54, rx: 8, fill: C.mint }, b2);
+      txt(b2, 'BORROWED OUT', { x: 1615, y: 423, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 23, 'font-weight': 800, fill: C.navy });
+      txt(b2, 'CLEAN ETH', { x: 1615, y: 540, 'text-anchor': 'middle', 'font-family': F.bagel, 'font-size': 56, fill: C.mint });
+      txt(b2, 'UNFREEZABLE', { x: 1615, y: 595, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 23, 'font-weight': 800, fill: C.yellow });
+      const cleanBars = Array.from({ length: 4 }, (_, i) => ethDiamond(b2, 1485 + i * 85, 740, 1.85, i % 2 ? C.mint : C.sky));
+
+      // ---- BEAT 3 (350.00 - 359.02s): 12:10 AM Circuit Shears Cut Off ----
+      const b3 = el('g', {}, g);
+      el('rect', { width: 1920, height: 1080, fill: C.night3 }, b3);
+      halftone(b3, { color: C.yellow, step: 26, angle: 16, f: (x, y) => clamp(0.50 - Math.hypot(x - 1140, y - 590) / 760) });
+      el('rect', { x: 0, y: 860, width: 1920, height: 220, fill: C.night2, stroke: C.navy, 'stroke-width': 7 }, b3);
+
+      const t3 = chars(b3, '12:10 AM · CUT OFF', {
+        x: 84, y: 150, size: 78, family: F.serif, fill: C.cream, shadow: { dx: 7, dy: 7, fill: C.red },
+      });
+
+      // Midnight Clock Station Tower (Top Center, clean clearance above shears!)
+      wRect(b3, 740, 180, 440, 128, { rx: 18, fill: C.night2, stroke: C.yellow, 'stroke-width': 6 }, 570);
+      const cutClock = txt(b3, '12:00 AM', { x: 960, y: 270, 'text-anchor': 'middle', 'font-family': F.bagel, 'font-size': 70, fill: C.yellow });
+
+      // Left Conduit Hubs: AVALANCHE & POLYGON taking final waves
+      for (const [cy, nm, col] of [[440, 'AVALANCHE', C.red], [720, 'POLYGON', C.pink]]) {
+        wRect(b3, 100, cy - 75, 420, 150, { rx: 14, fill: C.night2, stroke: col, 'stroke-width': 6 }, cy);
+        txt(b3, nm, { x: 310, y: cy - 10, 'text-anchor': 'middle', 'font-family': F.bagel, 'font-size': 42, fill: col });
+        txt(b3, 'FINAL WAVE DRAIN', { x: 310, y: cy + 36, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 20, 'font-weight': 800, fill: C.cream });
+        el('path', { d: `M 520 ${cy} L 690 590`, fill: 'none', stroke: col, 'stroke-width': 16, 'stroke-linecap': 'round' }, b3);
+      }
+
+      // Master Power Cable (Left unbroken segment + Right severed segment)
+      el('line', { x1: 685, y1: 590, x2: 1125, y2: 590, stroke: C.yellow, 'stroke-width': 32, 'stroke-linecap': 'round' }, b3);
+      el('line', { x1: 685, y1: 590, x2: 1125, y2: 590, stroke: C.cream, 'stroke-width': 10, 'stroke-dasharray': '22 14' }, b3);
+      const cableRight = el('line', { x1: 1125, y1: 590, x2: 1765, y2: 590, stroke: C.yellow, 'stroke-width': 32, 'stroke-linecap': 'round' }, b3);
+      const cableCutEnd = el('line', { x1: 1185, y1: 625, x2: 1765, y2: 675, stroke: C.slate, 'stroke-width': 30, 'stroke-linecap': 'round' }, b3);
+
+      // Right Terminal Hub
+      wRect(b3, 1545, 470, 290, 240, { rx: 14, fill: C.night2, stroke: C.cream, 'stroke-width': 6 }, 571);
+      txt(b3, 'BINANCE', { x: 1690, y: 565, 'text-anchor': 'middle', 'font-family': F.bagel, 'font-size': 42, fill: C.cream });
+      const accessLbl = txt(b3, 'ACCESS OPEN', { x: 1690, y: 625, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 24, 'font-weight': 800, fill: C.yellow });
+
+      // Colossal Crimson Circuit Shears (Diagonal angled handles clearing 12:10 AM clock!)
+      const shearsG = el('g', { filter: 'url(#boil)' }, b3);
+      tf(shearsG, 1140, 590);
+      const jawTop = el('g', {}, shearsG);
+      el('polygon', { points: '-55,-18 90,-22 50,14 -30,10', fill: C.cream, ...S }, jawTop);
+      el('rect', { x: -45, y: -225, width: 48, height: 210, rx: 16, fill: C.red, ...S, transform: 'rotate(38)' }, jawTop);
+      const jawBot = el('g', {}, shearsG);
+      el('polygon', { points: '-55,18 90,22 50,-14 -30,-10', fill: C.cream, ...S }, jawBot);
+      el('rect', { x: -45, y: 15, width: 48, height: 210, rx: 16, fill: C.red, ...S, transform: 'rotate(-38)' }, jawBot);
+      el('circle', { cx: 0, cy: 0, r: 24, fill: C.yellow, ...S }, shearsG);
+      el('rect', { x: 0, y: 852, width: 1920, height: 14, fill: 'url(#patStripeDanger)' }, b3);
+
+      // Gold Halftone Spark Burst on Sever
+      const sparksG = el('g', {}, b3);
+      tf(sparksG, 1140, 590);
+      for (let i = 0; i < 12; i++) {
+        const ang = (i / 12) * Math.PI * 2;
+        el('polygon', {
+          points: `${Math.cos(ang) * 45},${Math.sin(ang) * 45} ${Math.cos(ang + 0.14) * 165},${Math.sin(ang + 0.14) * 165} ${Math.cos(ang + 0.28) * 45},${Math.sin(ang + 0.28) * 45}`,
+          fill: i % 2 === 0 ? C.yellow : C.cream, stroke: C.navy, 'stroke-width': 4
+        }, sparksG);
+      }
+
+      return (t) => {
+        const isB1 = t < 343.20;
+        const isB2 = t >= 343.20 && t < 350.00;
+        const isB3 = t >= 350.00;
+        show(b1, isB1);
+        show(b2, isB2);
+        show(b3, isB3);
+
+        if (isB1) {
+          charsPop(t1, t, 334.48);
+          tf(hkHands, 0, Math.sin(t * 28) * 9);
+          usdtBags.forEach(({ bg, i }) => {
+            const u = ((t - 334.34) * 0.65 + i * 0.2) % 1;
+            tf(bg, lerp(780, 1620, u), 590 + Math.abs(Math.sin(u * Math.PI * 3)) * -28, 1, Math.sin(u * 6) * 8);
+          });
+          const gateDrop = E.in(seg(t, 336.5, 342.8));
+          tf(gateShutter, 0, lerp(0, 120, gateDrop));
+        } else if (isB2) {
+          charsPop(t2, t, 343.30);
+          const pL = Math.sin((t - 343.2) * 7.5);
+          const pR = Math.sin((t - 343.2) * 7.5 + Math.PI);
+          tf(pistonL, 0, pL * 35);
+          tf(pistonR, 0, pR * 35);
+          dGear1.setAttribute('transform', `translate(855 725) rotate(${((t - 343.2) * 120).toFixed(1)})`);
+          dGear2.setAttribute('transform', `translate(1065 725) rotate(${(-(t - 343.2) * 120).toFixed(1)})`);
+          cleanBars.forEach((cb, i) => {
+            const dy = Math.sin((t - 343.2) * 5 + i) * 10;
+            tf(cb, 1485 + i * 85, 740 + dy, 1.85);
+          });
+        } else {
+          charsPop(t3, t, 350.12);
+          const mins = clamp(Math.floor(seg(t, 350.2, 355.0) * 10), 0, 10);
+          cutClock.textContent = `12:${String(mins).padStart(2, '0')} AM`;
+          const cutDone = t >= 355.20;
+          const jawOpen = cutDone ? 4 : lerp(34, 4, E.in(seg(t, 354.5, 355.2)));
+          jawTop.setAttribute('transform', `rotate(${-jawOpen})`);
+          jawBot.setAttribute('transform', `rotate(${jawOpen})`);
+          show(cableRight, !cutDone);
+          show(cableCutEnd, cutDone);
+          const sp = seg(t, 355.20, 357.20);
+          op(sparksG, cutDone ? Math.max(0.25, 1 - sp * 0.75) : 0);
+          tf(sparksG, 1140, 590, cutDone ? (0.85 + Math.sin(t * 24) * 0.14) : 0.1, (t - 355.2) * 45);
+          if (cutDone) {
+            accessLbl.textContent = 'ACCESS SEVERED';
+            accessLbl.setAttribute('fill', C.red);
+            cutClock.setAttribute('fill', C.red);
+          }
+        }
+      };
+    });
+
+    // =========================================================================
+    // SCENE 5F (359.02 - 378.0000s): Smoke Clears -> Split Ledger Scoreboard (~$3B Frozen vs $2.4B Unfreezable)
+    // VO: "When the smoke cleared, nearly $3 billion was frozen. But the hackers were still holding over 420,000 ether and 18,200 Bitcoin. Roughly $2.4 billion in raw assets that no CEO, no bank, and no government can freeze with the click of a button."
+    // =========================================================================
+    addScene(359.02, 378.0000, { dark: true }, (g) => {
+      el('rect', { width: 1920, height: 1080, fill: C.night }, g);
+      halftone(g, { color: C.yellow, step: 26, angle: 16, f: (x, y) => clamp(0.55 - Math.hypot(x - 1420, y - 470) / 680) });
+      // Ledger Vault Hall Architecture: fluted stone columns & perspective floor
+      for (const px of [55, 932, 1810]) {
+        wRect(g, px, 175, 56, 705, { rx: 4, fill: C.night2, ...S }, px);
+      }
+      el('rect', { x: 0, y: 880, width: 1920, height: 200, fill: C.night3, stroke: C.navy, 'stroke-width': 7 }, g);
+      el('rect', { x: 0, y: 872, width: 1920, height: 14, fill: 'url(#patStripeDanger)' }, g);
+
+      const title = chars(g, 'FROZEN VS UNFREEZABLE', {
+        x: 84, y: 150, size: 74, family: F.serif, fill: C.cream, shadow: { dx: 7, dy: 7, fill: C.yellow },
+      });
+
+      // LEFT WING (84..895): Caged ~$3B FROZEN
+      const leftWing = el('g', {}, g);
+      wRect(leftWing, 115, 215, 770, 665, { rx: 18, fill: C.night2, stroke: C.sky, 'stroke-width': 7 }, 580);
+      el('rect', { x: 145, y: 240, width: 710, height: 74, rx: 10, fill: C.sky, stroke: C.navy, 'stroke-width': 5 }, leftWing);
+      txt(leftWing, 'FROZEN STABLECOINS', { x: 500, y: 288, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 28, 'font-weight': 800, fill: C.navy });
+      // Locked USDT crates cleanly positioned inside gaps between steel bars!
+      for (const [cx, cy] of [[185, 505], [425, 505], [665, 505], [305, 355], [545, 355]]) {
+        wRect(leftWing, cx, cy, 150, 115, { rx: 10, fill: C.mint, ...S }, cx + cy);
+        txt(leftWing, 'USDT', { x: cx + 75, y: cy + 68, 'text-anchor': 'middle', 'font-family': F.bagel, 'font-size': 32, fill: C.navy });
+      }
+      // Vertical steel/ice jail bars aligned between crate edges
+      for (const bx of [152, 392, 632, 838]) {
+        el('rect', { x: bx, y: 314, width: 14, height: 420, fill: C.sky, stroke: C.navy, 'stroke-width': 4, opacity: 0.92 }, leftWing);
+      }
+      wRect(leftWing, 165, 745, 670, 110, { rx: 14, fill: C.night3, stroke: C.sky, 'stroke-width': 5 }, 581);
+      txt(leftWing, '~$3 BILLION FROZEN', { x: 500, y: 816, 'text-anchor': 'middle', 'font-family': F.bagel, 'font-size': 52, fill: C.sky });
+
+      // RIGHT WING (1015..1836): Dazzling Open Pedestal ($2.4B UNFREEZABLE)
+      const rightWing = el('g', {}, g);
+      wRect(rightWing, 1020, 215, 815, 505, { rx: 18, fill: C.night3, stroke: C.yellow, 'stroke-width': 7 }, 582);
+      el('polygon', { points: '1240,215 1615,215 1785,680 1070,680', fill: 'url(#patDotsGold)', opacity: 0.42 }, rightWing);
+      el('rect', { x: 1050, y: 240, width: 755, height: 68, rx: 10, fill: C.yellow, stroke: C.navy, 'stroke-width': 5 }, rightWing);
+      txt(rightWing, 'UNFREEZABLE RAW ASSETS', { x: 1427, y: 284, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 27, 'font-weight': 800, fill: C.navy });
+
+      // 420,000 ETH Pile (Left on Pedestal)
+      wRect(rightWing, 1065, 330, 345, 225, { rx: 12, fill: C.night2, stroke: C.sky, 'stroke-width': 5 }, 583);
+      for (const [ex, ey] of [[1165, 405], [1235, 405], [1305, 405], [1200, 445], [1270, 445]]) ethDiamond(rightWing, ex, ey, 1.35, C.sky);
+      txt(rightWing, '420,000 ETH', { x: 1237, y: 525, 'text-anchor': 'middle', 'font-family': F.bagel, 'font-size': 38, fill: C.sky });
+
+      // 18,200 BTC Pile (Right on Pedestal)
+      wRect(rightWing, 1445, 330, 345, 225, { rx: 12, fill: C.night2, stroke: C.yellow, 'stroke-width': 5 }, 584);
+      for (const [bx, by] of [[1545, 405], [1615, 405], [1685, 405], [1580, 445], [1650, 445]]) btcCoin(rightWing, bx, by, 26);
+      txt(rightWing, '18,200 BTC', { x: 1617, y: 525, 'text-anchor': 'middle', 'font-family': F.bagel, 'font-size': 38, fill: C.yellow });
+
+      // Total Raw Assets Scoreboard Banner
+      wRect(rightWing, 1065, 580, 725, 110, { rx: 14, fill: C.yellow, stroke: C.navy, 'stroke-width': 6 }, 585);
+      txt(rightWing, '$2.4 BILLION UNTOUCHED', { x: 1427, y: 650, 'text-anchor': 'middle', 'font-family': F.bagel, 'font-size': 50, fill: C.navy });
+
+      // Bottom-Right 3 Useless Freeze Panic Buttons: NO CEO, NO BANK, NO GOV
+      wRect(g, 1020, 745, 815, 235, { rx: 16, fill: C.night2, stroke: C.cream, 'stroke-width': 6 }, 586);
+      const BTNS = [
+        { label: 'NO CEO',  tSlam: 371.2 },
+        { label: 'NO BANK', tSlam: 372.4 },
+        { label: 'NO GOV',  tSlam: 373.6 },
+      ];
+      const btns = BTNS.map((b, i) => {
+        const bx = 1055 + i * 258;
+        const bg = el('g', {}, g);
+        el('rect', { x: bx, y: 775, width: 228, height: 120, rx: 14, fill: C.night3, stroke: C.navy, 'stroke-width': 5 }, bg);
+        const cap = el('rect', { x: bx + 14, y: 785, width: 200, height: 92, rx: 12, fill: C.red, stroke: C.navy, 'stroke-width': 6 }, bg);
+        const capTxt = txt(bg, b.label, { x: bx + 114, y: 842, 'text-anchor': 'middle', 'font-family': F.bagel, 'font-size': 34, fill: C.cream });
+        const statusTxt = txt(bg, 'NO FREEZE BUTTON', { x: bx + 114, y: 942, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 17, 'font-weight': 800, fill: C.yellow });
+        const xSlash = el('path', {
+          d: `M ${bx + 26} 795 L ${bx + 202} 867 M ${bx + 202} 795 L ${bx + 26} 867`,
+          stroke: C.red, 'stroke-width': 9, 'stroke-linecap': 'round', opacity: 0.85
+        }, bg);
+        op(xSlash, 0);
+        const xBadge = el('g', {}, bg);
+        wRect(xBadge, bx + 20, 908, 188, 44, { rx: 8, fill: C.night3, stroke: C.red, 'stroke-width': 4 }, 590 + i);
+        txt(xBadge, 'X · DISABLED', { x: bx + 114, y: 937, 'text-anchor': 'middle', 'font-family': F.mono, 'font-size': 19, 'font-weight': 800, fill: C.red });
+        op(xBadge, 0);
+        return { cap, capTxt, statusTxt, xBadge, xSlash, bx, b };
+      });
+
+      // Drifting Cream Halftone Smoke Curtain clearing outward (359.02 -> 362.0s)
+      const smokeL = el('g', {}, g);
+      const smokeR = el('g', {}, g);
+      for (const [cx, cy, r] of [[240, 420, 290], [560, 310, 320], [420, 680, 310], [740, 560, 290]]) {
+        el('circle', { cx, cy, r, fill: C.paper, opacity: 0.92 }, smokeL);
+      }
+      for (const [cx, cy, r] of [[1160, 360, 310], [1480, 490, 340], [1280, 720, 300], [1680, 620, 310]]) {
+        el('circle', { cx, cy, r, fill: C.cream, opacity: 0.92 }, smokeR);
+      }
+
+      return (t) => {
+        charsPop(title, t, 359.15);
+        const clear = E.out(seg(t, 359.3, 362.0));
+        tf(smokeL, -980 * clear, -80 * clear);
+        tf(smokeR, 980 * clear, -80 * clear);
+        op(smokeL, 1 - clear);
+        op(smokeR, 1 - clear);
+
+        btns.forEach(({ cap, capTxt, statusTxt, xBadge, xSlash, b }) => {
+          const hit = t >= b.tSlam;
+          const press = hit ? Math.exp(-Math.pow((t - b.tSlam) / 0.18, 2)) * 12 + 6 : 0;
+          cap.setAttribute('y', (785 + press).toFixed(1));
+          capTxt.setAttribute('y', (842 + press).toFixed(1));
+          if (hit) {
+            cap.setAttribute('fill', C.slate);
+            op(statusTxt, 0);
+            op(xBadge, 1);
+            op(xSlash, 0.85);
+          } else {
+            cap.setAttribute('fill', C.red);
+            op(statusTxt, 1);
+            op(xBadge, 0);
+            op(xSlash, 0);
+          }
+        });
+      };
+    });
+  }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,672 @@
+1
+00:00:01,500 --> 00:00:07,420
+At 8:05 pm on October 29th,
+money starts pouring out of Binance
+
+2
+00:00:07,420 --> 00:00:10,020
+across 10 blockchains at once.
+
+3
+00:00:10,020 --> 00:00:15,300
+20 minutes later, $6.3 billion is gone.
+
+4
+00:00:15,300 --> 00:00:20,540
+Users open the app to pull their cash out
+and the withdraw button is grayed out.
+
+5
+00:00:20,540 --> 00:00:23,580
+When Binance pulls the logs,
+nothing adds up.
+
+6
+00:00:23,580 --> 00:00:27,820
+No blockchain got broken,
+not a single private key was leaked.
+
+7
+00:00:27,820 --> 00:00:29,820
+Every transfer that drained those wallets
+
+8
+00:00:29,820 --> 00:00:34,100
+was legitimately signed
+by Binance's own internal system.
+
+9
+00:00:34,100 --> 00:00:38,780
+Whoever pulled this off had been
+inside the company for five months.
+
+10
+00:00:38,780 --> 00:00:42,580
+And the way they got in had
+nothing to do with breaking code.
+
+11
+00:00:42,580 --> 00:00:44,340
+Rewind to June.
+
+12
+00:00:44,340 --> 00:00:47,460
+An engineer on Binance's
+wallet team is at his desk,
+
+13
+00:00:47,460 --> 00:00:50,620
+searching Google
+for a popular AI coding tool.
+
+14
+00:00:50,620 --> 00:00:53,020
+He finds a download link,
+runs the installer,
+
+15
+00:00:53,020 --> 00:00:55,660
+and gets back to work, routine stuff.
+
+16
+00:00:55,660 --> 00:00:58,660
+Except the installer is tampered with.
+
+17
+00:00:58,700 --> 00:01:01,540
+Now most companies would
+already be toast right here.
+
+18
+00:01:01,540 --> 00:01:04,300
+Except Binance actually catches it.
+
+19
+00:01:04,300 --> 00:01:06,540
+Their security team
+spots the weird activity,
+
+20
+00:01:06,540 --> 00:01:11,100
+pulls the engineer's laptop off the desk,
+wipes access, rotates every credential,
+
+21
+00:01:11,100 --> 00:01:13,980
+and closes the ticket.
+On paper, that's a win.
+
+22
+00:01:13,980 --> 00:01:15,540
+They stopped it cold.
+
+23
+00:01:15,540 --> 00:01:17,100
+Or so they thought.
+
+24
+00:01:17,100 --> 00:01:19,340
+What they didn't realize
+was that before they
+
+25
+00:01:19,340 --> 00:01:22,140
+yanked that laptop,
+the attackers had already grabbed
+
+26
+00:01:22,140 --> 00:01:25,220
+the one thing you can't
+reset with a password change,
+
+27
+00:01:25,220 --> 00:01:28,220
+a map of who works on the wallet team.
+
+28
+00:01:28,220 --> 00:01:30,260
+They didn't need that laptop anymore.
+
+29
+00:01:30,260 --> 00:01:33,220
+They had names. So they went quiet.
+
+30
+00:01:33,220 --> 00:01:36,460
+For three whole months, nothing happened.
+
+31
+00:01:36,460 --> 00:01:39,700
+Then in September, a second
+software engineer at Binance
+
+32
+00:01:39,700 --> 00:01:41,860
+gets a message on a job site.
+
+33
+00:01:41,860 --> 00:01:45,700
+It's from someone claiming to be
+a project director at a tech startup.
+
+34
+00:01:45,700 --> 00:01:47,820
+The engineer has Binance
+right there on his resume
+
+35
+00:01:47,820 --> 00:01:49,900
+and the offer sounds legitimate.
+
+36
+00:01:49,900 --> 00:01:52,540
+This wasn't some sloppy spam email.
+
+37
+00:01:52,540 --> 00:01:56,740
+The guy gets scheduled for a real round
+one video interview with an HR rep.
+
+38
+00:01:56,740 --> 00:01:58,740
+During the call, the rep even shares
+
+39
+00:01:58,740 --> 00:02:01,500
+a social media profile
+filled with personal photos
+
+40
+00:02:01,500 --> 00:02:04,540
+and videos just to look
+like a real human being.
+
+41
+00:02:04,540 --> 00:02:06,140
+He passes round one.
+
+42
+00:02:06,140 --> 00:02:10,260
+Then he does a round two interview
+with the supposed CEO of this company,
+
+43
+00:02:10,260 --> 00:02:12,780
+a company that didn't even exist.
+
+44
+00:02:12,780 --> 00:02:15,900
+At the end, they send him
+the standard coding take-home test.
+
+45
+00:02:15,900 --> 00:02:19,860
+He downloads it onto his work
+laptop and runs the setup script.
+
+46
+00:02:19,860 --> 00:02:24,180
+And inside that script,
+a tiny piece of code goes to work.
+
+47
+00:02:24,180 --> 00:02:27,420
+It finds a normal developer
+tool buried in his system,
+
+48
+00:02:27,420 --> 00:02:31,740
+a file that's exactly 3,344 bytes.
+
+49
+00:02:31,740 --> 00:02:33,900
+It deletes it and drops in a lookalike
+
+50
+00:02:33,900 --> 00:02:39,660
+that's 3,414 bytes,
+70 bytes of difference.
+
+51
+00:02:39,660 --> 00:02:42,300
+Binance's endpoint security didn't blink.
+
+52
+00:02:42,300 --> 00:02:44,620
+No pop-up, no red flag.
+
+53
+00:02:44,620 --> 00:02:50,180
+And the engineer probably went on with his
+week thinking he just nailed an interview.
+
+54
+00:02:50,180 --> 00:02:53,020
+Now, you might be thinking,
+why go through all that trouble
+
+55
+00:02:53,020 --> 00:02:56,300
+for a guy who doesn't even
+hold the keys to the vault?
+
+56
+00:02:56,300 --> 00:02:57,660
+Because he doesn't need to.
+
+57
+00:02:57,660 --> 00:03:00,380
+He just needs to be inside the building.
+
+58
+00:03:00,380 --> 00:03:04,820
+On October 20th, sitting silently
+inside that second engineer's laptop,
+
+59
+00:03:04,820 --> 00:03:07,380
+the attackers don't
+look for crypto wallets.
+
+60
+00:03:07,380 --> 00:03:09,300
+They look for a bridge.
+
+61
+00:03:09,300 --> 00:03:15,900
+And they find one, right inside Binance's
+own office software, an internal AI tool.
+
+62
+00:03:15,900 --> 00:03:20,940
+Using that AI tool as a springboard, they
+jump sideways onto two other computers.
+
+63
+00:03:20,940 --> 00:03:23,660
+One belongs to another
+wallet software engineer,
+
+64
+00:03:23,660 --> 00:03:26,740
+and the other belongs
+to the exact same guy from June,
+
+65
+00:03:26,740 --> 00:03:30,540
+the one whose laptop Binance thought
+they'd cleaned up months earlier.
+
+66
+00:03:30,540 --> 00:03:34,020
+And sitting right there on his
+machine is a deployment token.
+
+67
+00:03:34,020 --> 00:03:35,820
+Basically, a digital badge that lets you
+
+68
+00:03:35,820 --> 00:03:39,020
+push new software
+on the company infrastructure.
+
+69
+00:03:39,020 --> 00:03:41,020
+Still, nothing moves.
+
+70
+00:03:41,020 --> 00:03:43,500
+They wait another eight days.
+
+71
+00:03:43,500 --> 00:03:45,780
+On October 28th, a brand new wallet
+
+72
+00:03:45,780 --> 00:03:49,420
+quietly pulls three tiny
+withdrawals out of a crypto mixer.
+
+73
+00:03:49,420 --> 00:03:53,340
+Just 0.1 Ether at a time
+to pay for transaction fees.
+
+74
+00:03:53,340 --> 00:03:58,460
+36 hours later,
+on October 29th at 5:15 pm UTC,
+
+75
+00:03:58,460 --> 00:04:01,780
+the attackers log on to that
+third engineer's computer,
+
+76
+00:04:01,780 --> 00:04:03,020
+grab the deployment token.
+
+77
+00:04:03,020 --> 00:04:05,900
+They lift it from the first guy,
+launch a container,
+
+78
+00:04:05,900 --> 00:04:10,060
+and walk straight into the system
+that approves withdrawals.
+
+79
+00:04:10,060 --> 00:04:13,340
+Here's the part that sounds
+crazy until you picture it.
+
+80
+00:04:13,340 --> 00:04:15,900
+They didn't steal the vault's master keys.
+
+81
+00:04:15,900 --> 00:04:19,140
+They walked up to the automated
+teller inside the vault
+
+82
+00:04:19,140 --> 00:04:23,420
+and got it to pre-sign 50 blank
+permission slips on Ethereum.
+
+83
+00:04:23,420 --> 00:04:24,700
+Why 50?
+
+84
+00:04:24,700 --> 00:04:27,060
+Because every account
+has a running counter.
+
+85
+00:04:27,060 --> 00:04:29,060
+And they just needed one of those 50 slips
+
+86
+00:04:29,060 --> 00:04:32,100
+to land on the exact number
+waiting in the queue.
+
+87
+00:04:32,100 --> 00:04:35,140
+At 8:05 pm, they flipped the switch.
+
+88
+00:04:35,140 --> 00:04:38,780
+Funds start leaving Binance
+across 10 blockchains at once.
+
+89
+00:04:38,780 --> 00:04:43,060
+XRP, Bitcoin, Tron, Solana, Ethereum.
+
+90
+00:04:43,060 --> 00:04:45,820
+20 minutes past the hour,
+one of those 50 slips
+
+91
+00:04:45,820 --> 00:04:48,780
+catches on Ethereum,
+turning a main Binance wallet
+
+92
+00:04:48,780 --> 00:04:51,140
+into a self-emptying machine.
+
+93
+00:04:51,140 --> 00:04:53,500
+Three minutes and 24 seconds later,
+
+94
+00:04:53,500 --> 00:04:58,740
+over 167,000 Ether
+and $1.6 billion in Tether
+
+95
+00:04:58,740 --> 00:05:01,540
+disappear in a single sweep.
+
+96
+00:05:01,540 --> 00:05:04,940
+People watching online that night
+couldn't wrap their heads around it.
+
+97
+00:05:04,940 --> 00:05:09,540
+If you try to pull $5,000 out of a regular
+bank, a manager calls your phone.
+
+98
+00:05:09,540 --> 00:05:14,020
+Somehow $6.3 billion just
+walked out in 20 minutes
+
+99
+00:05:14,020 --> 00:05:17,180
+without a single human
+stepping in front of the door.
+
+100
+00:05:17,180 --> 00:05:19,900
+And then, the real race started.
+
+101
+00:05:19,900 --> 00:05:22,620
+Binance froze withdrawals
+and hit the phones.
+
+102
+00:05:22,620 --> 00:05:26,060
+Within hours, Tether,
+Circle, Ripple, and Arbitrum
+
+103
+00:05:26,060 --> 00:05:28,300
+slammed the emergency
+brakes on their networks.
+
+104
+00:05:28,300 --> 00:05:31,980
+Blacklisting wallets and locking
+up roughly $2.7 billion
+
+105
+00:05:31,980 --> 00:05:34,340
+in stablecoins before they could move.
+
+106
+00:05:34,340 --> 00:05:37,820
+Except the attackers weren't sitting
+back watching the scoreboard.
+
+107
+00:05:37,820 --> 00:05:39,620
+They knew the freeze buttons were coming.
+
+108
+00:05:39,620 --> 00:05:43,940
+So they started dumping at-risk Tether
+to market makers as fast as they could.
+
+109
+00:05:43,940 --> 00:05:46,820
+They even shoved $60
+million of stolen Tether
+
+110
+00:05:46,820 --> 00:05:49,940
+into a lending protocol just
+to borrow clean Ether against it.
+
+111
+00:05:49,940 --> 00:05:52,740
+By midnight,
+they pulled off one final wave
+
+112
+00:05:52,740 --> 00:05:55,620
+on Avalanche and Polygon
+before Binance finally
+
+113
+00:05:55,620 --> 00:05:59,020
+cut the access off at 12:10 AM.
+
+114
+00:05:59,020 --> 00:06:02,500
+When the smoke cleared,
+nearly $3 billion was frozen.
+
+115
+00:06:02,500 --> 00:06:03,980
+But the hackers were still holding
+
+116
+00:06:03,980 --> 00:06:09,260
+over 420,000 Ether and 18,200 Bitcoin.
+
+117
+00:06:09,260 --> 00:06:14,540
+Roughly $2.4 billion in raw
+assets that no CEO, no bank,
+
+118
+00:06:14,540 --> 00:06:18,020
+and no government can freeze
+with the click of a button.
+
+119
+00:06:18,020 --> 00:06:21,260
+Two days later, Binance
+turned withdrawals back on,
+
+120
+00:06:21,260 --> 00:06:26,060
+processed $4.6 billion of customer
+cash-outs in a single day.
+
+121
+00:06:26,060 --> 00:06:31,580
+And by November 12, announced it had
+plugged the entire $6.3 billion hole out
+
+122
+00:06:31,580 --> 00:06:34,820
+of its own emergency funds
+and corporate treasury.
+
+123
+00:06:34,820 --> 00:06:37,460
+That same morning, the FBI
+and the Justice Department
+
+124
+00:06:37,460 --> 00:06:41,620
+got a court order to seize
+1.2 billion of the frozen pile
+
+125
+00:06:41,620 --> 00:06:43,900
+and publicly pinned the whole operation
+
+126
+00:06:43,900 --> 00:06:48,460
+on North Korea's TraderTraitor
+unit, almost four times bigger
+
+127
+00:06:48,460 --> 00:06:51,220
+than the Bybit heist just a year earlier.
+
+128
+00:06:51,220 --> 00:06:57,660
+So users got paid back,
+withdrawals work, case closed, right?
+
+129
+00:06:57,660 --> 00:06:58,820
+Not quite.
+
+130
+00:06:58,820 --> 00:07:02,420
+Because if you look closely at what
+happened after the headlines faded,
+
+131
+00:07:02,420 --> 00:07:05,740
+there's an elephant sitting
+right in the middle of the room.
+
+132
+00:07:05,740 --> 00:07:11,220
+On October 30, Binance promised deeper
+technical answers within 48 hours.
+
+133
+00:07:11,220 --> 00:07:15,140
+Weeks later, that full technical
+breakdown still hasn't dropped.
+
+134
+00:07:15,140 --> 00:07:18,620
+To this day, Binance still hasn't
+said which internal AI tool
+
+135
+00:07:18,620 --> 00:07:22,260
+let an attacker bounce across
+three engineers' laptops.
+
+136
+00:07:22,260 --> 00:07:25,340
+They still haven't explained how
+a single compromised container
+
+137
+00:07:25,340 --> 00:07:29,020
+got an internal signing system
+to approve 50 blank checks
+
+138
+00:07:29,020 --> 00:07:32,380
+with zero rate limits or human sign-off.
+
+139
+00:07:32,380 --> 00:07:35,260
+And buried inside Binance's own report
+
+140
+00:07:35,260 --> 00:07:40,100
+was one line that should make anyone
+working in tech pause for a second.
+
+141
+00:07:40,100 --> 00:07:42,900
+They admitted that in 2026 alone,
+
+142
+00:07:42,900 --> 00:07:46,500
+they caught 57 other attempts
+just like this one.
+
+143
+00:07:46,500 --> 00:07:52,100
+Fake interviews, poison tools, malicious
+downloads, targeting their engineers.
+
+144
+00:07:52,100 --> 00:07:54,060
+They stopped 57 of them.
+
+145
+00:07:54,060 --> 00:07:58,300
+It only took one 70-byte
+file to make it through.
